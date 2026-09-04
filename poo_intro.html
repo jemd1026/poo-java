@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Guía interactiva de Java y programación orientada a objetos para principiantes.">
+  <title>Java en práctica | Guía POO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&family=Source+Code+Pro:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+.hero:not(.active-panel){display:none}.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.type-card{background:#fff;border:1px solid var(--line);padding:20px 18px;border-radius:4px 16px 16px 16px;display:flex;flex-direction:column;gap:9px}.type-symbol{display:grid;place-items:center;width:42px;height:42px;margin-bottom:4px;background:#e4f0e9;color:var(--green);font:600 13px 'Source Code Pro';border-radius:50%}.type-card strong{display:block;font:600 18px 'Space Grotesk'}.type-card p{margin:0;color:var(--muted);font-size:12px}.type-card code{display:block;margin-top:4px;color:var(--orange);font:500 11px 'Source Code Pro';white-space:nowrap}.declaration-strip{display:flex;align-items:center;gap:30px;margin-top:22px;padding:20px 25px;background:var(--night);color:#d9e8df;border-radius:4px 18px 18px 18px}.declaration-code{font:600 22px 'Source Code Pro';white-space:nowrap}.type-word{color:#f29a70}.variable-word{color:#78c5d4}.value-word{color:#f5cd62}.declaration-strip p{margin:8px 0 0;color:#b4cbc0;font-size:13px;line-height:1.5;max-width:480px}.operator-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.operator-card{background:#fff;border:1px solid var(--line);border-radius:4px 18px 18px 18px;overflow:hidden}.operator-title{padding:15px;text-align:center;color:#fff;font:600 16px 'Space Grotesk'}.arithmetic{background:var(--orange)}.relational{background:var(--green)}.logical{background:#d29b35}.operator-list{display:flex;flex-wrap:wrap;gap:9px;padding:22px 20px 10px}.operator-list span{background:#edf4ef;color:var(--ink);min-width:38px;padding:8px;text-align:center;font:600 14px 'Source Code Pro'}.operator-card p{padding:0 20px 20px;color:var(--muted);font-size:13px;line-height:1.45}.operator-example{margin-top:22px}
+:root{--ink:#18252b;--muted:#657278;--paper:#f7f7f2;--white:#fff;--line:#dfe5e1;--mint:#b9e9d3;--green:#16745a;--orange:#ef714c;--yellow:#f5cd62;--night:#102c35;--code:#172a31;--shadow:0 24px 60px rgba(24,37,43,.12)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:16px}button,select{font:inherit}.topbar{height:76px;background:rgba(247,247,242,.93);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 4vw;position:sticky;top:0;z-index:5;backdrop-filter:blur(14px)}.brand{color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:11px;font-size:15px}.brand strong{font-family:'Space Grotesk';font-size:17px}.brand-mark{display:grid;place-items:center;background:var(--orange);color:white;font-family:'Space Grotesk';font-weight:700;font-size:22px;width:38px;height:38px;border-radius:12px 12px 12px 3px}.topbar-actions{display:flex;align-items:center;gap:20px}.progress-label{font-size:13px;color:var(--muted)}.progress-label span{color:var(--green);font-weight:700}.icon-button,.menu-button{border:0;background:none;color:var(--ink);cursor:pointer;font-size:21px}.menu-button{display:none}.app-shell{display:grid;grid-template-columns:260px 1fr;max-width:1480px;margin:auto;min-height:calc(100vh - 76px)}.sidebar{border-right:1px solid var(--line);padding:42px 26px;display:flex;flex-direction:column}.course-card{background:var(--night);color:white;padding:22px 20px;border-radius:4px 22px 22px 22px;margin-bottom:38px}.course-card h2{font:600 22px 'Space Grotesk';margin:10px 0 6px}.course-card p{font-size:13px;line-height:1.5;color:#bbd0d0;margin:0 0 21px}.eyebrow,.card-kicker{font-size:10px;letter-spacing:1.5px;font-weight:700;color:#9db0ae}.accent{color:var(--green)}.progress-track{height:5px;background:#37535a;border-radius:8px}.progress-track span{display:block;height:100%;width:0;background:var(--yellow);border-radius:8px;transition:width .4s}.nav-title{font-size:11px;color:#9aa6a7;text-transform:uppercase;letter-spacing:1.5px;margin:0 0 12px}.lesson-link{width:100%;border:0;background:none;display:flex;gap:13px;align-items:center;text-align:left;padding:12px 9px;color:#647174;cursor:pointer;border-radius:8px;margin:2px 0;font-size:14px}.lesson-link span{font:600 11px 'Space Grotesk';color:#a7b0ae}.lesson-link.active,.lesson-link:hover{background:#e7eee9;color:var(--ink);font-weight:700}.lesson-link.active span{color:var(--orange)}.sidebar-note{margin-top:auto;border-top:1px solid var(--line);padding-top:20px;display:flex;gap:10px;color:#6f7c7c;font-size:12px;line-height:1.45}.sidebar-note p{margin:0}.sidebar-note strong{color:var(--ink)}.note-icon{color:var(--orange);font-size:20px}.main-content{padding:0 6vw 40px;max-width:1100px;width:100%;margin:auto}.lesson-panel{display:none;min-height:calc(100vh - 170px);padding:80px 0 30px;animation:rise .5s ease both}.lesson-panel.active-panel{display:block}.hero{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:55px;padding-top:62px}.hero h1{font:600 clamp(44px,5vw,70px)/.98 'Space Grotesk';letter-spacing:-2px;margin:18px 0 25px}.hero h1 em{font-style:normal;color:var(--orange)}.hero-lead{color:var(--muted);font-size:17px;line-height:1.7;max-width:480px}.hero-actions{display:flex;align-items:center;gap:20px;margin-top:34px}.primary-button{border:0;background:var(--orange);color:white;border-radius:5px 18px 18px 18px;padding:14px 19px;font-weight:700;cursor:pointer;box-shadow:0 8px 18px rgba(239,113,76,.2);transition:transform .2s,background .2s}.primary-button:hover{transform:translateY(-2px);background:#da5e3b}.primary-button span{margin-left:16px;font-size:19px}.time-estimate{font-size:12px;color:var(--muted)}.hero-visual{background:var(--mint);min-height:455px;border-radius:50% 6px 50% 50%;position:relative;display:grid;place-items:center;overflow:hidden}.code-window{width:82%;background:var(--code);border-radius:9px;box-shadow:var(--shadow);transform:rotate(-4deg);color:#c5dbd2;z-index:1}.window-bar{height:38px;background:#243c42;border-radius:9px 9px 0 0;display:flex;align-items:center;gap:6px;padding:0 15px;color:#9bb0ad;font-size:10px}.window-bar i{width:7px;height:7px;background:#e8785c;border-radius:50%}.window-bar i:nth-child(2){background:#f2cb63}.window-bar i:nth-child(3){background:#76bd93}.window-bar span{margin-left:12px}.code-window pre{font:500 13px/1.8 'Source Code Pro';padding:24px 22px;margin:0}.code-window b{color:#e58b6a}.code-window mark{background:none;color:#f4ce64}.cursor{display:block;width:7px;height:16px;background:#f4ce64;position:absolute;bottom:20px;right:34px;animation:blink 1s infinite}.orbit{position:absolute;border:1px solid rgba(22,116,90,.3);border-radius:50%;width:390px;height:170px;transform:rotate(42deg)}.orbit-two{transform:rotate(-35deg);width:310px;height:140px}.floating-tag{position:absolute;background:white;color:var(--green);font:600 11px 'Source Code Pro';padding:8px 12px;border-radius:20px;box-shadow:0 7px 20px rgba(22,116,90,.15)}.tag-one{top:17%;right:6%}.tag-two{bottom:17%;left:7%}.tag-three{bottom:7%;right:20%;background:var(--night);color:#d5eadf}.section-heading{display:flex;gap:20px;align-items:flex-start}.lesson-number{color:var(--orange);font:600 15px 'Source Code Pro';padding-top:6px}.section-heading h2,.final-panel h2{font:600 clamp(34px,4vw,53px)/1.05 'Space Grotesk';letter-spacing:-1.5px;margin:15px 0}.intro-copy{color:var(--muted);font-size:17px;line-height:1.65;max-width:690px;margin:0 0 38px}.lesson-grid,.decision-layout{display:grid;grid-template-columns:1fr 1fr;gap:22px}.concept-card,.mini-grid article{background:#e4f0e9;border-radius:4px 20px 20px 20px;padding:30px}.card-kicker{color:var(--green)}.formula{font:600 22px 'Source Code Pro';margin:30px 0 22px}.type-chip{background:var(--green);color:white;padding:6px 8px;border-radius:3px;font-size:16px}.formula mark,.code-card mark{background:none;color:var(--orange)}.concept-card p,.mini-grid p{color:#60706e;line-height:1.6;font-size:14px}.code-card{background:var(--code);color:#c9d8d2;border-radius:4px 20px 20px 20px;overflow:hidden}.card-header{display:flex;justify-content:space-between;align-items:center;padding:15px 21px;border-bottom:1px solid #30464a;color:#9fb5ad;font:11px 'Source Code Pro'}.copy-button{border:1px solid #51736d;color:#b7d6c6;background:none;border-radius:4px;padding:5px 8px;font:10px 'Source Code Pro';cursor:pointer}.code-card pre{font:500 14px/1.8 'Source Code Pro';padding:20px 24px;margin:0;overflow:auto}.code-card b{color:#ef9470}.code-card .blue{color:#78c5d4}.code-card .green{color:#99db9b}.quiz{margin-top:27px;padding:22px 25px;border:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:20px;border-radius:4px 18px 18px 18px;background:white}.quiz h3{font:600 17px 'Space Grotesk';margin:8px 0 0}.quiz-label{font-size:10px;color:var(--orange);letter-spacing:1px;font-weight:700}.quiz-options{display:flex;gap:7px}.quiz-options button{border:1px solid var(--line);background:white;padding:10px 13px;border-radius:5px;color:var(--muted);cursor:pointer}.quiz-options button:hover,.quiz-options button.selected{border-color:var(--green);color:var(--green);background:#ecf8f1}.feedback{font-size:12px;margin:0;color:var(--green);min-width:120px}.decision-layout{align-items:center}.flowchart{background:#fff;border:1px solid var(--line);padding:25px;min-height:330px;display:flex;align-items:center;flex-direction:column;position:relative;border-radius:4px 20px 20px 20px}.flow-node{padding:14px 25px;border-radius:9px;text-align:center;font-weight:700;font-size:13px}.start{background:var(--night);color:white;border-radius:22px}.flow-line{height:28px;border-left:2px solid var(--orange)}.diamond{transform:rotate(45deg);background:var(--yellow);padding:27px 20px;border-radius:4px}.diamond::first-line{transform:rotate(-45deg)}.flow-branches{width:100%;display:flex;justify-content:space-around;margin:30px 0 10px;color:var(--green);font-weight:700;font-size:12px}.flow-results{display:flex;gap:35px}.success,.fail{border:1px solid #a8d7bd;color:var(--green);background:#edf9f0}.fail{border-color:#f0c5a8;color:#bc5c3b;background:#fff3ed}.tall{min-height:280px}.tip-strip{display:flex;gap:15px;align-items:center;margin-top:25px;background:#fff8df;padding:15px 20px;border-left:4px solid var(--yellow);font-size:13px;color:#6d6855}.tip-strip span{font-size:25px;color:#d99f17}.tip-strip p{margin:0}.tip-strip code{font:600 12px 'Source Code Pro'}.loop-demo{background:var(--night);color:white;padding:28px;display:flex;align-items:center;gap:30px;border-radius:4px 20px 20px 20px;margin-bottom:25px}.loop-counter{display:flex;flex-direction:column;min-width:100px}.loop-counter span,.loop-counter small{color:#9bb9af;font-size:11px}.loop-counter strong{font:600 48px 'Space Grotesk';color:var(--yellow)}.loop-track{flex:1}.loop-track>span{display:block;height:6px;width:0;background:var(--yellow);transition:width .35s;border-radius:5px}.loop-dots{display:flex;justify-content:space-between;margin-top:12px}.loop-dots i{width:12px;height:12px;border:2px solid #658379;border-radius:50%}.loop-dots i.done{background:var(--yellow);border-color:var(--yellow)}.array-visual{padding:25px 30px;background:#fff;border:1px solid var(--line);border-radius:4px 20px 20px 20px}.array-label{text-align:center;color:var(--muted);font-size:11px;margin-bottom:12px}.array-indexes,.array-values{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;text-align:center}.array-indexes{color:var(--muted);font:12px 'Source Code Pro';margin-bottom:5px}.array-values button{border:0;background:var(--night);color:var(--yellow);padding:19px 5px;font:600 20px 'Source Code Pro';cursor:pointer}.array-values button:hover,.array-values button.selected{background:var(--orange);color:white}.array-visual p{color:var(--muted);font-size:12px;margin:17px 0 0;text-align:center}.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}.mini-grid article{background:#edf5ef}.mini-grid code{display:block;font:500 13px 'Source Code Pro';color:var(--green);margin:14px 0}.final-panel{max-width:780px}.final-panel>p{color:var(--muted);font-size:17px;line-height:1.6}.salary-rules{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:32px 0}.salary-rules div{padding:18px 15px;background:#fff;border-top:3px solid var(--orange);display:flex;flex-direction:column;gap:7px}.salary-rules b{color:var(--orange);font:12px 'Source Code Pro'}.salary-rules span{font-weight:700}.salary-rules strong{font-size:12px;color:var(--muted)}.salary-form{display:flex;align-items:end;gap:12px}.salary-form label{display:flex;flex-direction:column;gap:7px;color:var(--muted);font-size:12px;flex:1}.salary-form select{padding:13px;border:1px solid var(--line);background:white;color:var(--ink);border-radius:4px}.salary-result{min-height:28px;color:var(--green);font-weight:700;margin-top:20px}.lesson-footer{border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding-top:25px;color:var(--muted);font-size:12px}.text-button{border:0;background:none;color:var(--muted);cursor:pointer}.text-button:disabled{opacity:.3;cursor:default}@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@keyframes blink{50%{opacity:0}}body.dark{--paper:#112126;--ink:#ecf5ef;--muted:#a9bbb5;--white:#1a3035;--line:#2b4448}body.dark .topbar{background:rgba(17,33,38,.93)}body.dark .lesson-link.active,body.dark .lesson-link:hover{background:#20393c}body.dark .quiz,body.dark .array-visual,body.dark .salary-rules div{background:#1a3035}body.dark .quiz-options button,body.dark .salary-form select{background:#20393c;color:var(--ink)}body.dark .concept-card,body.dark .mini-grid article{background:#1a3a38}@media(max-width:900px){.app-shell{grid-template-columns:1fr}.sidebar{position:fixed;z-index:4;top:76px;bottom:0;left:-280px;width:270px;background:var(--paper);transition:left .3s;box-shadow:var(--shadow)}.sidebar.open{left:0}.menu-button{display:block}.hero{grid-template-columns:1fr;gap:30px}.hero-visual{min-height:360px}.lesson-panel{padding-top:50px}.main-content{padding:0 6vw 30px}.quiz{align-items:flex-start;flex-direction:column}.quiz-options{width:100%}.quiz-options button{flex:1}.loop-demo{flex-wrap:wrap}.loop-track{min-width:60%}}@media(max-width:600px){.topbar{padding:0 5vw}.progress-label{display:none}.hero h1{font-size:47px}.hero-actions{align-items:flex-start;flex-direction:column}.hero-visual{min-height:320px;border-radius:20px}.code-window pre{font-size:10px}.section-heading h2{font-size:36px}.lesson-grid,.decision-layout,.mini-grid{grid-template-columns:1fr}.salary-rules{grid-template-columns:1fr}.salary-form{align-items:stretch;flex-direction:column}.flowchart{min-height:330px}.flow-results{gap:12px}.flow-node{padding-left:14px;padding-right:14px}.loop-demo{gap:16px}.loop-demo .primary-button{width:100%}.array-visual{padding:20px 10px}.array-values button{font-size:16px;padding:16px 3px}}
+
+  </style>
+  <style>
+    .loop-examples {
+      display: grid;
+      gap: 24px
+    }
+
+    .switch-demo {
+      display: flex;
+      align-items: end;
+      gap: 16px;
+      padding: 24px;
+      background: #e4f0e9;
+      border-radius: 4px 20px 20px 20px;
+      margin-bottom: 22px
+    }
+
+    .switch-demo label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px
+    }
+
+    .switch-demo select {
+      padding: 12px 16px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--ink)
+    }
+
+    .switch-demo p {
+      margin: 0;
+      color: var(--green);
+      font-weight: 700
+    }
+
+    .switch-code {
+      max-width: 720px
+    }
+
+    .exercise-box {
+      background: #fff8df;
+      border-left: 4px solid var(--yellow);
+      padding: 24px;
+      margin-bottom: 22px;
+    }
+
+    .exercise-box h3 {
+      font: 600 22px 'Space Grotesk';
+      margin: 10px 0 20px;
+    }
+
+    .exercise-box .salary-rules {
+      margin: 0;
+    }
+
+    .solution-card {
+      max-width: 780px;
+    }
+
+    .example-form {
+      margin-top: 22px;
+    }
+
+    .example-form label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      max-width: 360px;
+    }
+
+    .example-form select {
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 4px;
+    }
+
+    .vector-visual,
+    .matrix-visual {
+      background: #fff;
+      border: 1px solid var(--line);
+      padding: 24px;
+      border-radius: 4px 20px 20px 20px;
+      margin-bottom: 22px
+    }
+
+    .vector-indexes,
+    .vector-values {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      text-align: center
+    }
+
+    .vector-indexes {
+      color: var(--muted);
+      font: 12px 'Source Code Pro';
+      margin: 16px 0 6px
+    }
+
+    .vector-values button,
+    .matrix-grid button {
+      border: 0;
+      background: var(--night);
+      color: var(--yellow);
+      padding: 16px 8px;
+      font: 600 18px 'Source Code Pro';
+      cursor: pointer
+    }
+
+    .vector-values button:hover,
+    .vector-values button.selected,
+    .matrix-grid button:hover,
+    .matrix-grid button.selected {
+      background: var(--orange);
+      color: #fff
+    }
+
+    .vector-visual p,
+    .matrix-visual p {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      margin: 16px 0 0
+    }
+
+    .matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-top: 16px
+    }
+
+    .matrix-grid button {
+      padding: 15px 8px
+    }
+
+    .count-demo {
+      display: flex;
+      align-items: end;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+      padding: 22px;
+      background: #e4f0e9;
+      border-radius: 4px 20px 20px 20px
+    }
+
+    .count-demo label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      flex: 1;
+      min-width: 260px
+    }
+
+    .count-demo input {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--ink)
+    }
+
+    .count-demo p {
+      width: 100%;
+      margin: 0;
+      color: var(--green);
+      font-weight: 700
+    }
+
+    .ternary-formula {
+      margin-bottom: 22px;
+      padding: 22px 25px;
+      background: var(--night);
+      color: #d9e8df;
+      font: 600 16px 'Source Code Pro';
+      border-radius: 4px 18px 18px 18px
+    }
+
+    .ternary-formula strong {
+      color: var(--yellow);
+      font-size: 22px
+    }
+
+    .ternary-demo {
+      display: flex;
+      align-items: end;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+      padding: 22px;
+      background: #e4f0e9;
+      border-radius: 4px 20px 20px 20px
+    }
+
+    .ternary-demo label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px
+    }
+
+    .ternary-demo input {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--ink)
+    }
+
+    .ternary-demo p {
+      margin: 0;
+      color: var(--green);
+      font-weight: 700
+    }
+
+    .code-access {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-left: auto;
+      margin-right: 10px;
+      color: #9fb5ad;
+      font: 10px 'Source Code Pro';
+      cursor: pointer
+    }
+
+    .code-access-toggle {
+      appearance: none;
+      width: 30px;
+      height: 16px;
+      margin: 0;
+      border: 1px solid #51736d;
+      border-radius: 12px;
+      background: #243c42;
+      position: relative;
+      cursor: pointer;
+      transition: background .2s
+    }
+
+    .code-access-toggle::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      border-radius: 50%;
+      background: #9fb5ad;
+      transition: transform .2s, background .2s
+    }
+
+    .code-access-toggle:checked {
+      background: var(--green)
+    }
+
+    .code-access-toggle:checked::before {
+      transform: translateX(14px);
+      background: var(--yellow)
+    }
+
+    .code-card code {
+      user-select: none;
+      cursor: default
+    }
+
+    .code-card.code-editable code {
+      user-select: text;
+      cursor: text
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#inicio" aria-label="Java en práctica, inicio">
+      <span class="brand-mark">J</span>
+      <span><strong>Java</strong> en práctica</span>
+    </a>
+    <div class="topbar-actions">
+      <span class="progress-label"><span id="progressText">0%</span> completado</span>
+      <button class="icon-button" id="themeToggle" type="button" aria-label="Cambiar tema">◐</button>
+      <button class="menu-button" id="menuToggle" type="button" aria-label="Abrir menú">☰</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="course-card">
+        <span class="eyebrow">RUTA DE APRENDIZAJE</span>
+        <h2>Java esencial</h2>
+        <p>De tus primeras variables a tu primer programa con objetos.</p>
+        <div class="progress-track"><span id="progressBar"></span></div>
+      </div>
+      <nav aria-label="Lecciones">
+        <p class="nav-title">Contenido</p>
+        <button class="lesson-link active" data-lesson="0"><span>01</span> El mapa de Java</button>
+        <button class="lesson-link" data-lesson="1"><span>02</span> Tipos de datos</button>
+        <button class="lesson-link" data-lesson="2"><span>03</span> Variables y datos</button>
+        <button class="lesson-link" data-lesson="3"><span>04</span> Operadores</button>
+        <button class="lesson-link" data-lesson="4"><span>05</span> Decisiones</button>
+        <button class="lesson-link" data-lesson="5"><span>06</span> Estructura switch</button>
+        <button class="lesson-link" data-lesson="6"><span>07</span> Repeticiones</button>
+        <button class="lesson-link" data-lesson="7"><span>08</span> Ejemplo 1</button>
+        <button class="lesson-link" data-lesson="8"><span>09</span> Arrays y matrices</button>
+        <button class="lesson-link" data-lesson="9"><span>10</span> Ejemplo 2: Vectores</button>
+        <button class="lesson-link" data-lesson="10"><span>11</span> Ejemplo 3: Matrices</button>
+        <button class="lesson-link" data-lesson="11"><span>12</span> Ejemplo 4: contar doses</button>
+        <button class="lesson-link" data-lesson="12"><span>13</span> Operador ternario</button>
+        <button class="lesson-link" data-lesson="13"><span>14</span> Desafío final</button>
+      </nav>
+      <div class="sidebar-note"><span class="note-icon">✦</span>
+        <p><strong>Idea clave</strong><br>Aprender a programar es convertir preguntas en pasos pequeños.</p>
+      </div>
+    </aside>
+
+    <main class="main-content" id="inicio">
+      <section class="hero lesson-panel active-panel" data-panel="0">
+        <div class="hero-copy">
+          <span class="eyebrow accent">POO · NIVEL INICIAL</span>
+          <h1>Piensa en código.<br><em>Construye con Java.</em></h1>
+          <p class="hero-lead">Una guía visual para entender la lógica que hay detrás de tus primeros programas, sin saltos y con ejemplos que puedes probar.</p>
+          <div class="hero-actions"><button class="primary-button next-button" type="button">Comenzar ruta <span>→</span></button><span class="time-estimate">◷ 14 lecciones · 60 min</span></div>
+        </div>
+        <div class="hero-visual" aria-label="Ilustración de código Java">
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <div class="code-window">
+            <div class="window-bar"><i></i><i></i><i></i><span>HolaJava.java</span></div>
+            <pre><code><b>public class</b> HolaJava {
+
+                <b>public static void</b> main(String[] args) {
+                System.out.println(
+                <mark>"Hola, futuro developer"</mark>);
+                }
+                }</code></pre>
+            <span class="cursor"></span>
+          </div>
+          <span class="floating-tag tag-one">objetos</span><span class="floating-tag tag-two">lógica</span><span class="floating-tag tag-three">método main</span>
+        </div>
+      </section>
+
+      <section class="lesson-panel" data-panel="1">
+        <div class="section-heading"><span class="lesson-number">02</span>
+          <div><span class="eyebrow accent">PRIMERA HERRAMIENTA</span>
+            <h2>Conoce el tipo de cada dato.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">El tipo de dato le dice a Java qué clase de información guardas y qué operaciones puede realizar con ella.</p>
+        <div class="type-grid">
+          <article class="type-card"><span class="type-symbol">123</span><strong>int</strong>
+            <p>Números enteros</p><code>int edad = 20;</code>
+          </article>
+          <article class="type-card"><span class="type-symbol">.5</span><strong>double</strong>
+            <p>Números decimales</p><code>double nota = 8.5;</code>
+          </article>
+          <article class="type-card"><span class="type-symbol">T</span><strong>char</strong>
+            <p>Un carácter</p><code>char inicial = 'M';</code>
+          </article>
+          <article class="type-card"><span class="type-symbol">ab</span><strong>String</strong>
+            <p>Texto</p><code>String nombre = "Mara";</code>
+          </article>
+          <article class="type-card"><span class="type-symbol">✓</span><strong>boolean</strong>
+            <p>Verdadero o falso</p><code>boolean activo = true;</code>
+          </article>
+          <article class="type-card"><span class="type-symbol">∞</span><strong>long</strong>
+            <p>Enteros grandes</p><code>long distancia = 123456789L;</code>
+          </article>
+        </div>
+        <div class="declaration-strip">
+          <div class="declaration-code"><span class="type-word">int</span> <span class="variable-word">numero</span> <span class="value-word">= 5;</span></div>
+          <div><span class="card-kicker">DECLARACIÓN</span>
+            <p>Primero escribes el tipo, luego el nombre de la variable y finalmente asignas su valor.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="lesson-panel" data-panel="2">
+        <div class="section-heading"><span class="lesson-number">03</span>
+          <div><span class="eyebrow accent">BASES DEL LENGUAJE</span>
+            <h2>Guarda ideas dentro de variables.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">Una variable tiene un tipo, un nombre y un valor. Java usa esa información para saber qué puede hacer con cada dato.</p>
+        <div class="lesson-grid two-columns">
+          <article class="concept-card"><span class="card-kicker">LA FÓRMULA</span>
+            <div class="formula"><span class="type-chip">String</span> <strong>nombre</strong> <span>=</span> <mark>"Mara"</mark><span>;</span></div>
+            <p><b>Tipo</b> define la clase de dato. <b>Nombre</b> te permite encontrarlo. <b>Valor</b> es la información guardada.</p>
+          </article>
+          <article class="code-card">
+            <div class="card-header"><span>Variables.java</span><button class="copy-button" type="button">Copiar</button></div>
+            <pre><code><b>int</b> edad = 20;
+                <b>double</b> promedio = 8.5;
+                <b>boolean</b> aprobado = <span class="blue">true</span>;
+                <b>char</b> inicial = <span class="green">'M'</span>;</code></pre>
+          </article>
+        </div>
+        <div class="quiz" data-answer="String">
+          <div><span class="quiz-label">PON A PRUEBA TU IDEA</span>
+            <h3>¿Qué tipo usarías para guardar el nombre de un estudiante?</h3>
+          </div>
+          <div class="quiz-options"><button type="button">int</button><button type="button">String</button><button type="button">boolean</button></div>
+          <p class="feedback" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="lesson-panel" data-panel="3">
+        <div class="section-heading"><span class="lesson-number">04</span>
+          <div><span class="eyebrow accent">HERRAMIENTAS PARA OPERAR</span>
+            <h2>Los operadores conectan tus ideas.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">Un operador indica qué operación debe realizar Java. Con ellos puedes calcular, comparar valores y combinar condiciones.</p>
+        <div class="operator-grid">
+          <article class="operator-card">
+            <div class="operator-title arithmetic">Aritméticos</div>
+            <div class="operator-list"><span>+</span><span>-</span><span>*</span><span>/</span><span>%</span></div>
+            <p>Calculan resultados con números.</p>
+          </article>
+          <article class="operator-card">
+            <div class="operator-title relational">Relacionales</div>
+            <div class="operator-list"><span>==</span><span>!=</span><span>&gt;</span><span>&lt;</span><span>&gt;=</span><span>&lt;=</span></div>
+            <p>Comparan dos valores y devuelven true o false.</p>
+          </article>
+          <article class="operator-card">
+            <div class="operator-title logical">Lógicos</div>
+            <div class="operator-list"><span>&amp;&amp;</span><span>||</span><span>!</span></div>
+            <p>Combinan o niegan condiciones.</p>
+          </article>
+        </div>
+        <div class="code-card operator-example">
+          <div class="card-header"><span>Calculo.java</span><button class="copy-button" type="button">Copiar</button></div>
+          <pre><code><b>int</b> total = 4 + 6;
+              <b>boolean</b> esMayor = total &gt; 5;
+              System.out.println(esMayor); <span class="blue">// true</span></code></pre>
+        </div>
+      </section>
+
+      <section class="lesson-panel" data-panel="4">
+        <div class="section-heading"><span class="lesson-number">05</span>
+          <div><span class="eyebrow accent">TOMA DE DECISIONES</span>
+            <h2>Haz que tu programa elija.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">Las condiciones convierten una regla en comportamiento: si algo es verdadero, ocurre una acción; si no, ocurre otra.</p>
+        <div class="decision-layout">
+          <div class="flowchart">
+            <div class="flow-node start">inicio</div>
+            <div class="flow-line"></div>
+            <div class="flow-node diamond">¿promedio ≥ 6?</div>
+            <div class="flow-branches"><span>sí</span><span>no</span></div>
+            <div class="flow-results">
+              <div class="flow-node success">Aprobado</div>
+              <div class="flow-node fail">A practicar</div>
+            </div>
+          </div>
+          <div class="code-card tall">
+            <div class="card-header"><span>Resultado.java</span><button class="copy-button" type="button">Copiar</button></div>
+            <pre><code><b>double</b> promedio = 7.5;
+
+                <b>if</b> (promedio &gt;= 6) {
+                System.out.println(<mark>"Aprobado"</mark>);
+                } <b>else</b> {
+                System.out.println(<mark>"A practicar"</mark>);
+                }</code></pre>
+          </div>
+        </div>
+        <div class="tip-strip"><span>⌁</span>
+          <p><strong>Recuerda:</strong> en Java la comparación se escribe con <code>==</code>, mientras que <code>=</code> sirve para asignar un valor.</p>
+        </div>
+      </section>
+
+      <section class="lesson-panel" data-panel="5">
+        <div class="section-heading"><span class="lesson-number">06</span>
+          <div><span class="eyebrow accent">SELECCIÓN DE OPCIONES</span>
+            <h2>Elige un camino con switch.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">La estructura <code>switch</code> permite comparar una expresión con varios valores posibles. Es muy útil para seleccionar un día de la semana.</p>
+        <div class="switch-demo">
+          <label for="daySelect">Selecciona un día</label>
+          <select id="daySelect">
+            <option value="1">1 · Lunes</option>
+            <option value="2">2 · Martes</option>
+            <option value="3">3 · Miércoles</option>
+            <option value="4">4 · Jueves</option>
+            <option value="5">5 · Viernes</option>
+            <option value="6">6 · Sábado</option>
+            <option value="7">7 · Domingo</option>
+          </select>
+          <p id="dayResult">Elegiste: Lunes</p>
+        </div>
+        <div class="code-card switch-code">
+          <div class="card-header"><span>DiasSemana.java</span><button class="copy-button" type="button">Copiar</button></div>
+          <pre><code><b>int</b> dia = 3;
+              <b>String</b> nombreDia;
+
+              <b>switch</b> (dia) {
+              <b>case</b> 1: nombreDia = <mark>"Lunes"</mark>; <b>break</b>;
+              <b>case</b> 2: nombreDia = <mark>"Martes"</mark>; <b>break</b>;
+              <b>case</b> 3: nombreDia = <mark>"Miércoles"</mark>; <b>break</b>;
+              <b>default</b>: nombreDia = <mark>"Día inválido"</mark>;
+              }</code></pre>
+        </div>
+      </section>
+
+      <section class="lesson-panel" data-panel="6">
+        <div class="section-heading"><span class="lesson-number">07</span>
+          <div><span class="eyebrow accent">ESTRUCTURAS REPETITIVAS</span>
+            <h2>Repite sin copiar y pegar.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">Un bucle ejecuta el mismo bloque varias veces. El contador cambia y la condición decide cuándo detenerse.</p>
+        <div class="loop-demo">
+          <div class="loop-counter"><span>contador</span><strong id="counterValue">0</strong><small>de 5 vueltas</small></div>
+          <div class="loop-track"><span id="loopFill"></span>
+            <div class="loop-dots"><i></i><i></i><i></i><i></i><i></i></div>
+          </div><button class="primary-button" id="runLoop" type="button">Ejecutar bucle <span>▶</span></button>
+        </div>
+        <div class="loop-examples">
+          <div class="code-card">
+            <div class="card-header"><span>Con while · Vueltas.java</span><button class="copy-button" type="button">Copiar</button></div>
+            <pre><code><b>int</b> vuelta = 1;
+
+                <b>while</b> (vuelta &lt;= 5) {
+                System.out.println(<mark>"Vuelta "</mark> + vuelta);
+                vuelta++;
+                }</code></pre>
+          </div>
+          <div class="code-card">
+            <div class="card-header"><span>Con for · Vueltas.java</span><button class="copy-button" type="button">Copiar</button></div>
+            <pre><code><b>for</b> (<b>int</b> vuelta = 1; vuelta &lt;= 5; vuelta++) {
+                System.out.println(<mark>"Vuelta "</mark> + vuelta);
+                }</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="lesson-panel example-panel" data-panel="7">
+        <div class="section-heading"><span class="lesson-number">08</span>
+          <div><span class="eyebrow accent">EJERCICIO APLICADO · PERÚ</span>
+            <h2>Ejemplo 1: sueldos por categoría.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">Una pequeña bodega peruana necesita calcular el sueldo de sus empleados según el puesto elegido. Trabajaremos con soles y tres categorías.</p>
+        <div class="exercise-box"><span class="card-kicker">EL PROBLEMA</span>
+          <h3>Calcula y muestra el sueldo correspondiente.</h3>
+          <div class="salary-rules">
+            <div><b>01</b><span>Reponedor</span><strong>S/ 1,589 + bono del 10%</strong></div>
+            <div><b>02</b><span>Cajero</span><strong>S/ 2,563.09 fijo</strong></div>
+            <div><b>03</b><span>Supervisor</span><strong>S/ 3,556.20 - 11%</strong></div>
+          </div>
+        </div>
+        <div class="code-card solution-card">
+          <div class="card-header"><span>SueldosPeru.java · SOLUCIÓN</span><button class="copy-button" type="button">Copiar</button></div>
+          <pre><code><b>import</b> java.util.Scanner;
+
+              <b>Scanner</b> teclado = <b>new</b> Scanner(System.in);
+              System.out.print(<mark>"Categoría (1, 2 o 3): "</mark>);
+              <b>int</b> categoria = teclado.nextInt();
+              <b>double</b> sueldo;
+
+              <b>switch</b> (categoria) {
+              <b>case</b> 1: sueldo = 1589 * 1.10; <b>break</b>;
+              <b>case</b> 2: sueldo = 2563.09; <b>break</b>;
+              <b>case</b> 3: sueldo = 3556.20 * 0.89; <b>break</b>;
+              <b>default</b>: sueldo = 0;
+              }
+              System.out.printf(<mark>"Sueldo: S/ %.2f%n"</mark>, sueldo);</code></pre>
+        </div>
+        <div class="salary-form example-form"><label for="exampleCategory">Prueba la solución<select id="exampleCategory">
+              <option value="1">1 · Reponedor</option>
+              <option value="2">2 · Cajero</option>
+              <option value="3">3 · Supervisor</option>
+            </select></label><button class="primary-button" id="calculateExample" type="button">Calcular sueldo <span>→</span></button></div>
+        <p class="salary-result" id="exampleResult" aria-live="polite">El resultado aparecerá aquí.</p>
+      </section>
+
+      <section class="lesson-panel" data-panel="8">
+        <div class="section-heading"><span class="lesson-number">09</span>
+          <div><span class="eyebrow accent">COLECCIONES DE DATOS</span>
+            <h2>Muchos valores, una estructura.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">Un array guarda varios elementos del mismo tipo y los organiza mediante posiciones que comienzan en cero.</p>
+        <div class="array-visual">
+          <div class="array-label">índices</div>
+          <div class="array-indexes"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
+          <div class="array-values"><button type="button">12</button><button type="button">8</button><button type="button">15</button><button type="button">6</button><button type="button">10</button></div>
+          <p id="arrayMessage">Selecciona una posición para inspeccionar su valor.</p>
+        </div>
+        <div class="mini-grid">
+          <article><span class="card-kicker">VECTOR</span><code>int[] notas = {12, 8, 15};</code>
+            <p>Una dimensión: una fila de valores.</p>
+          </article>
+          <article><span class="card-kicker">MATRIZ</span><code>int[][] mapa = new int[3][3];</code>
+            <p>Dos dimensiones: filas y columnas.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="lesson-panel example-panel" data-panel="9">
+        <div class="section-heading"><span class="lesson-number">10</span>
+          <div><span class="eyebrow accent">EJEMPLO 2 · VECTORES</span>
+            <h2>Recorre una lista de valores.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">Un vector almacena varios valores del mismo tipo. Cada dato se consulta mediante un índice que comienza en cero.</p>
+        <div class="vector-visual"><span class="card-kicker">VECTOR DE ENTEROS</span>
+          <div class="vector-indexes"><span>0</span><span>1</span><span>2</span><span>3</span></div>
+          <div class="vector-values"><button type="button">2</button><button type="button">35</button><button type="button">48</button><button type="button">157</button></div>
+          <p id="vectorMessage">Selecciona un valor para ver su índice.</p>
+        </div>
+        <div class="code-card solution-card">
+          <div class="card-header"><span>Vector.java · RECORRIDO</span><button class="copy-button" type="button">Copiar</button></div>
+          <pre><code><b>int</b>[] vector = {2, 35, 48, 157};
+
+              <b>for</b> (<b>int</b> i = 0; i &lt; vector.length; i++) {
+              System.out.println(<mark>"Índice: "</mark> + i);
+              System.out.println(<mark>"Valor: "</mark> + vector[i]);
+              }</code></pre>
+        </div>
+      </section>
+
+      <section class="lesson-panel example-panel" data-panel="10">
+        <div class="section-heading"><span class="lesson-number">11</span>
+          <div><span class="eyebrow accent">EJEMPLO 3 · MATRICES</span>
+            <h2>Trabaja con filas y columnas.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">Una matriz organiza los datos en dos dimensiones. Para recorrerla usamos un ciclo para las filas y otro para las columnas.</p>
+        <div class="matrix-visual"><span class="card-kicker">MATRIZ 3 × 3</span>
+          <div class="matrix-grid"><button type="button">5</button><button type="button">13</button><button type="button">96</button><button type="button">35</button><button type="button">33</button><button type="button">71</button><button type="button">446</button><button type="button">228</button><button type="button">24</button></div>
+          <p id="matrixMessage">Selecciona una celda para ver fila y columna.</p>
+        </div>
+        <div class="code-card solution-card">
+          <div class="card-header"><span>Matriz.java · DOBLE RECORRIDO</span><button class="copy-button" type="button">Copiar</button></div>
+          <pre><code><b>int</b>[][] matriz = {
+              {5, 13, 96},
+              {35, 33, 71},
+              {446, 228, 24}
+              };
+
+              <b>for</b> (<b>int</b> fila = 0; fila &lt; matriz.length; fila++) {
+              <b>for</b> (<b>int</b> columna = 0; columna &lt; matriz[fila].length; columna++) {
+              System.out.println(matriz[fila][columna]);
+              }
+              }</code></pre>
+        </div>
+      </section>
+
+      <section class="lesson-panel example-panel" data-panel="11">
+        <div class="section-heading"><span class="lesson-number">12</span>
+          <div><span class="eyebrow accent">EJEMPLO 4 · VECTORES</span>
+            <h2>Cuenta cuántas veces aparece el 2.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">Ingresa 10 números en un vector. Al finalizar, el programa recorre los valores e informa cuántas veces se ingresó el número 2.</p>
+        <div class="exercise-box"><span class="card-kicker">EL DESAFÍO</span>
+          <h3>Cargar 10 números y contar las coincidencias.</h3>
+          <p>Usa un vector, un ciclo para cargar los datos y otro ciclo para revisar si cada valor es igual a <code>2</code>.</p>
+        </div>
+        <div class="code-card solution-card">
+          <div class="card-header"><span>ContarDoses.java · SOLUCIÓN</span><button class="copy-button" type="button">Copiar</button></div>
+          <pre><code><b>import</b> java.util.Scanner;
+
+              <b>int</b>[] vector = <b>new int</b>[10];
+              <b>Scanner</b> teclado = <b>new</b> Scanner(System.in);
+
+              <b>for</b> (<b>int</b> i = 0; i &lt; vector.length; i++) {
+              System.out.print(<mark>"Número "</mark> + (i + 1) + <mark>": "</mark>);
+              vector[i] = teclado.nextInt();
+              }
+
+              <b>int</b> cantidadDos = 0;
+              <b>for</b> (<b>int</b> i = 0; i &lt; vector.length; i++) {
+              <b>if</b> (vector[i] == 2) cantidadDos++;
+              }
+              System.out.println(<mark>"El número 2 aparece: "</mark> + cantidadDos + <mark>" veces"</mark>);</code></pre>
+        </div>
+        <div class="count-demo"><label for="countInput">Prueba con 10 números separados por espacios</label><input id="countInput" type="text" value="2 5 2 8 1 2 7 4 2 9"><button class="primary-button" id="countTwos" type="button">Contar doses <span>→</span></button>
+          <p id="countResult" aria-live="polite">El resultado aparecerá aquí.</p>
+        </div>
+      </section>
+
+      <section class="lesson-panel example-panel" data-panel="12">
+        <div class="section-heading"><span class="lesson-number">13</span>
+          <div><span class="eyebrow accent">DECISIÓN EN UNA LÍNEA</span>
+            <h2>Operador ternario.</h2>
+          </div>
+        </div>
+        <p class="intro-copy">El operador ternario permite elegir entre dos resultados en una sola expresión: uno para cuando la condición es verdadera y otro para cuando es falsa.</p>
+        <div class="ternary-formula"><span>variable</span> = <b>(condición)</b> <strong>?</strong> valor_si_verdadero <strong>:</strong> valor_si_falso;</div>
+        <div class="code-card solution-card">
+          <div class="card-header"><span>Promedio.java · EJEMPLO</span><button class="copy-button" type="button">Copiar</button></div>
+          <pre><code><b>double</b> promedio = 7.5;
+              <b>String</b> condicionFinal;
+
+              condicionFinal = promedio &gt;= 6
+              ? <mark>"Aprobado"</mark>
+              : <mark>"Desaprobado"</mark>;
+
+              System.out.println(<mark>"Condición final: "</mark> + condicionFinal);</code></pre>
+        </div>
+        <div class="ternary-demo"><label for="averageInput">Ingresa el promedio<input id="averageInput" type="number" min="0" max="20" step="0.1" value="7.5"></label><button class="primary-button" id="evaluateAverage" type="button">Evaluar promedio <span>→</span></button>
+          <p id="averageResult" aria-live="polite">Resultado: Aprobado</p>
+        </div>
+      </section>
+
+      <section class="lesson-panel" data-panel="13">
+        <div class="final-panel"><span class="eyebrow accent">MISIÓN DESBLOQUEADA</span>
+          <h2>Desafío final: promedio de notas.</h2>
+          <p>Usa un vector de cinco notas, un ciclo para sumarlas y el operador ternario para decidir si el estudiante aprobó.</p>
+          <div class="exercise-box"><span class="card-kicker">EL DESAFÍO</span>
+            <h3>¿El promedio es igual o mayor que 6?</h3>
+            <p>Ingresa cinco notas entre 0 y 10. Calcula el promedio y muestra <strong>Aprobado</strong> o <strong>Desaprobado</strong>.</p>
+          </div>
+          <div class="code-card solution-card">
+            <div class="card-header"><span>PromedioNotas.java · SOLUCIÓN</span><button class="copy-button" type="button">Copiar</button></div>
+            <pre><code><b>double</b>[] notas = {7, 8, 5, 6, 9};
+                <b>double</b> suma = 0;
+
+                <b>for</b> (<b>int</b> i = 0; i &lt; notas.length; i++) {
+                suma += notas[i];
+                }
+
+                <b>double</b> promedio = suma / notas.length;
+                <b>String</b> resultado = promedio &gt;= 6
+                ? <mark>"Aprobado"</mark> : <mark>"Desaprobado"</mark>;</code></pre>
+          </div>
+          <div class="count-demo final-demo"><label for="gradesInput">Cinco notas separadas por espacios</label><input id="gradesInput" type="text" value="7 8 5 6 9"><button class="primary-button" id="evaluateGrades" type="button">Evaluar notas <span>→</span></button>
+            <p id="gradesResult" aria-live="polite">El resultado aparecerá aquí.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="lesson-footer"><button class="text-button" id="prevButton" type="button">← Anterior</button><span id="lessonCount">Lección 1 de 14</span><button class="primary-button" id="nextButton" type="button">Siguiente <span>→</span></button></footer>
+    </main>
+  </div>
+  <script>
+const codeActionsEnabled = false;
+const panels = [...document.querySelectorAll('.lesson-panel')];
+const lessonLinks = [...document.querySelectorAll('.lesson-link')];
+const nextButton = document.querySelector('#nextButton');
+const prevButton = document.querySelector('#prevButton');
+const progressBar = document.querySelector('#progressBar');
+const progressText = document.querySelector('#progressText');
+const lessonCount = document.querySelector('#lessonCount');
+let currentLesson = 0;
+
+function showLesson(index) {
+  currentLesson = Math.max(0, Math.min(index, panels.length - 1));
+  panels.forEach((panel, panelIndex) => panel.classList.toggle('active-panel', panelIndex === currentLesson));
+  lessonLinks.forEach((link, linkIndex) => link.classList.toggle('active', linkIndex === currentLesson));
+  const percentage = Math.round((currentLesson / (panels.length - 1)) * 100);
+  progressBar.style.width = `${percentage}%`;
+  progressText.textContent = `${percentage}%`;
+  lessonCount.textContent = `Lección ${currentLesson + 1} de ${panels.length}`;
+  prevButton.disabled = currentLesson === 0;
+  nextButton.innerHTML = currentLesson === panels.length - 1 ? 'Volver al inicio <span>↺</span>' : 'Siguiente <span>→</span>';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+lessonLinks.forEach(link =>
+  link.addEventListener('click', () => {
+    showLesson(Number(link.dataset.lesson));
+    document.querySelector('#sidebar').classList.remove('open');
+  })
+);
+document.querySelector('.next-button').addEventListener('click', () => showLesson(1));
+nextButton.addEventListener('click', () => showLesson(currentLesson === panels.length - 1 ? 0 : currentLesson + 1));
+prevButton.addEventListener('click', () => showLesson(currentLesson - 1));
+document.querySelector('#menuToggle').addEventListener('click', () => document.querySelector('#sidebar').classList.toggle('open'));
+document.querySelector('#themeToggle').addEventListener('click', () => document.body.classList.toggle('dark'));
+
+document.querySelectorAll('.code-card').forEach(card => {
+  const header = card.querySelector('.card-header');
+  const copyButton = card.querySelector('.copy-button');
+  const code = card.querySelector('code');
+  code.contentEditable = String(codeActionsEnabled);
+  code.spellcheck = false;
+  copyButton.disabled = !codeActionsEnabled;
+  card.classList.toggle('code-editable', codeActionsEnabled);
+  copyButton.addEventListener('click', async () => {
+    const codeText = code.innerText;
+    try {
+      await navigator.clipboard.writeText(codeText);
+      copyButton.textContent = 'Copiado';
+    } catch {
+      copyButton.textContent = 'Seleccionado';
+    }
+    setTimeout(() => {
+      copyButton.textContent = 'Copiar';
+    }, 1400);
+  });
+});
+
+document.querySelectorAll('.quiz-options button').forEach(button =>
+  button.addEventListener('click', () => {
+    const quiz = button.closest('.quiz');
+    const correct = button.textContent === quiz.dataset.answer;
+    quiz.querySelectorAll('button').forEach(option => option.classList.remove('selected'));
+    button.classList.add('selected');
+    const feedback = quiz.querySelector('.feedback');
+    feedback.textContent = correct ? 'Correcto. String guarda texto.' : 'Casi. Piensa en datos de texto.';
+    feedback.style.color = correct ? 'var(--green)' : 'var(--orange)';
+  })
+);
+
+document.querySelector('#runLoop').addEventListener('click', event => {
+  const button = event.currentTarget;
+  const value = document.querySelector('#counterValue');
+  const fill = document.querySelector('#loopFill');
+  const dots = [...document.querySelectorAll('.loop-dots i')];
+  button.disabled = true;
+  let count = 0;
+  const timer = setInterval(() => {
+    count += 1;
+    value.textContent = count;
+    fill.style.width = `${count * 20}%`;
+    dots[count - 1].classList.add('done');
+    if (count === 5) {
+      clearInterval(timer);
+      button.disabled = false;
+    }
+  }, 280);
+});
+
+document.querySelectorAll('.array-values button').forEach((button, index) =>
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.array-values button').forEach(item => item.classList.remove('selected'));
+    button.classList.add('selected');
+    document.querySelector('#arrayMessage').textContent = `La posición ${index} contiene el valor ${button.textContent}.`;
+  })
+);
+
+document.querySelector('#calculateExample').addEventListener('click', () => {
+  const salaries = { 1: 1589 * 1.1, 2: 2563.09, 3: 3556.2 * 0.89 };
+  const category = document.querySelector('#exampleCategory').value;
+  document.querySelector('#exampleResult').textContent = `Sueldo calculado: S/ ${salaries[category].toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+});
+
+document.querySelector('#daySelect').addEventListener('change', event => {
+  const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  document.querySelector('#dayResult').textContent = `Elegiste: ${days[Number(event.target.value) - 1]}`;
+});
+
+document.querySelectorAll('.vector-values button').forEach((button, index) =>
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.vector-values button').forEach(item => item.classList.remove('selected'));
+    button.classList.add('selected');
+    document.querySelector('#vectorMessage').textContent = `El índice ${index} contiene el valor ${button.textContent}.`;
+  })
+);
+
+document.querySelectorAll('.matrix-grid button').forEach((button, index) =>
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.matrix-grid button').forEach(item => item.classList.remove('selected'));
+    button.classList.add('selected');
+    const fila = Math.floor(index / 3);
+    const columna = index % 3;
+    document.querySelector('#matrixMessage').textContent = `La posición [${fila}][${columna}] contiene el valor ${button.textContent}.`;
+  })
+);
+
+document.querySelector('#countTwos').addEventListener('click', () => {
+  const values = document.querySelector('#countInput').value.trim().split(/\s+/).map(Number);
+  const result = document.querySelector('#countResult');
+  if (values.length !== 10 || values.some(Number.isNaN)) {
+    result.textContent = 'Ingresa exactamente 10 números separados por espacios.';
+    result.style.color = 'var(--orange)';
+    return;
+  }
+  const amount = values.filter(value => value === 2).length;
+  result.textContent = `El número 2 aparece: ${amount} ${amount === 1 ? 'vez' : 'veces'}.`;
+  result.style.color = 'var(--green)';
+});
+
+document.querySelector('#evaluateAverage').addEventListener('click', () => {
+  const average = Number(document.querySelector('#averageInput').value);
+  const result = document.querySelector('#averageResult');
+  if (Number.isNaN(average) || average < 0 || average > 20) {
+    result.textContent = 'Ingresa un promedio entre 0 y 20.';
+    result.style.color = 'var(--orange)';
+    return;
+  }
+  const status = average >= 6 ? 'Aprobado' : 'Desaprobado';
+  result.textContent = `Resultado: ${status}`;
+  result.style.color = average >= 6 ? 'var(--green)' : 'var(--orange)';
+});
+
+document.querySelector('#evaluateGrades').addEventListener('click', () => {
+  const grades = document.querySelector('#gradesInput').value.trim().split(/\s+/).map(Number);
+  const result = document.querySelector('#gradesResult');
+  if (grades.length !== 5 || grades.some(grade => Number.isNaN(grade) || grade < 0 || grade > 10)) {
+    result.textContent = 'Ingresa exactamente 5 notas entre 0 y 10.';
+    result.style.color = 'var(--orange)';
+    return;
+  }
+  const average = grades.reduce((sum, grade) => sum + grade, 0) / grades.length;
+  const status = average >= 6 ? 'Aprobado' : 'Desaprobado';
+  result.textContent = `Promedio: ${average.toFixed(2)} · ${status}`;
+  result.style.color = average >= 6 ? 'var(--green)' : 'var(--orange)';
+});
+
+showLesson(0);
+
+  </script>
+</body>
+</html>
