@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Práctica dirigida — La clase Mascota</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ---------- Design tokens ---------- */
+    :root {
+      --bg: #F7F4EE;
+      --bg-soft: #EFE9DE;
+      --panel: #FFFFFF;
+      --ink: #221B1B;
+      --ink-soft: #5B5250;
+      --line: #E1D8CB;
+      --wine: #7C1D2B;
+      --wine-ink: #5B1520;
+      --wine-tint: #F3E3E2;
+      --teal: #1E6F63;
+      --teal-tint: #E1EFEA;
+      --amber: #C97A21;
+      --amber-tint: #F6E8D3;
+      --code-bg: #1C1815;
+      --code-ink: #E9E2D6;
+      --code-comment: #7FAE9D;
+      --code-string: #E3B27D;
+      --code-kw: #E68A9C;
+      --radius-s: 10px;
+      --radius-m: 16px;
+      --radius-l: 26px;
+      --shadow: 0 1px 2px rgba(34, 27, 27, .05), 0 8px 24px -12px rgba(34, 27, 27, .18);
+      --serif: "Fraunces", Georgia, "Times New Roman", serif;
+      --sans: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "JetBrains Mono", "Fira Code", Consolas, monospace;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #191413;
+        --bg-soft: #221C1A;
+        --panel: #221C1A;
+        --ink: #F1EAE2;
+        --ink-soft: #B9AFA8;
+        --line: #382F2C;
+        --wine: #E08B95;
+        --wine-ink: #F1B7BE;
+        --wine-tint: #2E1C1F;
+        --teal: #7BC4B3;
+        --teal-tint: #1B2B27;
+        --amber: #E3A85C;
+        --amber-tint: #2E2418;
+        --code-bg: #12100E;
+        --code-ink: #E9E2D6;
+        --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 30px -14px rgba(0, 0, 0, .55);
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #191413;
+      --bg-soft: #221C1A;
+      --panel: #221C1A;
+      --ink: #F1EAE2;
+      --ink-soft: #B9AFA8;
+      --line: #382F2C;
+      --wine: #E08B95;
+      --wine-ink: #F1B7BE;
+      --wine-tint: #2E1C1F;
+      --teal: #7BC4B3;
+      --teal-tint: #1B2B27;
+      --amber: #E3A85C;
+      --amber-tint: #2E2418;
+      --code-bg: #12100E;
+      --code-ink: #E9E2D6;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 30px -14px rgba(0, 0, 0, .55);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16.5px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img,
+    svg {
+      max-width: 100%;
+    }
+
+    a {
+      color: var(--wine);
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .wide {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--serif);
+      font-weight: 600;
+      letter-spacing: -.01em;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      margin-bottom: 6px;
+    }
+
+    h3 {
+      font-size: 1.18rem;
+      margin-bottom: 4px;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    code,
+    .mono {
+      font-family: var(--mono);
+    }
+
+    /* ---------- progress bar ---------- */
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--wine);
+      z-index: 200;
+      transition: width .1s linear;
+    }
+
+    /* ---------- top nav ---------- */
+    nav.top {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .navrow {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 1rem;
+      white-space: nowrap;
+      color: var(--ink);
+    }
+
+    .brand span.dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--wine);
+      display: inline-block;
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .navlinks::-webkit-scrollbar {
+      display: none;
+    }
+
+    .navlinks a {
+      font-size: .86rem;
+      color: var(--ink-soft);
+      text-decoration: none;
+      white-space: nowrap;
+      padding: 7px 12px;
+      border-radius: 999px;
+      transition: background .15s, color .15s;
+    }
+
+    .navlinks a:hover {
+      background: var(--bg-soft);
+      color: var(--ink);
+    }
+
+    .navlinks a.active {
+      background: var(--wine-tint);
+      color: var(--wine-ink);
+      font-weight: 600;
+    }
+
+    /* ---------- hero ---------- */
+    .hero {
+      padding: 56px 0 40px;
+    }
+
+    .herogrid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 44px;
+      align-items: center;
+    }
+
+    .pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .pill {
+      font-size: .78rem;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: var(--bg-soft);
+      color: var(--ink-soft);
+      border: 1px solid var(--line);
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 4.4vw, 2.9rem);
+      line-height: 1.12;
+      margin-bottom: 16px;
+    }
+
+    .hero .lede {
+      font-size: 1.08rem;
+      color: var(--ink-soft);
+      max-width: 46ch;
+    }
+
+    .hero .lede strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .editor {
+      background: var(--code-bg);
+      border-radius: var(--radius-m);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      font-family: var(--mono);
+      font-size: .82rem;
+    }
+
+    .editor .tabrow {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, .04);
+      border-bottom: 1px solid rgba(255, 255, 255, .07);
+    }
+
+    .editor .tabrow .tab {
+      padding: 10px 16px;
+      font-size: .76rem;
+      color: var(--code-ink);
+      opacity: .55;
+      border-right: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .editor .tabrow .tab.on {
+      opacity: 1;
+      background: var(--code-bg);
+      border-top: 2px solid var(--teal);
+      margin-top: -1px;
+    }
+
+    .editor .tabrow::after {
+      content: "🔒 solo lectura";
+      margin-left: auto;
+      margin-right: 14px;
+      font-size: .7rem;
+      color: var(--code-ink);
+      opacity: .45;
+      font-family: var(--sans);
+    }
+
+    .editor pre {
+      margin: 0;
+      padding: 18px 20px;
+      color: var(--code-ink);
+      overflow-x: auto;
+      line-height: 1.65;
+    }
+
+    .k {
+      color: var(--code-kw);
+    }
+
+    .s {
+      color: var(--code-string);
+    }
+
+    .c {
+      color: var(--code-comment);
+    }
+
+    /* ---------- copy protection ---------- */
+    .codeblock,
+    .editor {
+      -webkit-touch-callout: none;
+    }
+
+    .codeblock.protected pre,
+    .codeblock.protected code,
+    .editor.protected pre,
+    .editor.protected code {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      cursor: default;
+    }
+
+    .codeblock .filebar {
+      position: relative;
+    }
+
+    .codeblock.protected .filebar::after {
+      content: "🔒 solo lectura";
+      margin-left: auto;
+      font-size: .68rem;
+      opacity: .5;
+    }
+
+    #copyToast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--ink);
+      color: var(--bg);
+      font-size: .86rem;
+      font-weight: 500;
+      padding: 11px 18px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s ease, transform .22s ease;
+      z-index: 300;
+      max-width: 88vw;
+      text-align: center;
+    }
+
+    #copyToast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ---------- sections ---------- */
+    section {
+      padding: 20px 0;
+    }
+
+    section.alt {
+      background: var(--bg-soft);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .kicker {
+      font-size: .82rem;
+      color: var(--wine);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .section-intro {
+      color: var(--ink-soft);
+      max-width: 56ch;
+      margin-bottom: 28px;
+    }
+
+    .twocol {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-m);
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 {
+      margin-bottom: 8px;
+    }
+
+    .card p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* concept grid */
+    .concepts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .concept {
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-m);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .concept .num {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--ink-soft);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .concept h3 {
+      font-size: 1.02rem;
+      margin-bottom: 6px;
+    }
+
+    .concept p {
+      font-size: .92rem;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    .concept p+p,
+    .concept .codeblock+p {
+      margin-top: 12px;
+    }
+
+    .concept .codeblock pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    /* steps */
+    .steps-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 26px;
+    }
+
+    .steps-counter {
+      font-family: var(--mono);
+      font-size: .85rem;
+      color: var(--ink-soft);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+    .steps-counter b {
+      color: var(--wine);
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 18px;
+      padding: 26px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .step:last-child {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .step .marker {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step .marker .n {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--panel);
+      border: 1.5px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 1.05rem;
+      transition: background .2s, border-color .2s, color .2s;
+    }
+
+    .step.done .marker .n {
+      background: var(--wine);
+      border-color: var(--wine);
+      color: #fff;
+    }
+
+    .step .check {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1.5px solid var(--line);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--panel);
+      flex-shrink: 0;
+      transition: background .15s, border-color .15s;
+    }
+
+    .step.done .check {
+      background: var(--teal);
+      border-color: var(--teal);
+    }
+
+    .step .check svg {
+      width: 13px;
+      height: 13px;
+      stroke: #fff;
+      opacity: 0;
+      transition: opacity .1s;
+    }
+
+    .step.done .check svg {
+      opacity: 1;
+    }
+
+    .step .body h3 {
+      margin-bottom: 4px;
+    }
+
+    .step .body .stepmeta {
+      font-size: .8rem;
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+    }
+
+    .step .body p {
+      color: var(--ink-soft);
+      font-size: .96rem;
+    }
+
+    .step .body ul {
+      margin: 0 0 14px;
+      padding-left: 20px;
+      color: var(--ink-soft);
+      font-size: .96rem;
+    }
+
+    .step .body ul li {
+      margin-bottom: 5px;
+    }
+
+    .codeblock {
+      background: var(--code-bg);
+      border-radius: var(--radius-s);
+      overflow: hidden;
+      margin: 14px 0 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .codeblock .filebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, .045);
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--code-ink);
+      opacity: .75;
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .codeblock pre {
+      margin: 0;
+      padding: 16px 18px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: .82rem;
+      color: var(--code-ink);
+      line-height: 1.6;
+    }
+
+    .tip {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+      background: var(--amber-tint);
+      border: 1px solid color-mix(in srgb, var(--amber) 35%, var(--line));
+      border-radius: var(--radius-s);
+      padding: 13px 15px;
+      margin: 14px 0;
+      font-size: .9rem;
+    }
+
+    .tip .ic {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      color: var(--amber);
+    }
+
+    .tip strong {
+      color: var(--ink);
+    }
+
+    .tip>div {
+      min-width: 0;
+      flex: 1;
+    }
+
+    table.compo {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 14px 0;
+    }
+
+    .tablewrap {
+      overflow-x: auto;
+      border-radius: var(--radius-s);
+      border: 1px solid var(--line);
+    }
+
+    table.compo th {
+      background: var(--wine);
+      color: #fff;
+      text-align: left;
+      padding: 9px 13px;
+      font-weight: 600;
+      font-size: .8rem;
+    }
+
+    table.compo td {
+      padding: 9px 13px;
+      border-top: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    table.compo td.mono {
+      font-family: var(--mono);
+      font-size: .82rem;
+    }
+
+    table.compo tr:nth-child(even) td {
+      background: var(--bg-soft);
+    }
+
+    .paws {
+      display: flex;
+      gap: 14px;
+      margin: 16px 0 4px;
+      flex-wrap: wrap;
+    }
+
+    .paw {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 13px 6px 8px;
+      font-size: .85rem;
+    }
+
+    .paw .swatch {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .paw .swatch svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    /* tabs for step 6 */
+    .codetabs {
+      margin-top: 14px;
+    }
+
+    .tabbtns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 0;
+    }
+
+    .tabbtn {
+      font-family: var(--sans);
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+      background: var(--bg-soft);
+      border: 1px solid var(--line);
+      border-bottom: none;
+      padding: 9px 15px;
+      border-radius: 10px 10px 0 0;
+      cursor: pointer;
+    }
+
+    .tabbtn.active {
+      background: var(--code-bg);
+      color: var(--code-ink);
+      border-color: var(--code-bg);
+    }
+
+    .tabpanels .codeblock {
+      margin-top: 0;
+      border-radius: 0 var(--radius-s) var(--radius-s) var(--radius-s);
+    }
+
+    .tabpanel {
+      display: none;
+    }
+
+    .tabpanel.active {
+      display: block;
+    }
+
+    .checklist {
+      list-style: none;
+      margin: 14px 0 0;
+      padding: 0;
+      font-size: .95rem;
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 9px;
+      padding: 6px 0;
+      color: var(--ink-soft);
+    }
+
+    .checklist li svg {
+      width: 16px;
+      height: 16px;
+      margin-top: 3px;
+      color: var(--teal);
+      flex-shrink: 0;
+    }
+
+    /* closing questions */
+    .qs {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    details.q {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-s);
+      padding: 2px 18px;
+      box-shadow: var(--shadow);
+    }
+
+    details.q summary {
+      padding: 15px 0;
+      cursor: pointer;
+      font-weight: 600;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    details.q summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.q summary .arrow {
+      transition: transform .2s;
+      color: var(--wine);
+      flex-shrink: 0;
+    }
+
+    details.q[open] summary .arrow {
+      transform: rotate(45deg);
+    }
+
+    details.q .hint {
+      padding: 0 0 17px;
+      color: var(--ink-soft);
+      font-size: .94rem;
+      border-top: 1px solid var(--line);
+      margin-top: -2px;
+      padding-top: 13px;
+    }
+
+    /* CTA / transition */
+    .cta {
+      background: linear-gradient(155deg, var(--wine) 0%, var(--wine-ink) 100%);
+      color: #fff;
+      border-radius: var(--radius-l);
+      padding: 38px 34px;
+      box-shadow: var(--shadow);
+    }
+
+    .cta h2 {
+      color: #fff;
+    }
+
+    .cta p {
+      color: rgba(255, 255, 255, .86);
+    }
+
+    .cta ul {
+      margin: 16px 0 0;
+      padding-left: 20px;
+      color: rgba(255, 255, 255, .9);
+      font-size: .95rem;
+    }
+
+    .cta ul li {
+      margin-bottom: 6px;
+    }
+
+    footer {
+      padding: 36px 0 60px;
+      text-align: center;
+      color: var(--ink-soft);
+      font-size: .85rem;
+    }
+
+    @media (max-width:760px) {
+      .herogrid {
+        grid-template-columns: 1fr;
+      }
+
+      .twocol {
+        grid-template-columns: 1fr;
+      }
+
+      .concepts {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .step {
+        grid-template-columns: 40px 1fr;
+        gap: 12px;
+      }
+    }
+
+    @media (max-width:480px) {
+      .concepts {
+        grid-template-columns: 1fr;
+      }
+
+      .wrap,
+      .wide {
+        padding: 0 18px;
+      }
+    }
+
+    /* Adaptacion visual al formato de la guia principal. */
+    :root {
+      --bg: #f7f7f2;
+      --bg-soft: #e7eee9;
+      --panel: #ffffff;
+      --ink: #18252b;
+      --ink-soft: #657278;
+      --line: #dfe5e1;
+      --wine: #ef714c;
+      --wine-ink: #da5e3b;
+      --wine-tint: #fff0e9;
+      --teal: #16745a;
+      --teal-tint: #e4f0e9;
+      --amber: #d29b35;
+      --amber-tint: #fff8df;
+      --code-bg: #172a31;
+      --code-ink: #c9d8d2;
+      --code-comment: #78c5d4;
+      --code-string: #f5cd62;
+      --code-kw: #ef9470;
+      --radius-s: 4px;
+      --radius-m: 18px;
+      --radius-l: 22px;
+      --shadow: 0 24px 60px rgba(24, 37, 43, .12);
+      --serif: 'Space Grotesk', 'DM Sans', sans-serif;
+      --sans: 'DM Sans', sans-serif;
+      --mono: 'Source Code Pro', Consolas, monospace;
+    }
+
+    html,
+    body {
+      overflow-x: hidden;
+    }
+
+    body {
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    nav.top {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 260px;
+      z-index: 100;
+      background: var(--bg);
+      border-right: 1px solid var(--line);
+      backdrop-filter: none;
+    }
+
+    .navrow {
+      display: block;
+      padding: 42px 26px;
+    }
+
+    .brand {
+      padding: 18px 16px;
+      background: var(--code-bg);
+      color: #fff;
+      border-radius: 4px 22px 22px 22px;
+      font-family: var(--sans);
+      font-size: 15px;
+      margin-bottom: 30px;
+    }
+
+    .brand span.dot {
+      width: 11px;
+      height: 11px;
+      background: var(--wine);
+    }
+
+    .navlinks {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: visible;
+    }
+
+    .navlinks::before {
+      content: 'CONTENIDO';
+      color: #9aa6a7;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      margin: 0 12px 10px;
+    }
+
+    .navlinks a {
+      border-radius: 8px;
+      padding: 11px 12px;
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+
+    .navlinks a.active,
+    .navlinks a:hover {
+      background: var(--bg-soft);
+      color: var(--ink);
+    }
+
+    .navlinks a.active {
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    .hero,
+    section,
+    footer {
+      margin-left: 260px;
+    }
+
+    .hero {
+      padding: 80px 6vw 45px;
+      min-height: 100vh;
+    }
+
+    .wide,
+    .wrap {
+      max-width: 1100px;
+      padding: 0;
+    }
+
+    .herogrid {
+      gap: 55px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--serif);
+      letter-spacing: -1.5px;
+    }
+
+    h1 {
+      font-size: clamp(42px, 5vw, 70px);
+      line-height: .98;
+    }
+
+    h2 {
+      font-size: clamp(32px, 4vw, 53px);
+    }
+
+    .kicker {
+      color: var(--teal);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+    }
+
+    .pill {
+      background: var(--teal-tint);
+      color: var(--teal);
+      border: 0;
+      border-radius: 20px;
+    }
+
+    .editor,
+    .codeblock {
+      background: var(--code-bg);
+      border-radius: 4px 20px 20px 20px;
+      box-shadow: var(--shadow);
+      border: 0;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .editor .tabrow,
+    .codeblock .filebar {
+      background: #243c42;
+      color: #9fb5ad;
+      border: 0;
+    }
+
+    pre {
+      font-family: var(--mono);
+      font-size: 13px;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .alt {
+      background: transparent;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card,
+    .concept,
+    .step,
+    .q,
+    .compo {
+      background: var(--panel);
+      border-color: var(--line);
+      border-radius: 4px 18px 18px 18px;
+      box-shadow: none;
+    }
+
+    .concept {
+      border-top: 3px solid var(--wine);
+    }
+
+    .step.done {
+      background: var(--teal-tint);
+    }
+
+    .cta {
+      background: var(--code-bg);
+      border-radius: 4px 22px 22px 22px;
+    }
+
+    footer {
+      padding: 36px 6vw 60px;
+    }
+
+    @media (max-width:760px) {
+      nav.top {
+        position: sticky;
+        width: 100%;
+        inset: 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .navrow {
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand {
+        margin: 0;
+        padding: 10px 12px;
+      }
+
+      .navlinks {
+        flex-direction: row;
+        overflow-x: auto;
+      }
+
+      .navlinks::before {
+        display: none;
+      }
+
+      .hero,
+      section,
+      footer {
+        margin-left: 0;
+      }
+
+      .hero {
+        padding: 52px 6vw 35px;
+      }
+
+      footer {
+        padding-left: 6vw;
+        padding-right: 6vw;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress"></div>
+
+  <nav class="top">
+    <div class="navrow">
+      <div class="brand"><span class="dot"></span>Mascota.java</div>
+      <div class="navlinks">
+        <a href="#inicio">Inicio</a>
+        <a href="#repaso">Repaso</a>
+        <a href="#pasos">Pasos</a>
+        <a href="#leer-codigo">Leer el código</a>
+        <a href="#cierre">Cierre</a>
+        <a href="#siguiente">Siguiente</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero" id="inicio">
+    <div class="wide herogrid">
+      <div>
+        <div class="pills">
+          <span class="pill">Sesión 1 · POO</span>
+          <span class="pill">Ciclo IV</span>
+          <div class="tip">
+            <div><strong>¿Dónde va este código?</strong><br>Los eventos se escriben en <code>FormMascota.java</code>, no en <code>PracticaMascota.java</code>.<br>Haz doble clic en cada botón desde la vista <b>Design</b> y NetBeans abrirá automáticamente su método <code>ActionPerformed</code>.</div>
+          </div>
+          <div class="tip">
+            <div><strong>Importante sobre los nombres:</strong><br><code>setName("cbTipo")</code> no cambia el nombre de la variable Java. Si tu código todavía muestra <code>jComboBox1</code>, <code>textField1</code> y <code>jButton1</code>, usa clic derecho sobre el componente → <b>Change Variable Name</b>. Después los campos aparecerán como <code>cbTipo</code>, <code>txtNombre</code>, <code>txtEdad</code>, <code>btnCrear</code>, <code>btnMostrar</code>, <code>btnSalir</code> y <code>lblResultado</code>.</div>
+          </div>
+        </div>
+        <h1>Antes del laboratorio, construimos juntos la clase Mascota</h1>
+        <p class="lede">Es el mismo patrón que usarás en la <strong>Guía de Laboratorio Nº 01</strong> —una clase, un constructor, un formulario con selección y botones— pero con algo mucho más simple que calcular sueldos: enseñarle a un objeto a hacer un sonido.</p>
+      </div>
+      <div class="editor">
+        <div class="tabrow">
+          <div class="tab on">Mascota.java</div>
+        </div>
+        <pre><span class="k">public class</span> Mascota {
+
+          <span class="c">// atributos privados</span>
+          <span class="k">private</span> String nombre;
+          <span class="k">private</span> String tipo;
+          <span class="k">private int</span> edad;
+
+          <span class="c">// constructor</span>
+          <span class="k">public</span> Mascota(String nombre,
+          String tipo, <span class="k">int</span> edad) {
+          <span class="k">this</span>.nombre = nombre;
+          <span class="k">this</span>.tipo = tipo;
+          <span class="k">this</span>.edad = edad;
+          }
+
+          <span class="k">public</span> String hacerSonido() {
+          <span class="k">if</span> (tipo.equals(<span class="s">"Perro"</span>))
+          <span class="k">return</span> <span class="s">"Guau Guau"</span>;
+          <span class="c">// ...</span>
+          }
+          }
+        </pre>
+      </div>
+    </div>
+  </header>
+
+  <section id="repaso" class="alt">
+    <div class="wrap">
+      <div class="kicker">Antes de programar</div>
+      <h2>Lo que ya sabes de la Sesión 1</h2>
+      <p class="section-intro">Entiende cada concepto con el mismo ejemplo: una mascota con nombre, tipo, edad y peso. Los fragmentos muestran partes de la práctica; en los pasos siguientes los integrarás en sus archivos.</p>
+
+      <div class="twocol" style="margin-bottom:24px;">
+        <div class="card">
+          <h3>Resultado de aprendizaje</h3>
+          <p>Aplicas conceptos básicos de programación orientada a objetos en la construcción de soluciones informáticas.</p>
+        </div>
+        <div class="card">
+          <h3>Objetivo de hoy</h3>
+          <p>Reconocer, con un ejemplo simple, el patrón que usarás para resolver el laboratorio de forma individual.</p>
+        </div>
+      </div>
+
+      <div class="concepts">
+        <div class="concept">
+          <span class="num">01</span>
+          <h3>Clase</h3>
+          <p>Es la definición de un tipo de objeto: indica qué datos puede guardar y qué operaciones ofrece. <code>Mascota</code> define la estructura que compartirán Luna, Max y las demás mascotas.</p>
+          <div class="codeblock">
+            <div class="filebar">Mascota.java · estructura</div>
+            <pre><span class="k">public class</span> Mascota {
+              <span class="c">// Aquí van los atributos,</span>
+              <span class="c">// el constructor y los métodos.</span>
+              }
+            </pre>
+          </div>
+          <p><strong>Piensa:</strong> la clase describe cómo será una mascota; declararla todavía no crea a Luna.</p>
+        </div>
+        <div class="concept">
+          <span class="num">02</span>
+          <h3>Objeto</h3>
+          <p>Es una instancia concreta de una clase. Cada objeto <code>Mascota</code> guarda sus propios datos, aunque todos se hayan creado a partir de la misma clase.</p>
+          <div class="codeblock">
+            <div class="filebar">Crear dos objetos</div>
+            <pre>Mascota luna = <span class="k">new</span> Mascota(
+              <span class="s">"Luna"</span>, <span class="s">"Gato"</span>, 3, 4.2);
+              Mascota max = <span class="k">new</span> Mascota(
+              <span class="s">"Max"</span>, <span class="s">"Perro"</span>, 5, 12.0);
+            </pre>
+          </div>
+          <p><strong>Lee la primera línea:</strong> <code>Mascota</code> es el tipo, <code>luna</code> es la variable que guarda una referencia y <code>new Mascota(...)</code> crea e inicializa el objeto.</p>
+        </div>
+        <div class="concept">
+          <span class="num">03</span>
+          <h3>Atributo</h3>
+          <p>Es una variable declarada en la clase que guarda un dato del objeto. En esta práctica, <code>nombre</code>, <code>tipo</code>, <code>edad</code> y <code>peso</code> son atributos de cada mascota.</p>
+          <div class="codeblock">
+            <div class="filebar">Dentro de Mascota.java</div>
+            <pre><span class="k">private</span> String nombre;
+              <span class="k">private</span> String tipo;
+              <span class="k">private int</span> edad;
+              <span class="k">private double</span> peso;
+            </pre>
+          </div>
+          <p><strong>Ejemplo:</strong> el atributo <code>edad</code> guarda <code>3</code> en Luna y <code>5</code> en Max. Estos valores forman parte del <em>estado</em> de cada objeto.</p>
+        </div>
+        <div class="concept">
+          <span class="num">04</span>
+          <h3>Parámetro y argumento</h3>
+          <p>Un <strong>parámetro</strong> es una variable que recibe un dato al ejecutar un constructor o un método. El <strong>argumento</strong> es el valor o expresión que envías en la llamada.</p>
+          <div class="codeblock">
+            <div class="filebar">Ejemplo del constructor</div>
+            <pre><span class="c">// En la declaración:</span>
+              <span class="c">// int edad es un parámetro.</span>
+
+              <span class="c">// En la llamada, 3 es el</span>
+              <span class="c">// argumento para ese parámetro:</span>
+              <span class="k">new</span> Mascota(<span class="s">"Luna"</span>, <span class="s">"Gato"</span>, 3, 4.2);
+            </pre>
+          </div>
+          <p><strong>Diferencia clave:</strong> el parámetro recibe el dato durante la ejecución; el atributo lo conserva en el objeto. <a href="#entender-this">Así los distingue this.</a></p>
+        </div>
+        <div class="concept">
+          <span class="num">05</span>
+          <h3>Constructor</h3>
+          <p>Inicializa el objeto cuando lo creas con <code>new</code>. Tiene el mismo nombre que la clase y no declara tipo de retorno, ni siquiera <code>void</code>.</p>
+          <div class="codeblock">
+            <div class="filebar">Dentro de Mascota.java</div>
+            <pre><span class="k">public</span> Mascota(String nombre,
+              String tipo, <span class="k">int</span> edad,
+              <span class="k">double</span> peso) {
+              <span class="k">this</span>.nombre = nombre;
+              <span class="k">this</span>.tipo = tipo;
+              <span class="k">this</span>.edad = edad;
+              <span class="k">this</span>.peso = peso;
+              }
+            </pre>
+          </div>
+          <p><strong>Lee <code>this.nombre = nombre;</code>:</strong> «el atributo nombre de este objeto recibe el valor del parámetro nombre». Si llega <code>"Luna"</code>, ese objeto guarda <code>"Luna"</code>.</p>
+        </div>
+        <div class="concept">
+          <span class="num">06</span>
+          <h3>Método</h3>
+          <p>Define una operación que se puede ejecutar. Puede consultar datos, modificarlos o realizar otra acción. En <code>Mascota</code>, <code>getEdad()</code> consulta la edad y <code>hacerSonido()</code> devuelve un sonido como texto.</p>
+          <div class="codeblock">
+            <div class="filebar">Dentro de Mascota.java</div>
+            <pre><span class="k">public int</span> getEdad() {
+              <span class="k">return</span> edad;
+              }
+            </pre>
+          </div>
+          <p><strong>Al llamar <code>luna.getEdad()</code>:</strong> el método devuelve <code>3</code> como <code>int</code>. No lo muestra en pantalla por sí solo. <a href="#entender-void">Otros métodos son void: realizan acciones sin devolver un valor.</a></p>
+        </div>
+        <div class="concept">
+          <span class="num">07</span>
+          <h3>Encapsulamiento</h3>
+          <p>Reúne los datos y las operaciones en la clase y controla cómo se accede a su estado. Aquí usamos atributos <code>private</code> y métodos <code>public</code> para permitir consultas desde el formulario.</p>
+          <div class="codeblock">
+            <div class="filebar">Desde el formulario</div>
+            <pre><span class="c">// Correcto: consulta pública</span>
+              <span class="k">int</span> edad = luna.getEdad();
+
+              <span class="c">// No compila: edad es private</span>
+              <span class="c">// luna.edad = 8;</span>
+            </pre>
+          </div>
+          <p><strong>private no significa «no puede cambiar».</strong> La propia clase puede modificar sus atributos. Si agregas un método para cambiar la edad, allí puedes comprobar que no sea negativa; <code>private</code> por sí solo no valida datos.</p>
+        </div>
+        <div class="concept">
+          <span class="num">08</span>
+          <h3>Ciclo de vida</h3>
+          <p>Un objeto se crea, se utiliza y, cuando deja de ser alcanzable por el programa, su memoria puede ser liberada por el recolector de basura de Java.</p>
+          <div class="codeblock">
+            <div class="filebar">Creación, uso y referencia</div>
+            <pre><span class="c">// 1. Crear e inicializar</span>
+              Mascota luna = <span class="k">new</span> Mascota(
+              <span class="s">"Luna"</span>, <span class="s">"Gato"</span>, 3, 4.2);
+              <span class="c">// 2. Usar el objeto</span>
+              <span class="k">int</span> edad = luna.getEdad();
+              <span class="c">// 3. Quitar esta referencia</span>
+              luna = <span class="k">null</span>;
+            </pre>
+          </div>
+          <p><strong><code>null</code> no destruye el objeto.</strong> Si ya no queda ninguna referencia que permita alcanzarlo, podrá ser recolectado; no ocurre necesariamente en ese instante. No necesitas asignar <code>null</code> a cada variable al terminar de usarla.</p>
+        </div>
+        <div class="concept">
+          <span class="num">09</span>
+          <h3>El caso de hoy</h3>
+          <p>El formulario recoge los datos y llama al constructor. El objeto los guarda en sus atributos. Después, el formulario consulta sus métodos y muestra el resultado.</p>
+          <div class="codeblock">
+            <div class="filebar">Objeto → método → etiqueta</div>
+            <pre>Mascota luna = <span class="k">new</span> Mascota(
+              <span class="s">"Luna"</span>, <span class="s">"Gato"</span>, 3, 4.2);
+              String sonido = luna.hacerSonido();
+              lblResultado.setText(sonido);
+              <span class="c">// La etiqueta muestra: Miau</span>
+            </pre>
+          </div>
+          <p><strong>Conecta las ideas:</strong> <code>tipo</code> es un atributo; <code>hacerSonido()</code> es un método que usa ese dato para decidir qué texto devolver.</p>
+        </div>
+      </div>
+      <h3 style="margin-top:28px;">Una clase, dos objetos y sus atributos</h3>
+      <p>Ambos objetos son de la clase <code>Mascota</code>, pero cada uno conserva sus propios valores:</p>
+      <div class="tablewrap">
+        <table class="compo">
+          <thead>
+            <tr>
+              <th scope="col">Atributo</th>
+              <th scope="col">Tipo de dato</th>
+              <th scope="col">Objeto referenciado por luna</th>
+              <th scope="col">Objeto referenciado por max</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row"><code>nombre</code></th>
+              <td><code>String</code></td>
+              <td><code>"Luna"</code></td>
+              <td><code>"Max"</code></td>
+            </tr>
+            <tr>
+              <th scope="row"><code>tipo</code></th>
+              <td><code>String</code></td>
+              <td><code>"Gato"</code></td>
+              <td><code>"Perro"</code></td>
+            </tr>
+            <tr>
+              <th scope="row"><code>edad</code></th>
+              <td><code>int</code></td>
+              <td><code>3</code></td>
+              <td><code>5</code></td>
+            </tr>
+            <tr>
+              <th scope="row"><code>peso</code></th>
+              <td><code>double</code></td>
+              <td><code>4.2</code></td>
+              <td><code>12.0</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="qs" style="margin-top:24px;">
+        <details class="q">
+          <summary>En this.nombre = nombre;, ¿cuál es el atributo y cuál es el parámetro?<span class="arrow">＋</span></summary>
+          <div class="hint"><code>this.nombre</code> es el atributo del objeto; <code>nombre</code> a la derecha es el parámetro del constructor. <code>=</code> guarda el valor recibido en el atributo. El parámetro recibe el dato; el atributo lo conserva en la mascota.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="pasos">
+    <div class="wrap">
+      <div class="steps-head">
+        <div>
+          <div class="kicker">Manos a la obra</div>
+          <h2>Construye la clase Mascota</h2>
+        </div>
+        <div class="steps-counter"><b id="doneCount">0</b>/7 pasos marcados</div>
+      </div>
+      <p class="section-intro">Sigue el orden. Marca el círculo de cada paso cuando termines de escribirlo en NetBeans — te ayuda a no perder el hilo mientras el profesor avanza.</p>
+
+      <div id="stepsList">
+
+        <div class="step" data-step="1">
+          <div class="marker">
+            <div class="check" role="checkbox" aria-checked="false"><svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12l5 5L20 6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg></div>
+            <div class="n">1</div>
+          </div>
+          <div class="body">
+            <h3>Crea el proyecto</h3>
+            <div class="stepmeta">NetBeans · Java with Maven</div>
+            <ul>
+              <li><b>File → New Project → Java with Maven → Java Application.</b></li>
+              <li>Project Name: <code>PracticaMascota</code> → Finish.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step" data-step="2">
+          <div class="marker">
+            <div class="check" role="checkbox" aria-checked="false"><svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12l5 5L20 6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg></div>
+            <div class="n">2</div>
+          </div>
+          <div class="body">
+            <h3>Crea la clase Mascota</h3>
+            <div class="stepmeta">Clic derecho en el paquete → New → Java Class</div>
+            <p>Declara los cuatro atributos como <code>private</code>: es el encapsulamiento que viste en la teoría.</p>
+            <div class="tip">
+              <div><strong>El nombre del archivo debe coincidir con la clase pública:</strong> <code>public class Mascota</code> va en <code>Mascota.java</code>. Conserva la línea <code>package</code> que genera NetBeans. <code>PracticaMascota.java</code> contiene la clase de inicio con <code>main</code>; <code>FormMascota.java</code> contiene el formulario.</div>
+            </div>
+            <div class="codeblock">
+              <div class="filebar">Mascota.java</div>
+              <pre><span class="k">public class</span> Mascota {
+
+                <span class="c">// Atributos (encapsulados con private)</span>
+                <span class="k">private</span> String nombre;
+                <span class="k">private</span> String tipo;
+                <span class="k">private int</span> edad;
+                <span class="k">private double</span> peso;
+
+                }
+              </pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-step="3">
+          <div class="marker">
+            <div class="check" role="checkbox" aria-checked="false"><svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12l5 5L20 6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg></div>
+            <div class="n">3</div>
+          </div>
+          <div class="body">
+            <h3>Escribe el constructor</h3>
+            <p>Inicializa el objeto justo en su fase de <em>creación</em>, dentro del ciclo de vida. Si te confunde <code>this.</code>, consulta <a href="#entender-this">cómo distinguir el atributo del parámetro</a>.</p>
+            <div class="codeblock">
+              <div class="filebar">Mascota.java</div>
+              <pre><span class="c">// Constructor</span>
+                <span class="k">public</span> Mascota(String nombre, String tipo, <span class="k">int</span> edad, <span class="k">double</span> peso) {
+                <span class="k">this</span>.nombre = nombre; <span class="c">// atributo del objeto = parámetro recibido</span>
+                <span class="k">this</span>.tipo = tipo;
+                <span class="k">this</span>.edad = edad;
+                <span class="k">this</span>.peso = peso;
+                }
+              </pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-step="4">
+          <div class="marker">
+            <div class="check" role="checkbox" aria-checked="false"><svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12l5 5L20 6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg></div>
+            <div class="n">4</div>
+          </div>
+          <div class="body">
+            <h3>Escribe el método hacerSonido()</h3>
+            <p>Su resultado depende del <em>estado</em> actual del objeto (el atributo <code>tipo</code>). Agrega también los getters: el formulario los necesitará para leer los datos.</p>
+            <p>Consulta <a href="#comparar-textos">cómo funciona equals()</a> y <a href="#gettext-getedad">la diferencia entre getText() y getEdad()</a> en el apartado de lectura del código.</p>
+            <div class="codeblock">
+              <div class="filebar">Mascota.java</div>
+              <pre><span class="c">// El comportamiento depende del estado del objeto</span>
+                <span class="k">public</span> String hacerSonido() {
+                <span class="c">// equals compara el contenido del texto y distingue mayúsculas</span>
+                <span class="k">if</span> (tipo.equals(<span class="s">"Perro"</span>)) {
+                <span class="k">return</span> <span class="s">"Guau Guau"</span>;
+                } <span class="k">else if</span> (tipo.equals(<span class="s">"Gato"</span>)) {
+                <span class="k">return</span> <span class="s">"Miau"</span>;
+                } <span class="k">else</span> {
+                <span class="k">return</span> <span class="s">"Pío Pío"</span>;
+                }
+                }
+
+                <span class="c">// Estos getters los escribimos nosotros: leen los atributos de Mascota</span>
+                <span class="k">public</span> String getNombre() { <span class="k">return</span> nombre; }
+                <span class="k">public</span> String getTipo() { <span class="k">return</span> tipo; }
+                <span class="k">public int</span> getEdad() { <span class="k">return</span> edad; }
+                <span class="k">public double</span> getPeso(){ <span class="k">return</span> peso; }
+              </pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-step="5">
+          <div class="marker">
+            <div class="check" role="checkbox" aria-checked="false"><svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12l5 5L20 6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg></div>
+            <div class="n">5</div>
+          </div>
+          <div class="body">
+            <h3>Diseña el formulario</h3>
+            <div class="stepmeta">Clic derecho en el paquete → New → JFrame Form → FormMascota</div>
+            <ol class="form-steps">
+              <li>En la ventana <b>New File</b>, selecciona <b>Swing GUI Forms</b> y luego <b>JFrame Form</b>.</li>
+              <li>Escribe <code>FormMascota</code> como nombre de la clase y pulsa <b>Finish</b>.</li>
+              <li>En NetBeans se abrirá la vista <b>Design</b>. A la derecha encontrarás la <b>Palette</b>.</li>
+              <li>Desde <b>Swing Controls</b>, arrastra un <b>Combo Box</b>, dos <b>Text Field</b>, tres <b>Button</b> y un <b>Label</b> al formulario.</li>
+              <li>Para cambiar el nombre de una variable, haz clic derecho sobre el componente y selecciona <b>Change Variable Name</b>.</li>
+              <li>Para cambiar el texto visible, usa la ventana <b>Properties</b> y modifica la propiedad <b>text</b>.</li>
+            </ol>
+            <p>Arrastra estos componentes desde la paleta <b>Swing Controls</b>:</p>
+            <div class="tablewrap">
+              <table class="compo">
+                <tr>
+                  <th>Componente</th>
+                  <th>Variable</th>
+                  <th>Configura</th>
+                </tr>
+                <tr>
+                  <td>Combo Box</td>
+                  <td class="mono">cbTipo</td>
+                  <td>Model → Perro, Gato, Ave</td>
+                </tr>
+                <tr>
+                  <td>Text Field</td>
+                  <td class="mono">txtNombre</td>
+                  <td>vacío</td>
+                </tr>
+                <tr>
+                  <td>Text Field</td>
+                  <td class="mono">txtEdad</td>
+                  <td>vacío</td>
+                </tr>
+                <tr>
+                  <td>Button</td>
+                  <td class="mono">btnCrear</td>
+                  <td>text → "Crear objeto"</td>
+                </tr>
+                <tr>
+                  <td>Button</td>
+                  <td class="mono">btnMostrar</td>
+                  <td>text → "Mostrar información"</td>
+                </tr>
+                <tr>
+                  <td>Button</td>
+                  <td class="mono">btnSalir</td>
+                  <td>text → "Salir"</td>
+                </tr>
+                <tr>
+                  <td>Label</td>
+                  <td class="mono">lblResultado</td>
+                  <td>text → ""</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="paws">
+              <div class="paw"><span class="swatch" style="background:var(--wine-tint); color:var(--wine);"><svg viewBox="0 0 24 24" fill="currentColor">
+                    <ellipse cx="12" cy="16" rx="6" ry="4.6" />
+                    <ellipse cx="5.5" cy="8.5" rx="2.1" ry="2.7" />
+                    <ellipse cx="10.2" cy="5.6" rx="2" ry="2.6" />
+                    <ellipse cx="14.8" cy="5.6" rx="2" ry="2.6" />
+                    <ellipse cx="18.5" cy="8.5" rx="2.1" ry="2.7" />
+                  </svg></span>Perro</div>
+              <div class="paw"><span class="swatch" style="background:var(--teal-tint); color:var(--teal);"><svg viewBox="0 0 24 24" fill="currentColor">
+                    <ellipse cx="12" cy="16" rx="6" ry="4.6" />
+                    <ellipse cx="5.5" cy="8.5" rx="2.1" ry="2.7" />
+                    <ellipse cx="10.2" cy="5.6" rx="2" ry="2.6" />
+                    <ellipse cx="14.8" cy="5.6" rx="2" ry="2.6" />
+                    <ellipse cx="18.5" cy="8.5" rx="2.1" ry="2.7" />
+                  </svg></span>Gato</div>
+              <div class="paw"><span class="swatch" style="background:var(--amber-tint); color:var(--amber);"><svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 20c-3 0-5-2-5-4.3 0-2.6 2.6-3.8 5-7.2 2.4 3.4 5 4.6 5 7.2 0 2.3-2 4.3-5 4.3z" />
+                    <path d="M12 4l1.6 3.4L17 9l-3.4 1.6L12 14l-1.6-3.4L7 9l3.4-1.6z" />
+                  </svg></span>Ave</div>
+            </div>
+
+            <div class="tip">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 8v5M12 16h.01" />
+              </svg>
+              <div><strong>Configura los ítems del Combo Box:</strong>
+                <ol class="form-steps">
+                  <li>Selecciona el <b>Combo Box</b> en la vista <b>Design</b>.</li>
+                  <li>En <b>Properties</b>, busca la propiedad <code>model</code>.</li>
+                  <li>Haz clic en el botón <code>...</code> para abrir el editor del modelo.</li>
+                  <li>Elimina los valores predeterminados: <code>Item 1</code>, <code>Item 2</code>, <code>Item 3</code> y <code>Item 4</code>.</li>
+                  <li>Agrega un valor por línea: <code>Perro</code>, <code>Gato</code> y <code>Ave</code>.</li>
+                  <li>Pulsa <b>OK</b> para guardar.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-step="6">
+          <div class="marker">
+            <div class="check" role="checkbox" aria-checked="false"><svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12l5 5L20 6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg></div>
+            <div class="n">6</div>
+          </div>
+          <div class="body">
+            <h3>Programa los eventos de los botones</h3>
+            <p>Doble clic sobre cada botón en el diseñador para que NetBeans genere el método, y completa el cuerpo. Cambia de pestaña para ver cada uno:</p>
+            <div class="tip">
+              <div><strong>¿Dónde va este código?</strong><br>Los eventos se escriben en <code>FormMascota.java</code>, no en <code>PracticaMascota.java</code>.<br>Haz doble clic en cada botón desde la vista <b>Design</b> y NetBeans abrirá automáticamente su método <code>ActionPerformed</code>.</div>
+            </div>
+
+            <div class="codetabs">
+              <div class="tabbtns">
+                <button class="tabbtn active" data-tab="crear">Crear objeto</button>
+                <button class="tabbtn" data-tab="mostrar">Mostrar información</button>
+                <button class="tabbtn" data-tab="salir">Salir</button>
+              </div>
+              <div class="tabpanels">
+                <div class="tabpanel active" id="tab-crear">
+                  <div class="codeblock">
+                    <div class="filebar">FormMascota.java</div>
+                    <pre><span class="k">private</span> Mascota miMascota; <span class="c">// variable de instancia del formulario</span>
+
+                      <span class="k">private void</span> btnCrearActionPerformed(java.awt.event.ActionEvent evt) {
+                      String nombre = txtNombre.getText(); <span class="c">// lee texto del campo</span>
+                      <span class="c">// Obtiene la opción seleccionada y su representación como texto</span>
+                      String tipo = cbTipo.getSelectedItem().toString();
+                      <span class="c">// getText devuelve String; parseInt lo convierte a int</span>
+                      <span class="k">int</span> edad = Integer.parseInt(txtEdad.getText());
+                      <span class="k">double</span> peso = 0.0; <span class="c">// valor fijo: aún no hay campo de peso</span>
+
+                      miMascota = <span class="k">new</span> Mascota(nombre, tipo, edad, peso); <span class="c">// crea e inicializa el objeto</span>
+                      <span class="c">// setText cambia el texto visible de la etiqueta</span>
+                      lblResultado.setText(<span class="s">"Objeto creado correctamente."</span>);
+                      }
+                    </pre>
+                  </div>
+                </div>
+                <div class="tabpanel" id="tab-mostrar">
+                  <div class="codeblock">
+                    <div class="filebar">FormMascota.java</div>
+                    <pre><span class="k">private void</span> btnMostrarActionPerformed(java.awt.event.ActionEvent evt) {
+                      <span class="c">// null indica que todavía no hay una mascota asignada</span>
+                      <span class="k">if</span> (miMascota == <span class="k">null</span>) {
+                      lblResultado.setText(<span class="s">"Primero crea el objeto."</span>);
+                      <span class="k">return</span>;
+                      }
+                      <span class="c">// Los getters leen el objeto; hacerSonido devuelve su sonido</span>
+                      lblResultado.setText(
+                      miMascota.getNombre() + <span class="s">" ("</span> + miMascota.getTipo() + <span class="s">", "</span> +
+                      miMascota.getEdad() + <span class="s">" años) dice: "</span> + miMascota.hacerSonido()
+                      );
+                      }
+                    </pre>
+                  </div>
+                </div>
+                <div class="tabpanel" id="tab-salir">
+                  <div class="codeblock">
+                    <div class="filebar">FormMascota.java</div>
+                    <pre><span class="k">private void</span> btnSalirActionPerformed(java.awt.event.ActionEvent evt) {
+                      System.exit(0); <span class="c">// termina la aplicación; 0 indica salida normal</span>
+                      }</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-step="7">
+          <div class="marker">
+            <div class="check" role="checkbox" aria-checked="false"><svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 12l5 5L20 6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg></div>
+            <div class="n">7</div>
+          </div>
+          <div class="body">
+            <h3>Ejecuta y comprueba</h3>
+            <p>En <code>PracticaMascota.java</code> reemplaza <code>System.out.println("Hello World!");</code> por este código para abrir el formulario:</p>
+            <div class="codeblock">
+              <div class="filebar">PracticaMascota.java</div>
+              <pre><span class="k">public static void</span> main(String[] args) {
+                java.awt.EventQueue.invokeLater(() -&gt; {
+                <span class="k">new</span> FormMascota().setVisible(<span class="k">true</span>);
+                });
+                }
+              </pre>
+            </div>
+            <ul class="checklist">
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                  <path d="M4 12l5 5L20 6" />
+                </svg>Presiona <code>Shift + F6</code> para correr el formulario.</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                  <path d="M4 12l5 5L20 6" />
+                </svg>Escribe un nombre y una edad, y prueba las tres opciones del combo.</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                  <path d="M4 12l5 5L20 6" />
+                </svg>Confirma que el sonido cambia según el tipo que elegiste.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="leer-codigo">
+    <div class="wrap">
+      <div class="kicker">Consulta mientras programas</div>
+      <h2>Cómo leer el código de esta guía</h2>
+      <p class="section-intro">Para entender una llamada, identifica quién la recibe, qué método se ejecuta y qué devuelve. Algunos métodos vienen con Java; otros los escribes en tu clase Mascota.</p>
+
+      <div class="card">
+        <h3>1. Lee lo que está antes y después del punto</h3>
+        <div class="codeblock">
+          <div class="filebar">Anatomía de una llamada</div>
+          <pre>txtNombre.getText();
+            <span class="c">// txtNombre: variable que hace referencia al campo de texto</span>
+            <span class="c">// . : permite acceder a un miembro del objeto</span>
+            <span class="c">// getText: nombre del método que queremos ejecutar</span>
+            <span class="c">// (): llamada sin argumentos; devuelve un String</span>
+
+            miMascota.getEdad();
+            <span class="c">// miMascota: variable que hace referencia a un objeto Mascota</span>
+            <span class="c">// getEdad(): método que escribimos; devuelve un int</span>
+          </pre>
+        </div>
+        <p>En estas llamadas, el método se ejecuta sobre un objeto. En <code>Integer.parseInt(...)</code>, <code>Integer</code> es una clase: <code>parseInt</code> es un método <code>static</code> y se invoca usando el nombre de la clase.</p>
+      </div>
+
+      <h3 id="gettext-getedad" style="margin-top:28px;">2. ¿En qué se diferencian getText() y getEdad()?</h3>
+      <div class="tablewrap">
+        <table class="compo">
+          <thead>
+            <tr>
+              <th scope="col">Pregunta</th>
+              <th scope="col">txtEdad.getText()</th>
+              <th scope="col">miMascota.getEdad()</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">¿De dónde sale?</th>
+              <td>De la biblioteca Swing de Java. El campo de texto ya dispone de este método.</td>
+              <td>De la clase <code>Mascota</code>. Tú escribiste este método.</td>
+            </tr>
+            <tr>
+              <th scope="row">¿Qué lee?</th>
+              <td>El texto que contiene el campo del formulario en ese momento.</td>
+              <td>El atributo <code>edad</code> guardado en el objeto.</td>
+            </tr>
+            <tr>
+              <th scope="row">¿Qué devuelve?</th>
+              <td>Un <code>String</code>, por ejemplo <code>"3"</code>.</td>
+              <td>Un <code>int</code>, por ejemplo <code>3</code>.</td>
+            </tr>
+            <tr>
+              <th scope="row">¿Para qué lo usamos?</th>
+              <td>Para recoger lo que escribió el usuario.</td>
+              <td>Para consultar la edad de la mascota ya creada.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip">
+        <div><strong>“get” es una convención de nombres, no una palabra especial de Java.</strong> Suele indicar que el método obtiene un valor. El nombre completo, la clase a la que pertenece y su tipo de retorno te dicen qué hace. Escribir un atributo <code>edad</code> no crea automáticamente <code>getEdad()</code>.</div>
+      </div>
+      <div class="codeblock">
+        <div class="filebar">Dentro de Mascota.java: definición del getter</div>
+        <pre><span class="k">public int</span> getEdad() {
+          <span class="k">return</span> edad;
+          }
+          <span class="c">// public: permite llamarlo desde el formulario</span>
+          <span class="c">// int: tipo del valor que devuelve</span>
+          <span class="c">// getEdad: nombre elegido para consultar la edad</span>
+          <span class="c">// (): no necesita recibir argumentos</span>
+          <span class="c">// return edad: termina el método y entrega el valor del atributo</span>
+        </pre>
+      </div>
+
+      <h3 style="margin-top:28px;">3. Sigue el recorrido del dato: campo → objeto → etiqueta</h3>
+      <p>Supón que escribes <code>3</code> en el campo de edad. Estas líneas ilustran el recorrido dentro del formulario:</p>
+      <div class="codeblock">
+        <div class="filebar">FormMascota.java · ejemplo de lectura</div>
+        <pre><span class="c">// 1. Leer: el campo entrega texto, aunque hayas escrito dígitos</span>
+          String textoEdad = txtEdad.getText(); <span class="c">// "3" (String)</span>
+
+          <span class="c">// 2. Convertir: ahora tenemos un número entero</span>
+          <span class="k">int</span> edad = Integer.parseInt(textoEdad); <span class="c">// 3 (int)</span>
+
+          <span class="c">// 3. Crear: el constructor guarda la edad en el objeto</span>
+          miMascota = <span class="k">new</span> Mascota(<span class="s">"Luna"</span>, <span class="s">"Gato"</span>, edad, 0.0);
+
+          <span class="c">// 4. Consultar: leemos la edad almacenada en la mascota</span>
+          <span class="k">int</span> edadGuardada = miMascota.getEdad(); <span class="c">// 3 (int)</span>
+
+          <span class="c">// 5. Mostrar: al unir texto y número con + se forma un String</span>
+          lblResultado.setText(<span class="s">"Edad: "</span> + edadGuardada);
+        </pre>
+      </div>
+      <p><strong>El campo y el objeto no se sincronizan solos.</strong> Si cambias el campo a <code>5</code>, <code>getText()</code> devolverá <code>"5"</code>, pero <code>getEdad()</code> seguirá devolviendo <code>3</code>. En esta guía, al pulsar otra vez «Crear objeto» se crea una nueva mascota con los datos actuales.</p>
+      <p><code>Integer.parseInt()</code> necesita texto que represente un entero dentro del rango de <code>int</code>. Un campo vacío, <code>"tres"</code> o <code>"3.5"</code> provoca <code>NumberFormatException</code>. El ejemplo básico aún no incluye validación; para probarlo, escribe una edad entera como <code>3</code>.</p>
+
+      <h3 id="comparar-textos" style="margin-top:28px;">4. equals(): comparar el contenido de un texto</h3>
+      <div class="codeblock">
+        <div class="filebar">Lectura de la condición usada en hacerSonido()</div>
+        <pre>String tipo = <span class="s">"Perro"</span>;
+          <span class="k">boolean</span> esPerro = tipo.equals(<span class="s">"Perro"</span>); <span class="c">// true</span>
+          <span class="k">boolean</span> mismoTexto = tipo.equals(<span class="s">"perro"</span>); <span class="c">// false: cambia la mayúscula</span>
+
+          <span class="k">if</span> (tipo.equals(<span class="s">"Perro"</span>)) {
+          <span class="c">// Este bloque se ejecuta cuando la comparación devuelve true</span>
+          }
+        </pre>
+      </div>
+      <p><code>equals()</code> es un método que usamos sobre un <code>String</code> para comparar su contenido con el argumento entre paréntesis. Devuelve un <code>boolean</code>: <code>true</code> o <code>false</code>. Distingue mayúsculas y espacios: <code>"Perro"</code>, <code>"perro"</code> y <code>"Perro "</code> son textos diferentes.</p>
+      <p>Para comparar el contenido de dos cadenas usa <code>equals()</code>. Entre referencias a objetos, <code>==</code> comprueba si apuntan al mismo objeto; por eso no lo usamos para comparar estos textos. En <code>miMascota == null</code> sí corresponde: comprobamos si la variable no tiene un objeto asignado.</p>
+      <p>En esta práctica, el combo contiene <code>Perro</code>, <code>Gato</code> y <code>Ave</code>. El <code>else</code> de <code>hacerSonido()</code> cubre cualquier valor que no coincida con los dos primeros; no comprueba expresamente que sea <code>Ave</code>.</p>
+
+      <h3 style="margin-top:28px;">5. Diccionario de las otras llamadas de la guía</h3>
+      <div class="tablewrap">
+        <table class="compo">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Origen</th>
+              <th scope="col">Qué hace aquí</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>cbTipo.getSelectedItem()</code></td>
+              <td>Java · Swing</td>
+              <td>Obtiene el elemento seleccionado del combo. Su retorno es <code>Object</code>; en nuestro combo los elementos son textos.</td>
+            </tr>
+            <tr>
+              <td><code>.toString()</code></td>
+              <td>Java</td>
+              <td>Obtiene la representación textual del elemento seleccionado. Para la opción <code>Gato</code>, resulta <code>"Gato"</code>. Esta cadena de llamadas supone que hay una selección.</td>
+            </tr>
+            <tr>
+              <td><code>lblResultado.setText(...)</code></td>
+              <td>Java · Swing</td>
+              <td>Cambia el texto visible de la etiqueta. Recibe un <code>String</code> y no devuelve un valor (<code>void</code>).</td>
+            </tr>
+            <tr>
+              <td><code>getNombre()</code>, <code>getTipo()</code>, <code>getPeso()</code></td>
+              <td>Tu clase Mascota</td>
+              <td>Devuelven los atributos correspondientes: <code>String</code>, <code>String</code> y <code>double</code>. Se llaman sobre la mascota, igual que <code>getEdad()</code>.</td>
+            </tr>
+            <tr>
+              <td><code>miMascota.hacerSonido()</code></td>
+              <td>Tu clase Mascota</td>
+              <td>Devuelve un <code>String</code> según el tipo. No reproduce audio ni muestra texto por sí solo; la etiqueta muestra el resultado.</td>
+            </tr>
+            <tr>
+              <td><code>btnCrearActionPerformed(...)</code></td>
+              <td>Tu formulario · generado por NetBeans</td>
+              <td>Es el método que atiende el evento del botón. NetBeans prepara su conexión con el botón; tú completas las instrucciones. <code>evt</code> recibe información del evento.</td>
+            </tr>
+            <tr>
+              <td><code>System.exit(0)</code></td>
+              <td>Java</td>
+              <td>Finaliza la aplicación. El código <code>0</code> indica una terminación normal.</td>
+            </tr>
+            <tr>
+              <td><code>EventQueue.invokeLater(...)</code></td>
+              <td>Java · AWT</td>
+              <td>Programa las instrucciones para ejecutarlas en el hilo de eventos de la interfaz. <code>() -&gt; { ... }</code> es una lambda que expresa la tarea de abrir el formulario.</td>
+            </tr>
+            <tr>
+              <td><code>new FormMascota().setVisible(true)</code></td>
+              <td>Tu formulario + Java · Swing/AWT</td>
+              <td><code>new FormMascota()</code> crea el formulario; <code>setVisible(true)</code> lo hace visible.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="metodos-componentes" style="margin-top:28px;">6. Otros métodos como getText(): consultar y cambiar componentes</h3>
+      <p>Los componentes del formulario ofrecen métodos para leer sus valores, cambiar su contenido y consultar su estado. Algunos ya aparecen en esta práctica; otros te servirán al ampliar el formulario.</p>
+      <div class="tablewrap">
+        <table class="compo">
+          <thead>
+            <tr>
+              <th scope="col">Método</th>
+              <th scope="col">Ejemplo</th>
+              <th scope="col">¿Qué hace?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>getText()</code></td>
+              <td><code>txtNombre.getText()</code></td>
+              <td>Obtiene el texto del campo y devuelve un <code>String</code>.</td>
+            </tr>
+            <tr>
+              <td><code>setText(...)</code></td>
+              <td><code>lblResultado.setText("Hola")</code></td>
+              <td>Cambia el texto mostrado. Recibe un <code>String</code> y no devuelve un valor (<code>void</code>).</td>
+            </tr>
+            <tr>
+              <td><code>getSelectedItem()</code></td>
+              <td><code>cbTipo.getSelectedItem()</code></td>
+              <td>Obtiene la opción seleccionada del combo como <code>Object</code>. Puede devolver <code>null</code> si no hay selección.</td>
+            </tr>
+            <tr>
+              <td><code>getSelectedIndex()</code></td>
+              <td><code>cbTipo.getSelectedIndex()</code></td>
+              <td>Devuelve la posición seleccionada como <code>int</code>: <code>0</code> para Perro, <code>1</code> para Gato y <code>2</code> para Ave, según el orden de esta guía. Devuelve <code>-1</code> si no hay selección.</td>
+            </tr>
+            <tr>
+              <td><code>isSelected()</code></td>
+              <td><code>chkVacunado.isSelected()</code></td>
+              <td>Consulta si una casilla está marcada y devuelve <code>true</code> o <code>false</code>. Este ejemplo supone agregar un <code>JCheckBox</code> llamado <code>chkVacunado</code>.</td>
+            </tr>
+            <tr>
+              <td><code>setEnabled(...)</code></td>
+              <td><code>btnMostrar.setEnabled(false)</code></td>
+              <td>Deshabilita el botón; con <code>true</code> lo habilita. No devuelve un valor (<code>void</code>).</td>
+            </tr>
+            <tr>
+              <td><code>isEnabled()</code></td>
+              <td><code>btnMostrar.isEnabled()</code></td>
+              <td>Consulta si el botón está habilitado y devuelve un <code>boolean</code>.</td>
+            </tr>
+            <tr>
+              <td><code>setVisible(...)</code></td>
+              <td><code>lblResultado.setVisible(true)</code></td>
+              <td>Hace visible la etiqueta; con <code>false</code> la oculta. No devuelve un valor (<code>void</code>).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip">
+        <div><strong>Reconoce las convenciones de nombres:</strong> <code>get...</code> suele obtener un valor; <code>set...</code> suele establecer o cambiar un valor; <code>is...</code> suele consultar una condición y devolver <code>boolean</code>. Son pistas para leer el código, no palabras reservadas ni reglas que creen métodos automáticamente.</div>
+      </div>
+      <div class="codeblock">
+        <div class="filebar">FormMascota.java · ejemplo dentro de un evento</div>
+        <pre><span class="c">// Lee el nombre escrito en el campo del formulario</span>
+          String nombre = txtNombre.getText();
+
+          <span class="c">// Muestra ese nombre en la etiqueta</span>
+          lblResultado.setText(nombre);
+
+          <span class="c">// Habilita el botón para mostrar información</span>
+          btnMostrar.setEnabled(<span class="k">true</span>);
+
+          <span class="c">// Consulta el estado del botón: aquí devuelve true</span>
+          <span class="k">boolean</span> habilitado = btnMostrar.isEnabled();
+        </pre>
+      </div>
+      <p><strong>Cada clase ofrece sus propios métodos.</strong> El campo <code>txtEdad</code> dispone de <code>getText()</code> porque es un componente de texto de Swing. Tu objeto <code>miMascota</code> dispone de <code>getEdad()</code> porque lo definiste en <code>Mascota</code>. Por eso <code>txtEdad.getEdad()</code> y <code>miMascota.getText()</code> no son llamadas válidas en esta guía.</p>
+      <p>Para explorar los métodos disponibles en NetBeans, escribe el nombre de la variable seguido de un punto, por ejemplo <code>txtNombre.</code>, y usa el autocompletado. Revisa qué argumentos pide cada método y qué tipo devuelve antes de elegirlo.</p>
+
+      <h3 style="margin-top:28px;">7. Palabras y símbolos que también debes reconocer</h3>
+      <div class="tablewrap">
+        <table class="compo">
+          <thead>
+            <tr>
+              <th scope="col">Elemento</th>
+              <th scope="col">Cómo leerlo en esta guía</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>// comentario</code></td>
+              <td>Explica el código hasta el final de la línea. Java no ejecuta ese texto.</td>
+            </tr>
+            <tr>
+              <td><code>private</code> / <code>public</code></td>
+              <td>Los atributos privados se usan dentro de <code>Mascota</code>; sus métodos públicos permiten que el formulario consulte el objeto.</td>
+            </tr>
+            <tr>
+              <td><code>String</code>, <code>int</code>, <code>double</code>, <code>boolean</code></td>
+              <td>Representan texto, número entero, número decimal y valor verdadero/falso, respectivamente. <code>String</code> es una clase; los otros tres son tipos primitivos.</td>
+            </tr>
+            <tr>
+              <td><code>this.edad = edad;</code></td>
+              <td>Guarda el parámetro <code>edad</code> del constructor en el atributo <code>edad</code> del objeto actual. <code>=</code> asigna un valor. <a href="#entender-this">Ver this. paso a paso</a>.</td>
+            </tr>
+            <tr>
+              <td><code>new Mascota(...)</code></td>
+              <td>Crea un objeto e invoca su constructor con nombre, tipo, edad y peso, en ese orden. El constructor se llama como la clase y no declara tipo de retorno.</td>
+            </tr>
+            <tr>
+              <td><code>return edad;</code> / <code>return;</code></td>
+              <td>Ambos terminan la llamada actual. El primero entrega un valor; el segundo sale de un método <code>void</code>, como el evento del botón, sin entregar un valor.</td>
+            </tr>
+            <tr>
+              <td><code>if</code> / <code>else if</code> / <code>else</code></td>
+              <td>Evalúan condiciones para elegir qué bloque ejecutar. Si una rama hace <code>return</code>, el método termina allí.</td>
+            </tr>
+            <tr>
+              <td><code>void</code></td>
+              <td>Indica que el método no devuelve un valor a quien lo llama. Puede ejecutar acciones y recibir parámetros. <a href="#entender-void">Ver ejemplos de void y return</a>.</td>
+            </tr>
+            <tr>
+              <td><code>static</code></td>
+              <td>Indica que el miembro pertenece a la clase. Un método <code>static</code>, como <code>main</code>, no tiene un objeto actual al que referirse con <code>this</code>.</td>
+            </tr>
+            <tr>
+              <td><code>main(String[] args)</code></td>
+              <td>Es el punto de entrada usado para iniciar esta aplicación. <code>args</code> es un arreglo de textos con los argumentos de inicio; aquí no lo utilizamos.</td>
+            </tr>
+            <tr>
+              <td><code>+</code> junto a un texto</td>
+              <td>Concatena: une valores para formar un <code>String</code>, como <code>"Edad: " + 3</code>, cuyo resultado es <code>"Edad: 3"</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 id="entender-this" style="margin-top:28px;">8. this.: «este objeto»</h3>
+      <p><strong><code>this</code> es una referencia al objeto actual.</strong> Dentro del constructor de <code>Mascota</code>, se refiere a la mascota que se está inicializando. Dentro de un método de instancia, se refiere a la mascota sobre la que llamaste al método. El punto permite acceder a un miembro: <code>this.edad</code> se lee «el atributo edad de este objeto».</p>
+      <div class="codeblock">
+        <div class="filebar">Mascota.java · el constructor de la práctica</div>
+        <pre><span class="k">public</span> Mascota(String nombre, String tipo, <span class="k">int</span> edad, <span class="k">double</span> peso) {
+          <span class="k">this</span>.nombre = nombre;
+          <span class="k">this</span>.tipo = tipo;
+          <span class="k">this</span>.edad = edad;
+          <span class="k">this</span>.peso = peso;
+          }
+          <span class="c">// this.edad: atributo que pertenece al objeto</span>
+          <span class="c">// edad: parámetro que recibe el constructor</span>
+          <span class="c">// =: toma el valor de la derecha y lo guarda a la izquierda</span>
+        </pre>
+      </div>
+      <div class="tablewrap">
+        <table class="compo">
+          <thead>
+            <tr>
+              <th scope="col">En this.edad = edad;</th>
+              <th scope="col">¿A qué se refiere?</th>
+              <th scope="col">Si recibimos 3</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>this.edad</code></td>
+              <td>Al atributo declarado con <code>private int edad;</code>. Es parte del estado del objeto.</td>
+              <td>Es el destino donde se guardará <code>3</code>.</td>
+            </tr>
+            <tr>
+              <td><code>edad</code></td>
+              <td>Al parámetro <code>int edad</code>. Está disponible durante la ejecución del constructor.</td>
+              <td>Contiene el valor <code>3</code> recibido al crear la mascota.</td>
+            </tr>
+            <tr>
+              <td><code>=</code></td>
+              <td>A la asignación: copia el valor de la derecha en la variable de la izquierda.</td>
+              <td>El atributo del objeto queda con el valor <code>3</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>El atributo y el parámetro son <strong>dos variables distintas que aquí tienen el mismo nombre</strong>. Dentro del constructor, el parámetro tiene prioridad cuando escribes solamente <code>edad</code>. Por eso usamos <code>this.edad</code> para indicar que queremos modificar el atributo.</p>
+      <div class="tip">
+        <div><strong>¿Qué pasa si escribo <code>edad = edad;</code>?</strong> En este constructor, asignas el parámetro a sí mismo. La línea compila, pero no guarda el dato en el atributo. Como <code>private int edad;</code> no tiene un valor inicial explícito, el atributo de la nueva mascota conservaría su valor predeterminado: <code>0</code>.</div>
+      </div>
+      <div class="codeblock">
+        <div class="filebar">Dos mascotas: cada objeto tiene su propia edad</div>
+        <pre>Mascota luna = <span class="k">new</span> Mascota(<span class="s">"Luna"</span>, <span class="s">"Gato"</span>, 3, 4.2);
+          <span class="c">// En esta ejecución del constructor, this se refiere al objeto de Luna</span>
+
+          Mascota max = <span class="k">new</span> Mascota(<span class="s">"Max"</span>, <span class="s">"Perro"</span>, 5, 12.0);
+          <span class="c">// En esta otra ejecución, this se refiere al objeto de Max</span>
+
+          <span class="k">int</span> edadLuna = luna.getEdad(); <span class="c">// 3</span>
+          <span class="k">int</span> edadMax = max.getEdad(); <span class="c">// 5</span>
+        </pre>
+      </div>
+      <p><strong>¿Siempre debo escribir <code>this.</code>?</strong> Puedes omitirlo cuando no haya un parámetro o una variable local con el mismo nombre que oculte al atributo. En tu getter, <code>return edad;</code> y <code>return this.edad;</code> consultan el mismo atributo, porque <code>getEdad()</code> no tiene un parámetro llamado <code>edad</code>.</p>
+      <p>También podrías llamar <code>edadInicial</code> al parámetro y escribir <code>this.edad = edadInicial;</code> o <code>edad = edadInicial;</code>. Usar el mismo nombre con <code>this.</code> es una forma habitual de mantener clara la relación entre ambos.</p>
+      <p><code>this</code> también puede usarse para llamar a un método del objeto, como <code>this.getEdad()</code> dentro de <code>Mascota</code>. No se puede usar directamente dentro de un método <code>static</code>, como <code>main</code>: allí debes crear u obtener un objeto y usar su variable, por ejemplo <code>luna.getEdad()</code>.</p>
+
+      <h3 id="entender-void" style="margin-top:28px;">9. void: ejecutar sin devolver un valor</h3>
+      <p><strong><code>void</code> indica que un método no entrega un valor de retorno a quien lo llama.</strong> Puede realizar acciones, como cambiar una etiqueta, crear un objeto o cerrar la aplicación. No significa que el método esté vacío, que no haga nada o que no pueda recibir parámetros.</p>
+      <div class="tablewrap">
+        <table class="compo">
+          <thead>
+            <tr>
+              <th scope="col">Declaración o llamada</th>
+              <th scope="col">¿Qué devuelve?</th>
+              <th scope="col">¿Cómo se usa?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>public int getEdad()</code></td>
+              <td>Un número entero mediante <code>return edad;</code>.</td>
+              <td><code>int edad = miMascota.getEdad();</code></td>
+            </tr>
+            <tr>
+              <td><code>public String hacerSonido()</code></td>
+              <td>Un texto, por ejemplo <code>"Miau"</code>.</td>
+              <td><code>String sonido = miMascota.hacerSonido();</code></td>
+            </tr>
+            <tr>
+              <td><code>lblResultado.setText("Hola")</code></td>
+              <td>Ningún valor: su retorno es <code>void</code>. Cambia la etiqueta.</td>
+              <td>Se ejecuta como una instrucción: <code>lblResultado.setText("Hola");</code></td>
+            </tr>
+            <tr>
+              <td><code>private void btnMostrarActionPerformed(java.awt.event.ActionEvent evt)</code></td>
+              <td>Ningún valor. Atiende el evento y actualiza la interfaz.</td>
+              <td>Se ejecuta al pulsar el botón y recibe el evento en <code>evt</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="codeblock">
+        <div class="filebar">FormMascota.java · void y una salida anticipada</div>
+        <pre><span class="k">private void</span> btnMostrarActionPerformed(java.awt.event.ActionEvent evt) {
+          <span class="k">if</span> (miMascota == <span class="k">null</span>) {
+          lblResultado.setText(<span class="s">"Primero crea el objeto."</span>);
+          <span class="k">return</span>; <span class="c">// termina este evento sin devolver un valor</span>
+          }
+
+          lblResultado.setText(<span class="s">"Edad: "</span> + miMascota.getEdad());
+          <span class="c">// Al llegar al final, el método termina. No necesita otro return.</span>
+          }
+        </pre>
+      </div>
+      <p><strong>Mostrar un texto y devolver un valor son cosas distintas.</strong> <code>getEdad()</code> devuelve un número al código que lo llamó; por sí solo no lo muestra en pantalla. <code>setText(...)</code> modifica el texto de la etiqueta y su retorno es <code>void</code>.</p>
+      <div class="codeblock">
+        <div class="filebar">Qué puedes guardar en una variable</div>
+        <pre><span class="c">// Correcto: getEdad devuelve un int que podemos guardar</span>
+          <span class="k">int</span> edad = miMascota.getEdad();
+
+          <span class="c">// Correcto: setText realiza una acción y se llama sin asignar su resultado</span>
+          lblResultado.setText(<span class="s">"Edad: "</span> + edad);
+
+          <span class="c">// Incorrecto: setText es void; esta línea no compilaría</span>
+          <span class="c">// String resultado = lblResultado.setText("Hola");</span>
+        </pre>
+      </div>
+      <p>Un método <code>void</code> puede usar <code>return;</code> para salir antes, pero no <code>return edad;</code> ni <code>return null;</code>. Un método declarado con retorno <code>int</code> debe entregar un valor compatible cuando termina normalmente. Los parámetros se leen entre paréntesis: <code>getEdad()</code> no recibe ninguno; el evento sí recibe <code>evt</code>, aunque sea <code>void</code>.</p>
+      <div class="tip">
+        <div><strong>El constructor no lleva <code>void</code>.</strong> <code>public Mascota(...)</code> es el constructor porque tiene el nombre de la clase y no declara tipo de retorno. Si escribieras <code>public void Mascota(...)</code>, declararías un método común llamado <code>Mascota</code>; no sería el constructor que se invoca con <code>new</code>.</div>
+      </div>
+
+      <div class="qs" style="margin-top:24px;">
+        <details class="q">
+          <summary>Si reemplazas this.edad = edad; por edad = edad; en el constructor y creas una mascota con edad 3, ¿qué devolverá getEdad()?<span class="arrow">＋</span></summary>
+          <div class="hint">Devolverá <code>0</code> en esta clase: el parámetro se asignó a sí mismo y el atributo quedó con su valor inicial predeterminado. <code>this.edad = edad;</code> guarda el <code>3</code> recibido en el atributo del objeto.</div>
+        </details>
+        <details class="q">
+          <summary>¿Un método void puede recibir datos y cambiar lo que ves en pantalla?<span class="arrow">＋</span></summary>
+          <div class="hint">Sí. <code>lblResultado.setText("Hola")</code> recibe un texto y cambia la etiqueta. <code>void</code> solo indica que no entrega un valor de retorno para guardarlo o usarlo en otra expresión.</div>
+        </details>
+        <details class="q">
+          <summary>Creaste una mascota con edad 3 y luego escribiste 5 en el campo sin pulsar «Crear objeto». ¿Qué devuelve cada método?<span class="arrow">＋</span></summary>
+          <div class="hint"><code>txtEdad.getText()</code> devuelve <code>"5"</code> como <code>String</code>. <code>miMascota.getEdad()</code> devuelve <code>3</code> como <code>int</code>, porque el objeto conserva la edad recibida en el constructor.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="cierre" class="alt">
+    <div class="wrap">
+      <div class="kicker">Antes de cerrar</div>
+      <h2>Tres preguntas para asentar la idea</h2>
+      <p class="section-intro">No hay una única respuesta correcta — toca cada una para ver una pista y compara tu razonamiento con la de tu compañero de al lado.</p>
+
+      <div class="qs">
+        <details class="q">
+          <summary>¿Qué diferencia hay entre la clase Mascota y el objeto que creas al presionar "Crear objeto"?<span class="arrow">＋</span></summary>
+          <div class="hint">Piensa en la analogía del plano: la clase existe una sola vez en tu código; cada clic en "Crear objeto" reserva memoria nueva. ¿Qué pasaría si presionas el botón dos veces seguidas?</div>
+        </details>
+        <details class="q">
+          <summary>¿En qué fase del ciclo de vida está miMascota justo después de presionar "Crear objeto"?<span class="arrow">＋</span></summary>
+          <div class="hint">Repasa las tres fases vistas en la teoría: creación, manipulación, destrucción. ¿Cuál ocurre exactamente en la línea donde usas <code>new</code>?</div>
+        </details>
+        <details class="q">
+          <summary>¿Por qué los atributos de Mascota se declararon private y no public?<span class="arrow">＋</span></summary>
+          <div class="hint">Relaciónalo con la tabla de modificadores de acceso de la diapositiva: ¿quién debería poder cambiar el nombre de una mascota directamente, sin pasar por un método?</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="siguiente">
+    <div class="wide">
+      <div class="cta">
+        <h2>Ya conoces el patrón completo</h2>
+        <p>Clase con atributos encapsulados → constructor → un método cuyo resultado depende del estado → formulario con combo box y botones → eventos que crean y muestran el objeto.</p>
+        <ul>
+          <li>Ahora resuelve, de forma individual, la <b>Guía de Laboratorio Nº 01</b>.</li>
+          <li>Es exactamente esta misma estructura, aplicada a la clase <b>Empleado</b> y al cálculo de un sueldo.</li>
+          <li>Si te atoras, vuelve a este ejemplo — el código de <code>Mascota</code> es tu referencia rápida.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Programación Orientada a Objetos · Sesión 1 · Práctica dirigida en clase
+  </footer>
+
+  <div id="copyToast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      // ---------------------------------------------------------------
+      // INTERRUPTOR INTERNO — bloqueo de copiado en los bloques de código
+      // Cambia disableCopy a false si en algún momento quieres permitir
+      // que se seleccione y copie el código (por ejemplo, para compartir
+      // el archivo final ya resuelto con los estudiantes).
+      // ---------------------------------------------------------------
+      var CONFIG = { disableCopy: false };
+
+      function applyCopyProtection() {
+        var blocks = document.querySelectorAll('.codeblock, .editor');
+        var toast = document.getElementById('copyToast');
+        var toastTimer = null;
+
+        function showToast(msg) {
+          toast.textContent = msg;
+          toast.classList.add('show');
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2600);
+        }
+
+        blocks.forEach(function (block) {
+          block.classList.add('protected');
+
+          block.addEventListener('copy', function (e) {
+            e.preventDefault();
+            if (e.clipboardData) e.clipboardData.setData('text/plain', '');
+            showToast('🔒 Este código es de solo lectura — escríbelo tú mismo en NetBeans.');
+          });
+          block.addEventListener('cut', function (e) { e.preventDefault(); });
+          block.addEventListener('selectstart', function (e) { e.preventDefault(); });
+          block.addEventListener('dragstart', function (e) { e.preventDefault(); });
+          block.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            showToast('🔒 El menú contextual está desactivado en el código.');
+          });
+        });
+      }
+
+      if (CONFIG.disableCopy) applyCopyProtection();
+
+      // reading progress bar
+      var bar = document.getElementById('progress');
+      function onScroll() {
+        var h = document.documentElement;
+        var scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+        bar.style.width = (isFinite(scrolled) ? scrolled : 0) + '%';
+      }
+      document.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      // active nav link
+      var links = document.querySelectorAll('.navlinks a');
+      var sections = Array.prototype.slice.call(document.querySelectorAll('section, header.hero'));
+      function setActive() {
+        var pos = window.scrollY + 90;
+        var current = sections[0];
+        sections.forEach(function (s) { if (s.offsetTop <= pos) current = s; });
+        var id = current.id;
+        links.forEach(function (a) {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+        });
+      }
+      document.addEventListener('scroll', setActive, { passive: true });
+      setActive();
+
+      // step checkboxes with persistence
+      var STORE_KEY = 'mascota-steps-v1';
+      var saved = {};
+      try {
+        var raw = localStorage.getItem(STORE_KEY);
+        if (raw) saved = JSON.parse(raw);
+      } catch (e) { saved = {}; }
+
+      var stepEls = document.querySelectorAll('.step');
+      var doneCountEl = document.getElementById('doneCount');
+
+      function updateCount() {
+        var n = document.querySelectorAll('.step.done').length;
+        doneCountEl.textContent = n;
+      }
+
+      stepEls.forEach(function (step) {
+        var id = step.getAttribute('data-step');
+        var check = step.querySelector('.check');
+        if (saved[id]) { step.classList.add('done'); check.setAttribute('aria-checked', 'true'); }
+        check.addEventListener('click', function () {
+          var isDone = step.classList.toggle('done');
+          check.setAttribute('aria-checked', isDone ? 'true' : 'false');
+          saved[id] = isDone;
+          try { localStorage.setItem(STORE_KEY, JSON.stringify(saved)); } catch (e) { }
+          updateCount();
+        });
+      });
+      updateCount();
+
+      // code tabs (step 6)
+      var tabBtns = document.querySelectorAll('.tabbtn');
+      tabBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var target = btn.getAttribute('data-tab');
+          document.querySelectorAll('.tabbtn').forEach(function (b) { b.classList.toggle('active', b === btn); });
+          document.querySelectorAll('.tabpanel').forEach(function (p) {
+            p.classList.toggle('active', p.id === 'tab-' + target);
+          });
+        });
+      });
+    })();
+  </script>
+
+</body>
+</html>
