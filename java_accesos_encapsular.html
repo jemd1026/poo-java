@@ -307,6 +307,58 @@
       color: #c9a7ed
     }
 
+    pre.protected,
+    pre.protected code {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      cursor: default
+    }
+
+    pre.protected {
+      position: relative
+    }
+
+    pre.protected::after {
+      content: 'solo lectura';
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      padding: 2px 7px;
+      color: #9fb5ad;
+      background: var(--code-top);
+      border-radius: 999px;
+      font: 600 10px var(--sans);
+      letter-spacing: .4px
+    }
+
+    #copyToast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 400;
+      max-width: 88vw;
+      padding: 11px 18px;
+      color: var(--bg);
+      background: var(--ink);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(12px);
+      transition: opacity .22s ease, transform .22s ease
+    }
+
+    #copyToast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0)
+    }
+
     .caption {
       margin: 20px 0 8px;
       color: var(--muted);
@@ -836,8 +888,13 @@
 
     <div class="footer">Programación Orientada a Objetos — Java / NetBeans</div>
   </main>
+  <div id="copyToast" role="status" aria-live="polite"></div>
+
   <script>
     (function () {
+      // Interruptor interno: false mantiene los bloques de código en solo lectura.
+      var CONFIG = { allowCodeCopy: false };
+
       var main = document.querySelector('main');
       var methodSection = document.getElementById('seccion-metodos');
       var internalAccessSection = document.getElementById('seccion-acceso-interno');
@@ -878,6 +935,36 @@
       document.querySelectorAll('pre > code').forEach(function (block) {
         block.innerHTML = highlightJava(block.textContent);
       });
+
+      function applyCopyProtection() {
+        var blocks = document.querySelectorAll('pre');
+        var toast = document.getElementById('copyToast');
+        var toastTimer;
+
+        function showToast(message) {
+          toast.textContent = message;
+          toast.classList.add('show');
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2600);
+        }
+
+        blocks.forEach(function (block) {
+          block.classList.add('protected');
+          block.addEventListener('copy', function (event) {
+            event.preventDefault();
+            showToast('Este código es de solo lectura. Escríbelo en NetBeans.');
+          });
+          block.addEventListener('cut', function (event) { event.preventDefault(); });
+          block.addEventListener('selectstart', function (event) { event.preventDefault(); });
+          block.addEventListener('dragstart', function (event) { event.preventDefault(); });
+          block.addEventListener('contextmenu', function (event) {
+            event.preventDefault();
+            showToast('El menú contextual está desactivado en el código.');
+          });
+        });
+      }
+
+      if (!CONFIG.allowCodeCopy) applyCopyProtection();
 
       var progress = document.getElementById('progress');
       var links = document.querySelectorAll('.navlinks a');
