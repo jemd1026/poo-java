@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía: Herencia y polimorfismo en Java</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Code+Pro:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f7f2;
+      --soft: #e7eee9;
+      --panel: #fff;
+      --ink: #18252b;
+      --muted: #657278;
+      --line: #dfe5e1;
+      --coral: #ef714c;
+      --coral-dark: #da5e3b;
+      --coral-tint: #fff0e9;
+      --green: #16745a;
+      --green-tint: #e4f0e9;
+      --amber: #d29b35;
+      --amber-tint: #fff8df;
+      --code: #172a31;
+      --code-top: #243c42;
+      --code-ink: #d8e5df;
+      --shadow: 0 24px 60px rgba(24, 37, 43, .12);
+      --sans: 'DM Sans', sans-serif;
+      --display: 'Space Grotesk', sans-serif;
+      --mono: 'Source Code Pro', Consolas, monospace
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.6 var(--sans)
+    }
+
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 300;
+      width: 0;
+      height: 3px;
+      background: var(--coral)
+    }
+
+    nav {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 100;
+      width: 260px;
+      background: var(--bg);
+      border-right: 1px solid var(--line)
+    }
+
+    .navrow {
+      padding: 42px 26px
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 30px;
+      padding: 18px 16px;
+      color: #fff;
+      background: var(--code);
+      border-radius: 4px 22px 22px 22px;
+      font-weight: 700
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--coral)
+    }
+
+    .navlinks {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .navlinks:before {
+      content: 'CONTENIDO';
+      margin: 0 12px 10px;
+      color: #9aa6a7;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px
+    }
+
+    .navlinks a {
+      padding: 11px 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      text-decoration: none
+    }
+
+    .navlinks a:hover,
+    .navlinks a.active {
+      background: var(--soft);
+      color: var(--green);
+      font-weight: 700
+    }
+
+    main {
+      max-width: 1100px;
+      min-height: 100vh;
+      margin-left: 260px;
+      padding: 80px 6vw 62px
+    }
+
+    .head {
+      max-width: 810px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px
+    }
+
+    .pill {
+      padding: 5px 11px;
+      border-radius: 20px;
+      color: var(--green);
+      background: var(--green-tint);
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .kicker {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--display);
+      letter-spacing: -1.2px
+    }
+
+    h1 {
+      max-width: 15ch;
+      margin: 0 0 16px;
+      font-size: clamp(42px, 5vw, 70px);
+      line-height: .98
+    }
+
+    h2 {
+      max-width: 23ch;
+      margin: 62px 0 14px;
+      font-size: clamp(31px, 4vw, 51px);
+      line-height: 1.03;
+      scroll-margin-top: 30px
+    }
+
+    h3 {
+      margin: 34px 0 8px;
+      font-size: 22px
+    }
+
+    .lead {
+      max-width: 62ch;
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px
+    }
+
+    .box,
+    .note,
+    .ok {
+      margin: 22px 0;
+      padding: 16px 18px;
+      border-radius: 4px 14px 14px 4px
+    }
+
+    .box {
+      background: var(--green-tint);
+      border: 1px solid #bddbcf;
+      border-left: 5px solid var(--green)
+    }
+
+    .note {
+      background: var(--amber-tint);
+      border: 1px solid #ecd69d;
+      border-left: 5px solid var(--amber)
+    }
+
+    .ok {
+      background: var(--coral-tint);
+      border: 1px solid #f1c7b9;
+      border-left: 5px solid var(--coral)
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 24px 0
+    }
+
+    .card {
+      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--coral);
+      border-radius: 4px 18px 18px 18px
+    }
+
+    .card h3 {
+      margin: 0 0 7px;
+      font-size: 20px
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px
+    }
+
+    table {
+      width: 100%;
+      margin: 22px 0;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 24px -18px rgba(24, 37, 43, .3)
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line)
+    }
+
+    th {
+      background: var(--coral);
+      color: #fff;
+      font-size: 13px
+    }
+
+    tr:nth-child(even)td {
+      background: var(--soft)
+    }
+
+    code {
+      padding: .08em .28em;
+      border-radius: 4px;
+      color: var(--coral-dark);
+      background: var(--coral-tint);
+      font: .9em var(--mono)
+    }
+
+    pre {
+      position: relative;
+      margin: 18px 0;
+      padding: 22px 24px;
+      overflow: auto;
+      color: var(--code-ink);
+      background: var(--code);
+      border-radius: 4px 20px 20px 20px;
+      box-shadow: var(--shadow);
+      font: 13px/1.6 var(--mono)
+    }
+
+    pre code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      font-size: inherit
+    }
+
+    .tree {
+      color: var(--green);
+      background: var(--green-tint);
+      border: 1px solid var(--line);
+      box-shadow: none;
+      white-space: pre-wrap
+    }
+
+    .caption {
+      margin: 20px 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .result {
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px 14px 14px 14px;
+      background: var(--panel);
+      font-family: var(--mono)
+    }
+
+    .footer {
+      margin-top: 62px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    .java-keyword {
+      color: #ef9470
+    }
+
+    .java-type {
+      color: #78c5d4
+    }
+
+    .java-string {
+      color: #f5cd62
+    }
+
+    .java-comment {
+      color: #8fb6a8;
+      font-style: italic
+    }
+
+    .java-number,
+    .java-literal,
+    .java-annotation {
+      color: #c9a7ed
+    }
+
+    pre.protected,
+    pre.protected code {
+      -webkit-user-select: none;
+      user-select: none;
+      cursor: default
+    }
+
+    pre.protected:after {
+      content: 'solo lectura';
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      color: #9fb5ad;
+      background: var(--code-top);
+      font: 600 10px var(--sans)
+    }
+
+    #copyToast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 400;
+      max-width: 88vw;
+      padding: 11px 18px;
+      border-radius: 999px;
+      color: var(--bg);
+      background: var(--ink);
+      box-shadow: var(--shadow);
+      font-weight: 600;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(12px);
+      transition: .22s
+    }
+
+    #copyToast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0)
+    }
+
+    @media(max-width:760px) {
+      nav {
+        position: sticky;
+        inset: 0;
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--line)
+      }
+
+      .navrow {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 18px
+      }
+
+      .brand {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 10px 12px
+      }
+
+      .navlinks {
+        flex-direction: row;
+        overflow-x: auto
+      }
+
+      .navlinks:before {
+        display: none
+      }
+
+      .navlinks a {
+        white-space: nowrap
+      }
+
+      main {
+        margin-left: 0;
+        padding: 52px 24px 40px
+      }
+
+      .cards {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+  <nav aria-label="Navegación de la guía">
+    <div class="navrow">
+      <div class="brand"><span class="dot"></span>Herencia.java</div>
+      <div class="navlinks"><a href="#inicio">Inicio</a><a href="#estructura">Estructura</a><a href="#herencia">Herencia</a><a href="#super">super</a><a href="#override">@Override</a><a href="#polimorfismo">Polimorfismo</a><a href="#formulario">Formulario</a><a href="#resumen">Resumen</a></div>
+    </div>
+  </nav>
+  <main id="inicio">
+    <header class="head">
+      <div class="pills"><span class="pill">Java · POO</span><span class="pill">Herencia y polimorfismo</span></div>
+      <p class="kicker">Guía práctica</p>
+      <h1>Herencia y polimorfismo en Java</h1>
+      <p class="lead">Trabaja con los paquetes <code>herencia</code> y <code>polimorfismo</code> para reutilizar código, especializar comportamientos y aplicar sobrecarga y sobrescritura.</p>
+    </header>
+
+    <h2 id="estructura">1. Estructura general de la práctica</h2>
+    <p>Los ejemplos se organizan en paquetes independientes para conservar cada tema y facilitar la ejecución en NetBeans.</p>
+    <pre class="tree">Source Packages
+      │
+      ├── herencia
+      │ ├── Persona.java
+      │ ├── Empleado.java
+      │ ├── Consultor.java
+      │ └── PruebaHerencia.java
+      │
+      └── polimorfismo
+      ├── Persona.java
+      ├── Empleado.java
+      ├── Consultor.java
+      └── PruebaPolimorfismo.java</pre>
+    <div class="note"><strong>En NetBeans:</strong> abre el archivo que contiene <code>main()</code> y presiona <strong>Shift + F6</strong> para ejecutarlo.</div>
+
+    <h2 id="herencia">2. Herencia</h2>
+    <p>La herencia permite crear una clase hija a partir de una clase padre. La subclase reutiliza los atributos y métodos heredables de la superclase y agrega características propias.</p>
+    <div class="cards">
+      <article class="card">
+        <h3>Superclase</h3>
+        <p>Clase padre de la cual se hereda una estructura común.</p>
+      </article>
+      <article class="card">
+        <h3>Subclase</h3>
+        <p>Clase hija que recibe y especializa miembros de la superclase.</p>
+      </article>
+      <article class="card">
+        <h3><code>extends</code></h3>
+        <p>Palabra reservada que declara la relación de herencia.</p>
+      </article>
+    </div>
+    <h3>2.1 Clase padre: <code>Persona.java</code></h3>
+    <pre><code>package herencia;
+
+        public class Persona {
+        protected int id;
+        protected String dni;
+        protected String nombre;
+        protected String apellido;
+
+        public Persona(int id, String dni, String nombre, String apellido) {
+        this.id = id;
+        this.dni = dni;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        }
+
+        public void mostrarDatos() {
+        System.out.println("ID: " + id);
+        System.out.println("DNI: " + dni);
+        System.out.println("Nombre: " + nombre);
+        System.out.println("Apellido: " + apellido);
+        }
+
+        public void actividad() {
+        System.out.println("La persona realiza una actividad");
+        }
+        }</code></pre>
+    <p>Los atributos son <code>protected</code> para que puedan utilizarse dentro de las subclases.</p>
+    <h3>2.2 Clase hija: <code>Empleado.java</code></h3>
+    <pre><code>package herencia;
+
+        public class Empleado extends Persona {
+        private double sueldo;
+
+        public Empleado(int id, String dni, String nombre,
+        String apellido, double sueldo) {
+        super(id, dni, nombre, apellido);
+        this.sueldo = sueldo;
+        }
+
+        public double getSueldo() {
+        return sueldo;
+        }
+        }</code></pre>
+
+    <h2 id="super">3. Uso de <code>super</code></h2>
+    <p><code>super</code> hace referencia a la clase padre. Permite llamar al constructor del padre o a la versión de un método definida allí.</p>
+    <h3>3.1 Constructor del padre</h3>
+    <pre><code>super(id, dni, nombre, apellido);</code></pre>
+    <p>Esta instrucción ejecuta el constructor de <code>Persona</code>. Debe ser la primera instrucción del constructor de la clase hija.</p>
+    <h3>3.2 Método del padre</h3>
+    <pre><code>super.mostrarDatos();</code></pre>
+    <p>Esta llamada ejecuta específicamente la versión de <code>mostrarDatos()</code> declarada en <code>Persona</code>.</p>
+
+    <h2 id="override">4. Sobrescritura con <code>@Override</code></h2>
+    <p>La sobrescritura permite que una clase hija proporcione su propia implementación de un método heredado.</p>
+    <h3>4.1 Clase <code>Consultor.java</code></h3>
+    <pre><code>package herencia;
+
+        public class Consultor extends Persona {
+        private String nombreConsultora;
+
+        public Consultor(int id, String dni, String nombre,
+        String apellido, String nombreConsultora) {
+        super(id, dni, nombre, apellido);
+        this.nombreConsultora = nombreConsultora;
+        }
+
+        @Override
+        public void actividad() {
+        System.out.println("El consultor brinda asesoría");
+        }
+        }</code></pre>
+    <p>Agrega dentro de <code>Empleado.java</code>:</p>
+    <pre><code>@Override
+        public void actividad() {
+        System.out.println("El empleado trabaja en la empresa");
+        }</code></pre>
+    <h3>4.2 Ejecutar la sobrescritura</h3>
+    <pre><code>package herencia;
+
+        public class PruebaHerencia {
+        public static void main(String[] args) {
+        Persona persona = new Persona(1, "12345678", "Ana", "Rojas");
+        Empleado empleado = new Empleado(2, "23456789", "Carlos", "Pérez", 2500);
+        Consultor consultor = new Consultor(3, "34567890", "Luis", "Torres", "Consultora ABC");
+
+        persona.actividad();
+        empleado.actividad();
+        consultor.actividad();
+        }
+        }</code></pre>
+    <p class="caption">Resultado en consola:</p>
+    <div class="result">La persona realiza una actividad<br>El empleado trabaja en la empresa<br>El consultor brinda asesoría</div>
+    <h3>4.3 Combinar <code>super</code> y <code>@Override</code></h3>
+    <pre><code>@Override
+        public void mostrarDatos() {
+        super.mostrarDatos();
+        System.out.println("Sueldo: " + sueldo);
+        }</code></pre>
+    <div class="box"><strong>Idea clave:</strong> <code>@Override</code> crea una nueva versión del método; <code>super.mostrarDatos()</code> conserva primero el comportamiento definido en la clase padre.</div>
+
+    <h3>4.4 Ejemplo adicional: <code>Animal</code>, <code>Perro</code> y <code>Gato</code></h3>
+    <pre><code>package herencia;
+
+        public class Animal {
+        protected String nombre;
+
+        public Animal(String nombre) {
+        this.nombre = nombre;
+        }
+
+        public void hacerSonido() {
+        System.out.println("El animal emite un sonido");
+        }
+        }</code></pre>
+    <pre><code>package herencia;
+
+        public class Perro extends Animal {
+
+        public Perro(String nombre) {
+        super(nombre);
+        }
+
+        @Override
+        public void hacerSonido() {
+        System.out.println(nombre + " dice: Guau");
+        }
+        }</code></pre>
+    <pre><code>package herencia;
+
+        public class Gato extends Animal {
+
+        public Gato(String nombre) {
+        super(nombre);
+        }
+
+        @Override
+        public void hacerSonido() {
+        System.out.println(nombre + " dice: Miau");
+        }
+        }</code></pre>
+
+    <h2 id="polimorfismo">5. Polimorfismo</h2>
+    <p>El polimorfismo permite que una misma operación presente diferentes comportamientos. Los siguientes ejemplos se realizan en el paquete <code>polimorfismo</code>.</p>
+    <table>
+      <tr>
+        <th>Tipo</th>
+        <th>Mecanismo</th>
+        <th>Se determina</th>
+      </tr>
+      <tr>
+        <td>Polimorfismo estático</td>
+        <td>Sobrecarga (<em>overloading</em>)</td>
+        <td>Durante la compilación</td>
+      </tr>
+      <tr>
+        <td>Polimorfismo dinámico</td>
+        <td>Sobrescritura (<em>overriding</em>)</td>
+        <td>Durante la ejecución</td>
+      </tr>
+    </table>
+    <h3>5.1 Polimorfismo estático: sobrecarga</h3>
+    <pre><code>package polimorfismo;
+
+        public class Persona {
+        public void saludar() {
+        System.out.println("Hola");
+        }
+
+        public void saludar(String nombre) {
+        System.out.println("Hola " + nombre);
+        }
+
+        public void saludar(String nombre, int edad) {
+        System.out.println("Hola " + nombre + ", tienes " + edad + " años");
+        }
+
+        public void actividad() {
+        System.out.println("La persona realiza una actividad");
+        }
+        }</code></pre>
+    <pre><code>Persona persona = new Persona();
+        persona.saludar();
+        persona.saludar("Carlos");
+        persona.saludar("Carlos", 30);</code></pre>
+    <p class="caption">Resultado en consola:</p>
+    <div class="result">Hola<br>Hola Carlos<br>Hola Carlos, tienes 30 años</div>
+    <div class="note"><strong>Sobrecarga:</strong> mismo nombre de método y diferentes parámetros. Java selecciona la versión adecuada durante la compilación.</div>
+    <h3>5.2 Polimorfismo dinámico: sobrescritura</h3>
+    <pre><code>package polimorfismo;
+
+        public class Empleado extends Persona {
+        @Override
+        public void actividad() {
+        System.out.println("El empleado trabaja en la empresa");
+        }
+        }</code></pre>
+    <pre><code>package polimorfismo;
+
+        public class Consultor extends Persona {
+        @Override
+        public void actividad() {
+        System.out.println("El consultor brinda asesoría");
+        }
+        }</code></pre>
+    <pre><code>Persona persona;
+
+        persona = new Empleado();
+        persona.actividad();
+
+        persona = new Consultor();
+        persona.actividad();</code></pre>
+    <p class="caption">Resultado en consola:</p>
+    <div class="result">El empleado trabaja en la empresa<br>El consultor brinda asesoría</div>
+    <h3>5.3 Ejemplo final: arreglo polimórfico</h3>
+    <pre><code>Persona[] personas = {
+        new Persona(),
+        new Empleado(),
+        new Consultor()
+        };
+
+        for (Persona persona : personas) {
+        persona.actividad();
+        }</code></pre>
+    <p class="caption">Resultado en consola:</p>
+    <div class="result">La persona realiza una actividad<br>El empleado trabaja en la empresa<br>El consultor brinda asesoría</div>
+    <div class="ok"><strong>Polimorfismo dinámico:</strong> una referencia de la clase padre puede apuntar a objetos de clases hijas. La implementación ejecutada depende del objeto real.</div>
+
+    <h2 id="formulario">6. Práctica: formulario de mascotas</h2>
+    <p>Esta práctica crea un formulario sencillo para seleccionar un animal, registrar su nombre y edad, y mostrar el comportamiento correspondiente. Trabaja en un paquete nuevo para mantener separados los ejemplos anteriores.</p>
+
+    <h3>6.1 Crear el paquete y las clases</h3>
+    <ol>
+      <li>En <strong>Source Packages</strong>, haz clic derecho y selecciona <strong>New → Java Package</strong>.</li>
+      <li>Escribe <code>formulariomascota</code> y pulsa <strong>Finish</strong>.</li>
+      <li>Dentro del paquete, crea las clases <code>Animal</code>, <code>Perro</code>, <code>Gato</code> y <code>Ave</code> con <strong>New → Java Class</strong>.</li>
+      <li>Escribe el código siguiente en cada archivo antes de crear el formulario.</li>
+    </ol>
+    <pre><code>package formulariomascota;
+
+        public class Animal {
+        protected String nombre;
+        protected int edad;
+
+        public Animal(String nombre, int edad) {
+        this.nombre = nombre;
+        this.edad = edad;
+        }
+
+        public String getDatos() {
+        return "Nombre: " + nombre + "&lt;br>Edad: " + edad;
+        }
+
+        public String hacerSonido() {
+        return "El animal emite un sonido";
+        }
+        }</code></pre>
+    <pre><code>package formulariomascota;
+
+        public class Perro extends Animal {
+
+        public Perro(String nombre, int edad) {
+        super(nombre, edad);
+        }
+
+        @Override
+        public String hacerSonido() {
+        return "Guau";
+        }
+        }</code></pre>
+    <pre><code>package formulariomascota;
+
+        public class Gato extends Animal {
+
+        public Gato(String nombre, int edad) {
+        super(nombre, edad);
+        }
+
+        @Override
+        public String hacerSonido() {
+        return "Miau";
+        }
+        }</code></pre>
+    <pre><code>package formulariomascota;
+
+        public class Ave extends Animal {
+
+        public Ave(String nombre, int edad) {
+        super(nombre, edad);
+        }
+
+        @Override
+        public String hacerSonido() {
+        return "Pío";
+        }
+        }</code></pre>
+
+    <h3>6.2 Crear <code>FormMascota</code></h3>
+    <ol>
+      <li>Haz clic derecho en el paquete <code>formulariomascota</code> y selecciona <strong>New → JFrame Form</strong>.</li>
+      <li>En la ventana <strong>New File</strong>, verifica que esté seleccionada la categoría <strong>Swing GUI Forms</strong> y el tipo <strong>JFrame Form</strong>.</li>
+      <li>Escribe <code>FormMascota</code> como nombre de la clase y pulsa <strong>Finish</strong>.</li>
+      <li>NetBeans abrirá la vista <strong>Design</strong>. A la derecha se encuentra la ventana <strong>Palette</strong>.</li>
+      <li>Selecciona el formulario. En <strong>Properties</strong>, cambia <code>title</code> por <code>Registro de mascotas</code>.</li>
+    </ol>
+    <pre class="tree">FormMascota
+      ────────────────────────────────────
+      Tipo: [ Perro ▾ ]
+      Nombre: [ ]
+      Edad: [ ]
+
+      [ Crear objeto ] [ Mostrar información ] [ Salir ]
+
+      Resultado:
+      [ ]</pre>
+
+    <h3>6.3 Agregar y configurar los componentes</h3>
+    <p>Desde <strong>Palette → Swing Controls</strong>, arrastra los componentes al formulario. Para cambiar el nombre de una variable, haz clic derecho sobre el componente y selecciona <strong>Change Variable Name</strong>. Para cambiar el texto visible, usa la propiedad <code>text</code> en <strong>Properties</strong>.</p>
+    <table>
+      <tr>
+        <th>Componente</th>
+        <th>Variable</th>
+        <th>Configuración</th>
+      </tr>
+      <tr>
+        <td>Combo Box</td>
+        <td><code>cbTipo</code></td>
+        <td><code>Model</code> → Perro, Gato, Ave</td>
+      </tr>
+      <tr>
+        <td>Text Field</td>
+        <td><code>txtNombre</code></td>
+        <td><code>text</code> → vacío</td>
+      </tr>
+      <tr>
+        <td>Text Field</td>
+        <td><code>txtEdad</code></td>
+        <td><code>text</code> → vacío</td>
+      </tr>
+      <tr>
+        <td>Button</td>
+        <td><code>btnCrear</code></td>
+        <td><code>text</code> → Crear objeto</td>
+      </tr>
+      <tr>
+        <td>Button</td>
+        <td><code>btnMostrar</code></td>
+        <td><code>text</code> → Mostrar información</td>
+      </tr>
+      <tr>
+        <td>Button</td>
+        <td><code>btnSalir</code></td>
+        <td><code>text</code> → Salir</td>
+      </tr>
+      <tr>
+        <td>Label</td>
+        <td><code>lblResultado</code></td>
+        <td><code>text</code> → vacío</td>
+      </tr>
+    </table>
+    <div class="note"><strong>Orden recomendado:</strong> coloca las etiquetas <strong>Tipo</strong>, <strong>Nombre</strong> y <strong>Edad</strong> a la izquierda de sus controles. Sitúa <code>lblResultado</code> debajo de los botones y amplía su ancho para mostrar varias líneas.</div>
+
+    <h3>6.4 Declarar la referencia polimórfica</h3>
+    <ol>
+      <li>Cambia a la vista <strong>Source</strong> de <code>FormMascota.java</code>.</li>
+      <li>Ubica la línea <code>public class FormMascota extends javax.swing.JFrame {</code>.</li>
+      <li>Justo después de la llave de apertura y antes del constructor <code>public FormMascota()</code>, agrega la referencia.</li>
+      <li>No declares esta línea dentro de <code>FormMascota()</code>, <code>initComponents()</code> ni un evento de botón.</li>
+    </ol>
+    <pre><code>public class FormMascota extends javax.swing.JFrame {
+
+        private Animal mascota;
+
+        private static final java.util.logging.Logger logger =
+        java.util.logging.Logger.getLogger(FormMascota.class.getName());
+
+        public FormMascota() {
+        initComponents();
+        }
+        }</code></pre>
+    <p>La variable tiene tipo <code>Animal</code>, pero podrá guardar un objeto <code>Perro</code>, <code>Gato</code> o <code>Ave</code>.</p>
+
+    <h3>6.5 Programar el botón Crear objeto</h3>
+    <ol>
+      <li>Vuelve a <strong>Design</strong>.</li>
+      <li>Haz doble clic sobre <code>btnCrear</code>. NetBeans abrirá automáticamente <code>btnCrearActionPerformed(...)</code>.</li>
+      <li>Dentro del método generado, escribe el siguiente código:</li>
+    </ol>
+    <pre><code>String tipo = cbTipo.getSelectedItem().toString();
+        String nombre = txtNombre.getText().trim();
+        String textoEdad = txtEdad.getText().trim();
+
+        if (nombre.isEmpty() || textoEdad.isEmpty()) {
+        lblResultado.setText("Completa nombre y edad.");
+        return;
+        }
+
+        try {
+        int edad = Integer.parseInt(textoEdad);
+
+        if (edad &lt; 0) {
+        lblResultado.setText("La edad no puede ser negativa.");
+        return;
+        }
+
+        if (tipo.equals("Perro")) {
+        mascota = new Perro(nombre, edad);
+        } else if (tipo.equals("Gato")) {
+        mascota = new Gato(nombre, edad);
+        } else {
+        mascota = new Ave(nombre, edad);
+        }
+
+        lblResultado.setText("Objeto creado: " + tipo);
+        } catch (NumberFormatException e) {
+        lblResultado.setText("La edad debe ser un número entero.");
+        }</code></pre>
+
+    <h3>6.6 Programar Mostrar información y Salir</h3>
+    <ol>
+      <li>En <strong>Design</strong>, haz doble clic en <code>btnMostrar</code> y agrega este código.</li>
+      <li>Haz doble clic en <code>btnSalir</code> y agrega el segundo bloque.</li>
+    </ol>
+    <pre><code>if (mascota == null) {
+        lblResultado.setText("Primero crea una mascota.");
+        return;
+        }
+
+        lblResultado.setText("&lt;html>" + mascota.getDatos()
+        + "&lt;br>Sonido: " + mascota.hacerSonido()
+        + "&lt;/html>");</code></pre>
+    <pre><code>dispose();</code></pre>
+
+    <h3>6.7 Ejecutar la práctica</h3>
+    <ol>
+      <li>Haz clic derecho en <code>FormMascota.java</code> y selecciona <strong>Run File</strong>, o presiona <strong>Shift + F6</strong>.</li>
+      <li>Selecciona <strong>Perro</strong>, escribe <code>Max</code> y <code>3</code>, y pulsa <strong>Crear objeto</strong>.</li>
+      <li>Pulsa <strong>Mostrar información</strong>. Repite la prueba con <strong>Gato</strong> y <strong>Ave</strong>.</li>
+    </ol>
+    <p class="caption">Resultado esperado para Perro, Max y 3:</p>
+    <div class="result">Nombre: Max<br>Edad: 3<br>Sonido: Guau</div>
+    <div class="ok"><strong>Conexión con polimorfismo:</strong> <code>mascota</code> mantiene el mismo tipo de referencia, <code>Animal</code>. Sin embargo, <code>hacerSonido()</code> ejecuta la versión de <code>Perro</code>, <code>Gato</code> o <code>Ave</code> según el objeto creado.</div>
+
+    <h2 id="resumen">7. Resumen</h2>
+    <table>
+      <tr>
+        <th>Concepto</th>
+        <th>Java</th>
+        <th>Finalidad</th>
+      </tr>
+      <tr>
+        <td>Herencia</td>
+        <td><code>extends</code></td>
+        <td>Crear una clase hija a partir de una clase padre.</td>
+      </tr>
+      <tr>
+        <td>Constructor padre</td>
+        <td><code>super(...)</code></td>
+        <td>Ejecutar el constructor de la clase padre.</td>
+      </tr>
+      <tr>
+        <td>Método padre</td>
+        <td><code>super.metodo()</code></td>
+        <td>Ejecutar la versión definida en la superclase.</td>
+      </tr>
+      <tr>
+        <td>Sobrescritura</td>
+        <td><code>@Override</code></td>
+        <td>Proporcionar una nueva implementación heredada.</td>
+      </tr>
+      <tr>
+        <td>Polimorfismo estático</td>
+        <td>Sobrecarga</td>
+        <td>Mismo nombre y parámetros diferentes.</td>
+      </tr>
+      <tr>
+        <td>Polimorfismo dinámico</td>
+        <td>Sobrescritura</td>
+        <td>La respuesta depende del objeto real.</td>
+      </tr>
+    </table>
+    <div class="box"><strong>Secuencia conceptual:</strong> Herencia → <code>extends</code> → <code>super</code> → sobrescritura con <code>@Override</code> → sobrecarga → polimorfismo estático → polimorfismo dinámico.</div>
+    <div class="footer">Programación Orientada a Objetos · Java · Herencia y polimorfismo</div>
+  </main>
+  <div id="copyToast" role="status" aria-live="polite"></div>
+  <script>
+    (function () {
+      var CONFIG = { allowCodeCopy: false };
+      function escapeHtml(text) { return text.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] }) }
+      function highlightJava(source) { var pattern = /\/\/[^\n]*|"(?:\\.|[^"\\])*"|@[A-Za-z]+|\b(?:package|import|public|protected|private|class|static|void|return|new|this|if|else|extends|super|for|try|catch)\b|\b(?:String|int|double|boolean|Integer|NumberFormatException|Persona|Empleado|Consultor|Animal|Perro|Gato|Ave|System)\b|\b(?:true|false|null)\b|\b\d+(?:\.\d+)?\b/g, result = '', last = 0, match; while ((match = pattern.exec(source)) !== null) { var token = match[0], kind = 'java-number'; if (token.indexOf('//') === 0) kind = 'java-comment'; else if (token.charAt(0) === '"') kind = 'java-string'; else if (token.charAt(0) === '@') kind = 'java-annotation'; else if (/^(package|import|public|protected|private|class|static|void|return|new|this|if|else|extends|super|for|try|catch)$/.test(token)) kind = 'java-keyword'; else if (/^(String|int|double|boolean|Integer|NumberFormatException|Persona|Empleado|Consultor|Animal|Perro|Gato|Ave|System)$/.test(token)) kind = 'java-type'; else if (/^(true|false|null)$/.test(token)) kind = 'java-literal'; result += escapeHtml(source.slice(last, match.index)) + '<span class="' + kind + '">' + escapeHtml(token) + '</span>'; last = pattern.lastIndex } return result + escapeHtml(source.slice(last)) }
+      document.querySelectorAll('pre > code').forEach(function (block) { block.innerHTML = highlightJava(block.textContent) });
+      function protect() { var toast = document.getElementById('copyToast'), timer; function show(message) { toast.textContent = message; toast.classList.add('show'); clearTimeout(timer); timer = setTimeout(function () { toast.classList.remove('show') }, 2600) } document.querySelectorAll('pre').forEach(function (block) { block.classList.add('protected'); block.addEventListener('copy', function (e) { e.preventDefault(); show('Este código es de solo lectura. Escríbelo en NetBeans.') }); block.addEventListener('cut', function (e) { e.preventDefault() }); block.addEventListener('selectstart', function (e) { e.preventDefault() }); block.addEventListener('dragstart', function (e) { e.preventDefault() }); block.addEventListener('contextmenu', function (e) { e.preventDefault(); show('El menú contextual está desactivado en el código.') }) }) }
+      if (!CONFIG.allowCodeCopy) protect();
+      var bar = document.getElementById('progress'), links = document.querySelectorAll('.navlinks a'), sections = Array.prototype.slice.call(document.querySelectorAll('main,h2[id]')); function update() { var root = document.documentElement, total = root.scrollHeight - root.clientHeight, pos = window.scrollY + 130, current = sections[0]; bar.style.width = (total > 0 ? root.scrollTop / total * 100 : 0) + '%'; sections.forEach(function (section) { if (section.offsetTop <= pos) current = section }); links.forEach(function (link) { link.classList.toggle('active', link.getAttribute('href') === '#' + current.id) }) } document.addEventListener('scroll', update, { passive: true }); update();
+    })();
+  </script>
+</body>
+</html>
