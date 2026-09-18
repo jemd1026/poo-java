@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía: Modificadores de acceso y encapsulamiento en Java</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Code+Pro:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f7f2;
+      --bg-soft: #e7eee9;
+      --panel: #ffffff;
+      --ink: #18252b;
+      --muted: #657278;
+      --line: #dfe5e1;
+      --coral: #ef714c;
+      --coral-dark: #da5e3b;
+      --coral-tint: #fff0e9;
+      --green: #16745a;
+      --green-tint: #e4f0e9;
+      --amber: #d29b35;
+      --amber-tint: #fff8df;
+      --code: #172a31;
+      --code-top: #243c42;
+      --code-ink: #d8e5df;
+      --shadow: 0 24px 60px rgba(24, 37, 43, .12);
+      --sans: 'DM Sans', sans-serif;
+      --display: 'Space Grotesk', sans-serif;
+      --mono: 'Source Code Pro', Consolas, monospace
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6
+    }
+
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 300;
+      width: 0;
+      height: 3px;
+      background: var(--coral);
+      transition: width .1s linear
+    }
+
+    nav.top {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 100;
+      width: 260px;
+      background: var(--bg);
+      border-right: 1px solid var(--line)
+    }
+
+    .navrow {
+      padding: 42px 26px
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 30px;
+      padding: 18px 16px;
+      color: #fff;
+      background: var(--code);
+      border-radius: 4px 22px 22px 22px;
+      font: 600 15px var(--sans)
+    }
+
+    .brand .dot {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--coral)
+    }
+
+    .navlinks {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .navlinks::before {
+      content: 'CONTENIDO';
+      margin: 0 12px 10px;
+      color: #9aa6a7;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px
+    }
+
+    .navlinks a {
+      padding: 11px 12px;
+      color: var(--muted);
+      border-radius: 8px;
+      font-size: 14px;
+      text-decoration: none
+    }
+
+    .navlinks a:hover,
+    .navlinks a.active {
+      background: var(--bg-soft);
+      color: var(--green)
+    }
+
+    .navlinks a.active {
+      font-weight: 700
+    }
+
+    main {
+      max-width: 1100px;
+      min-height: 100vh;
+      margin-left: 260px;
+      padding: 80px 6vw 62px
+    }
+
+    .lesson-head {
+      max-width: 810px;
+      padding: 0 0 48px;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px
+    }
+
+    .pill {
+      padding: 5px 11px;
+      color: var(--green);
+      background: var(--green-tint);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .kicker {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--display);
+      letter-spacing: -1.2px
+    }
+
+    h1 {
+      max-width: 16ch;
+      margin: 0 0 16px;
+      font-size: clamp(42px, 5vw, 70px);
+      line-height: .98
+    }
+
+    h2 {
+      max-width: 20ch;
+      margin: 62px 0 14px;
+      font-size: clamp(31px, 4vw, 51px);
+      line-height: 1.03;
+      scroll-margin-top: 30px
+    }
+
+    h3 {
+      margin: 34px 0 8px;
+      font-size: 22px
+    }
+
+    .lead {
+      max-width: 58ch;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 18px
+    }
+
+    .box {
+      margin: 22px 0;
+      padding: 16px 18px;
+      background: var(--green-tint);
+      border: 1px solid #bddbcf;
+      border-left: 5px solid var(--green);
+      border-radius: 4px 14px 14px 4px
+    }
+
+    .note {
+      margin: 22px 0;
+      padding: 16px 18px;
+      background: var(--amber-tint);
+      border: 1px solid #ecd69d;
+      border-left: 5px solid var(--amber);
+      border-radius: 4px 14px 14px 4px
+    }
+
+    .ok {
+      margin: 22px 0;
+      padding: 16px 18px;
+      background: var(--coral-tint);
+      border: 1px solid #f1c7b9;
+      border-left: 5px solid var(--coral);
+      border-radius: 4px 14px 14px 4px
+    }
+
+    table {
+      width: 100%;
+      margin: 22px 0;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 4px 14px 14px 14px;
+      box-shadow: 0 8px 24px -18px rgba(24, 37, 43, .3)
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line)
+    }
+
+    th {
+      color: #fff;
+      background: var(--coral);
+      font-size: 13px
+    }
+
+    tr:last-child td {
+      border-bottom: 0
+    }
+
+    tr:nth-child(even) td {
+      background: var(--bg-soft)
+    }
+
+    code {
+      padding: .08em .28em;
+      color: var(--coral-dark);
+      background: var(--coral-tint);
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: .9em
+    }
+
+    pre {
+      background: var(--code);
+      color: var(--code-ink);
+      padding: 22px 24px;
+      border-radius: 4px 20px 20px 20px;
+      overflow: auto;
+      line-height: 1.6;
+      font-family: var(--mono);
+      font-size: 13px;
+      box-shadow: var(--shadow)
+    }
+
+    pre code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      border-radius: 0;
+      font-size: inherit
+    }
+
+    /* Resaltado Java aplicado a todos los ejemplos de la guía. */
+    .java-keyword {
+      color: #ef9470
+    }
+
+    .java-type {
+      color: #78c5d4
+    }
+
+    .java-string {
+      color: #f5cd62
+    }
+
+    .java-comment {
+      color: #8fb6a8;
+      font-style: italic
+    }
+
+    .java-number,
+    .java-literal {
+      color: #c9a7ed
+    }
+
+    .caption {
+      margin: 20px 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .3px
+    }
+
+    .result {
+      padding: 16px 18px;
+      color: var(--ink);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px 14px 14px 14px;
+      font-family: var(--mono);
+      box-shadow: 0 8px 24px -18px rgba(24, 37, 43, .3)
+    }
+
+    .flow {
+      text-align: center;
+      font-family: var(--mono);
+      color: var(--green);
+      background: var(--green-tint);
+      border: 1px solid var(--line);
+      border-radius: 4px 14px 14px 14px;
+      padding: 20px;
+      white-space: pre-wrap;
+      font-weight: 600
+    }
+
+    .summary {
+      max-width: 62ch;
+      font-size: 18px
+    }
+
+    .footer {
+      margin-top: 62px;
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    @media(max-width:700px) {
+      nav.top {
+        position: sticky;
+        inset: 0;
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--line)
+      }
+
+      .navrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 18px
+      }
+
+      .brand {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 10px 12px
+      }
+
+      .navlinks {
+        flex-direction: row;
+        overflow-x: auto;
+        scrollbar-width: none
+      }
+
+      .navlinks::before {
+        display: none
+      }
+
+      .navlinks a {
+        white-space: nowrap
+      }
+
+      main {
+        margin-left: 0;
+        padding: 52px 24px 40px
+      }
+
+      h1 {
+        font-size: clamp(38px, 13vw, 56px)
+      }
+
+      h2 {
+        margin-top: 48px
+      }
+
+      th,
+      td {
+        padding: 10px
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+
+  <nav class="top" aria-label="Navegación de la guía">
+    <div class="navrow">
+      <div class="brand"><span class="dot"></span>Acceso.java</div>
+      <div class="navlinks">
+        <a href="#inicio">Inicio</a>
+        <a href="#modificadores">Modificadores</a>
+        <a href="#metodos">Métodos</a>
+        <a href="#acceso-interno">Acceso interno</a>
+        <a href="#encapsulamiento">Getter y Setter</a>
+        <a href="#importancia">Validación</a>
+        <a href="#secuencia">Síntesis</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="inicio">
+    <header class="lesson-head">
+      <div class="pills"><span class="pill">Java · POO</span><span class="pill">Encapsulamiento</span></div>
+      <p class="kicker">Guía práctica</p>
+      <h1>Modificadores de acceso y encapsulamiento</h1>
+      <p class="lead">Ejemplo práctico utilizando las clases <strong>Persona</strong> y <strong>PruebaAcceso</strong>.</p>
+    </header>
+
+    <h2 id="modificadores">1. Modificadores de acceso</h2>
+    <p>Los modificadores de acceso determinan desde dónde pueden utilizarse los atributos y métodos de una clase. Permiten establecer distintos niveles de visibilidad y protección.</p>
+    <table>
+      <tr>
+        <th>Modificador</th>
+        <th>Acceso principal</th>
+      </tr>
+      <tr>
+        <td><code>public</code></td>
+        <td>Puede utilizarse desde cualquier clase que tenga acceso a la clase.</td>
+      </tr>
+      <tr>
+        <td><code>protected</code></td>
+        <td>Puede utilizarse desde clases del mismo paquete y desde subclases.</td>
+      </tr>
+      <tr>
+        <td><code>private</code></td>
+        <td>Solamente puede utilizarse directamente dentro de la propia clase.</td>
+      </tr>
+    </table>
+    <div class="box"><strong>Importancia:</strong> los modificadores de acceso permiten proteger los datos y controlar qué elementos de una clase quedan disponibles para otras clases.</div>
+
+    <h2>Parte 1. Modificadores de acceso en atributos</h2>
+    <h3>2. Clase <code>Persona</code></h3>
+    <p>La clase contiene tres atributos con diferentes niveles de acceso.</p>
+    <pre><code>package encapsulamiento;
+
+        public class Persona {
+
+        // Atributo público: puede accederse desde otras clases
+        public String nombre;
+
+        // Atributo protegido: puede accederse desde el mismo paquete
+        // y también desde las subclases
+        protected int edad;
+
+        // Atributo privado: solamente puede accederse directamente
+        // desde la propia clase Persona
+        private double sueldo;
+
+        }</code></pre>
+    <p>La visibilidad definida es:</p>
+    <div class="flow">nombre → public
+      edad → protected
+      sueldo → private</div>
+
+    <h3>3. Clase <code>PruebaAcceso</code></h3>
+    <p>La clase <code>PruebaAcceso</code> pertenece al mismo paquete <code>encapsulamiento</code>.</p>
+    <pre><code>package encapsulamiento;
+
+        public class PruebaAcceso {
+
+        public static void main(String[] args) {
+
+        // Creación de un objeto de la clase Persona
+        Persona persona = new Persona();
+
+        // Permitido: nombre es public
+        persona.nombre = "Carlos";
+
+        // Permitido: edad es protected y ambas clases
+        // pertenecen al mismo paquete
+        persona.edad = 25;
+
+        // ERROR: sueldo es private
+        persona.sueldo = 2500;
+
+        // Impresión de los atributos accesibles
+        System.out.println("Nombre: " + persona.nombre);
+        System.out.println("Edad: " + persona.edad);
+        }
+        }</code></pre>
+    <p><code>persona.nombre = "Carlos";</code> funciona porque <code>nombre</code> es <code>public</code>. <code>persona.edad = 25;</code> también funciona porque <code>edad</code> es <code>protected</code> y las dos clases pertenecen al mismo paquete.</p>
+    <div class="note"><code>persona.sueldo = 2500;</code> produce un error de compilación porque <code>sueldo</code> fue declarado como <code>private</code>. Un atributo privado solamente puede ser accedido directamente desde la clase donde fue declarado.</div>
+    <p>Este comportamiento introduce el concepto de <strong>ocultamiento de datos</strong>.</p>
+
+    <section id="seccion-metodos">
+    <h2 id="metodos">Parte 3. Métodos <code>public</code>, <code>protected</code> y <code>private</code></h2>
+    <p>Los modificadores de acceso también se aplican a los métodos de una clase. Definen desde dónde puede llamarse cada método.</p>
+
+    <h3>4. Modificar <code>Persona.java</code></h3>
+    <p>Agrega los métodos con cada nivel de acceso:</p>
+    <pre><code>package encapsulamiento;
+
+        public class Persona {
+
+        public String nombre;
+        protected int edad;
+        private double sueldo;
+
+        // Método PUBLIC
+        // Puede ser llamado desde cualquier clase
+        public void metodoPublico() {
+        System.out.println("Ejecutando método PUBLIC");
+        }
+
+        // Método PROTECTED
+        // Puede ser llamado desde el mismo paquete
+        // y también desde una subclase
+        protected void metodoProtegido() {
+        System.out.println("Ejecutando método PROTECTED");
+        }
+
+        // Método PRIVATE
+        // Solo puede ser llamado dentro de la clase Persona
+        private void metodoPrivado() {
+        System.out.println("Ejecutando método PRIVATE");
+        }
+        }</code></pre>
+
+    <h3>5. Probar desde el mismo paquete</h3>
+    <p>En <code>PruebaAcceso.java</code>, dentro del paquete <code>encapsulamiento</code>, llama a los métodos accesibles:</p>
+    <pre><code>package encapsulamiento;
+
+        public class PruebaAcceso {
+
+        public static void main(String[] args) {
+
+        Persona persona = new Persona();
+
+        // Permitido: método public
+        persona.metodoPublico();
+
+        // Permitido: estamos en el mismo paquete
+        persona.metodoProtegido();
+
+        // ERROR: método private
+        // persona.metodoPrivado();
+        }
+        }</code></pre>
+    <p class="caption">Resultado en consola:</p>
+    <div class="result">Ejecutando método PUBLIC<br>Ejecutando método PROTECTED</div>
+    <p>Al descomentar <code>persona.metodoPrivado();</code>, aparece un error de compilación: <code>private void metodoPrivado()</code> solo puede utilizarse dentro de <code>Persona</code>.</p>
+
+    <h3>6. Usar el método <code>private</code> desde su propia clase</h3>
+    <p>Agrega un método público que invoque los tres métodos desde el interior de <code>Persona</code>:</p>
+    <pre><code>public void ejecutarMetodos() {
+
+        metodoPublico();
+        metodoProtegido();
+        metodoPrivado();
+        }</code></pre>
+    <p>La clase completa queda así:</p>
+    <pre><code>package encapsulamiento;
+
+        public class Persona {
+
+        public String nombre;
+        protected int edad;
+        private double sueldo;
+
+        public void metodoPublico() {
+        System.out.println("Ejecutando método PUBLIC");
+        }
+
+        protected void metodoProtegido() {
+        System.out.println("Ejecutando método PROTECTED");
+        }
+
+        private void metodoPrivado() {
+        System.out.println("Ejecutando método PRIVATE");
+        }
+
+        public void ejecutarMetodos() {
+        metodoPublico();
+        metodoProtegido();
+        metodoPrivado();
+        }
+        }</code></pre>
+    <p>Desde <code>PruebaAcceso</code>, ejecuta:</p>
+    <pre><code>Persona persona = new Persona();
+
+        persona.ejecutarMetodos();</code></pre>
+    <p class="caption">Resultado en consola:</p>
+    <div class="result">Ejecutando método PUBLIC<br>Ejecutando método PROTECTED<br>Ejecutando método PRIVATE</div>
+    <div class="box"><strong>Concepto clave:</strong> un método <code>private</code> sí puede utilizarse, pero únicamente desde dentro de su propia clase.</div>
+
+    <h3>7. Probar desde otro paquete</h3>
+    <p>En <code>Practica.java</code>, dentro del paquete <code>com.ucv.poo.practica</code>, importa la clase y prueba el acceso:</p>
+    <pre><code>package com.ucv.poo.practica;
+
+        import encapsulamiento.Persona;
+
+        public class Practica {
+
+        public static void main(String[] args) {
+
+        Persona persona = new Persona();
+
+        // Permitido desde otro paquete
+        persona.metodoPublico();
+
+        // ERROR: pertenece a otro paquete
+        // persona.metodoProtegido();
+
+        // ERROR: solo accesible dentro de Persona
+        // persona.metodoPrivado();
+        }
+        }</code></pre>
+    <p>Desde otro paquete, esta llamada funciona:</p>
+    <pre><code>persona.metodoPublico();</code></pre>
+    <p class="caption">Resultado en consola:</p>
+    <div class="result">Ejecutando método PUBLIC</div>
+    <table>
+      <tr>
+        <th>Modificador del método</th>
+        <th>Misma clase</th>
+        <th>Mismo paquete</th>
+        <th>Otro paquete</th>
+      </tr>
+      <tr>
+        <td><code>public</code></td>
+        <td>Sí</td>
+        <td>Sí</td>
+        <td>Sí</td>
+      </tr>
+      <tr>
+        <td><code>protected</code></td>
+        <td>Sí</td>
+        <td>Sí</td>
+        <td>No*</td>
+      </tr>
+      <tr>
+        <td><code>private</code></td>
+        <td>Sí</td>
+        <td>No</td>
+        <td>No</td>
+      </tr>
+    </table>
+    <div class="note"><strong>*Nota sobre <code>protected</code>:</strong> desde otro paquete no se puede llamar directamente con <code>persona.metodoProtegido()</code>. El acceso es posible desde una subclase mediante herencia.</div>
+
+    </section>
+
+    <section id="seccion-acceso-interno">
+    <h2 id="acceso-interno">Parte 2. Acceso a los atributos desde un método</h2>
+    <p>Un método definido dentro de la clase <code>Persona</code> puede acceder a todos sus atributos, incluso a los declarados como <code>private</code>.</p>
+    <pre><code>package encapsulamiento;
+
+        public class Persona {
+
+        public String nombre;
+        protected int edad;
+        private double sueldo;
+
+        // Método público que devuelve los datos de la persona
+        public String impresion() {
+        return "Nombre: " + nombre +
+        "\nEdad: " + edad +
+        "\nSueldo: " + sueldo;
+        }
+        }</code></pre>
+    <div class="box"><strong>Concepto clave:</strong> <code>private</code> no impide que el atributo sea utilizado por su propia clase. Impide el acceso directo desde otras clases.</div>
+    <p>La llamada al método desde <code>PruebaAcceso</code> se realiza de la siguiente manera:</p>
+    <pre><code>package encapsulamiento;
+
+        public class PruebaAcceso {
+
+        public static void main(String[] args) {
+
+        Persona persona = new Persona();
+
+        persona.nombre = "Carlos";
+        persona.edad = 25;
+
+        // Llamada al método público de Persona
+        System.out.println(persona.impresion());
+        }
+        }</code></pre>
+    <p class="caption">Resultado en consola:</p>
+    <div class="result">Nombre: Carlos<br>Edad: 25<br>Sueldo: 0.0</div>
+    <p>El sueldo muestra <code>0.0</code> porque todavía no se ha definido un mecanismo público para asignar un valor al atributo privado.</p>
+
+    </section>
+
+    <h2 id="encapsulamiento">Parte 4. Encapsulamiento mediante Getter y Setter</h2>
+    <p>El encapsulamiento protege el estado interno de un objeto y establece mecanismos controlados para consultar o modificar sus datos. Una práctica común consiste en declarar los atributos como <code>private</code> y proporcionar métodos públicos cuando sea necesario acceder a ellos.</p>
+    <pre><code>package encapsulamiento;
+
+        public class Persona {
+
+        public String nombre;
+        protected int edad;
+
+        // Dato oculto
+        private double sueldo;
+
+        // SETTER: permite asignar o modificar el sueldo
+        public void setSueldo(double sueldo) {
+        this.sueldo = sueldo;
+        }
+
+        // GETTER: permite obtener el sueldo
+        public double getSueldo() {
+        return sueldo;
+        }
+
+        // Método público para devolver los datos
+        public String impresion() {
+        return "Nombre: " + nombre +
+        "\nEdad: " + edad +
+        "\nSueldo: " + sueldo;
+        }
+        }</code></pre>
+
+    <h3>4. Uso del Getter y Setter</h3>
+    <pre><code>package encapsulamiento;
+
+        public class PruebaAcceso {
+
+        public static void main(String[] args) {
+
+        Persona persona = new Persona();
+
+        persona.nombre = "Carlos";
+        persona.edad = 25;
+
+        // Asigna un valor al atributo privado mediante el setter
+        persona.setSueldo(2500);
+
+        // Muestra todos los datos
+        System.out.println(persona.impresion());
+
+        // Obtiene únicamente el sueldo mediante el getter
+        System.out.println("Sueldo: " + persona.getSueldo());
+        }
+        }</code></pre>
+    <p class="caption">Resultado en consola:</p>
+    <div class="result">Nombre: Carlos<br>Edad: 25<br>Sueldo: 2500.0<br>Sueldo: 2500.0</div>
+
+    <h3>5. Función de Getter y Setter</h3>
+    <div class="flow"> CLASE PERSONA
+
+      private double sueldo
+      ↑ ↓
+      SETTER GETTER
+      ↑ ↓
+      modificar obtener</div>
+    <p>El método <strong>setter</strong> permite asignar o modificar el atributo:</p>
+    <pre><code>persona.setSueldo(2500);</code></pre>
+    <p>El método <strong>getter</strong> permite consultar u obtener su valor:</p>
+    <pre><code>double valor = persona.getSueldo();</code></pre>
+
+    <h2 id="importancia">Parte 5. Importancia del encapsulamiento</h2>
+    <p>El encapsulamiento no se limita a ocultar atributos. También permite <strong>controlar y validar</strong> los valores antes de modificar el estado de un objeto.</p>
+    <p>El setter puede incorporar una validación para impedir sueldos negativos:</p>
+    <pre><code>public void setSueldo(double sueldo) {
+
+        // Solo almacena valores iguales o mayores que cero
+        if (sueldo &gt;= 0) {
+        this.sueldo = sueldo;
+        }
+        }</code></pre>
+    <p>La siguiente instrucción puede ejecutarse:</p>
+    <pre><code>persona.setSueldo(-500);</code></pre>
+    <p>Sin embargo, el valor <code>-500</code> no será almacenado porque no cumple la condición establecida dentro del método.</p>
+    <div class="ok"><strong>Definición:</strong> El encapsulamiento consiste en proteger el estado interno de un objeto y controlar la forma en que otras clases acceden o modifican sus datos.</div>
+
+    <h2>8. Idea general</h2>
+    <p class="summary">Una práctica habitual en programación orientada a objetos es mantener los datos protegidos y exponer únicamente las operaciones necesarias:</p>
+    <div class="flow">ATRIBUTOS → private
+      MÉTODOS → public</div>
+    <p>Esta práctica no constituye una regla absoluta. Los modificadores se seleccionan de acuerdo con el nivel de acceso que requiera el diseño de cada clase.</p>
+
+    <h2 id="secuencia">9. Secuencia de aprendizaje</h2>
+    <table>
+      <tr>
+        <th>Etapa</th>
+        <th>Concepto</th>
+        <th>Resultado</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td><code>public</code>, <code>protected</code> y <code>private</code> en atributos</td>
+        <td>Identificación de los niveles de acceso.</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Métodos <code>public</code>, <code>protected</code> y <code>private</code></td>
+        <td>Identificación de la visibilidad al llamar métodos.</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Método <code>impresion()</code></td>
+        <td>Acceso interno a los atributos de la clase.</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Atributo <code>private sueldo</code></td>
+        <td>Ocultamiento del dato.</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td><code>setSueldo()</code> y <code>getSueldo()</code></td>
+        <td>Acceso controlado al atributo.</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Validación en <code>setSueldo()</code></td>
+        <td>Protección de la integridad del dato.</td>
+      </tr>
+    </table>
+
+    <div class="footer">Programación Orientada a Objetos — Java / NetBeans</div>
+  </main>
+  <script>
+    (function () {
+      var main = document.querySelector('main');
+      var methodSection = document.getElementById('seccion-metodos');
+      var internalAccessSection = document.getElementById('seccion-acceso-interno');
+
+      // El acceso interno prepara el concepto antes de aplicar modificadores a métodos.
+      main.insertBefore(internalAccessSection, methodSection);
+
+      function escapeHtml(text) {
+        return text.replace(/[&<>]/g, function (character) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[character];
+        });
+      }
+
+      function highlightJava(source) {
+        var tokenPattern = /\/\/[^\n]*|"(?:\\.|[^"\\])*"|\b(?:package|import|public|protected|private|class|static|void|return|new|this|if|else)\b|\b(?:String|int|double|boolean|Persona|PruebaAcceso|System)\b|\b(?:true|false|null)\b|\b\d+(?:\.\d+)?\b/g;
+        var result = '';
+        var lastIndex = 0;
+        var match;
+
+        while ((match = tokenPattern.exec(source)) !== null) {
+          var token = match[0];
+          var tokenClass = 'java-number';
+
+          if (token.indexOf('//') === 0) tokenClass = 'java-comment';
+          else if (token.charAt(0) === '"') tokenClass = 'java-string';
+          else if (/^(package|import|public|protected|private|class|static|void|return|new|this|if|else)$/.test(token)) tokenClass = 'java-keyword';
+          else if (/^(String|int|double|boolean|Persona|PruebaAcceso|System)$/.test(token)) tokenClass = 'java-type';
+          else if (/^(true|false|null)$/.test(token)) tokenClass = 'java-literal';
+
+          result += escapeHtml(source.slice(lastIndex, match.index));
+          result += '<span class="' + tokenClass + '">' + escapeHtml(token) + '</span>';
+          lastIndex = tokenPattern.lastIndex;
+        }
+
+        return result + escapeHtml(source.slice(lastIndex));
+      }
+
+      document.querySelectorAll('pre > code').forEach(function (block) {
+        block.innerHTML = highlightJava(block.textContent);
+      });
+
+      var progress = document.getElementById('progress');
+      var links = document.querySelectorAll('.navlinks a');
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main, h2[id]'));
+
+      function updateReadingState() {
+        var root = document.documentElement;
+        var total = root.scrollHeight - root.clientHeight;
+        progress.style.width = (total > 0 ? (root.scrollTop / total) * 100 : 0) + '%';
+
+        var position = window.scrollY + 130;
+        var current = sections[0];
+        sections.forEach(function (section) {
+          if (section.offsetTop <= position) current = section;
+        });
+
+        links.forEach(function (link) {
+          var target = link.getAttribute('href').slice(1);
+          link.classList.toggle('active', target === current.id);
+        });
+      }
+
+      document.addEventListener('scroll', updateReadingState, { passive: true });
+      updateReadingState();
+    })();
+  </script>
+</body>
+</html>
