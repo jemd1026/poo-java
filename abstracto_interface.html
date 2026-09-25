@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía: Clases abstractas e interfaces en Java</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Code+Pro:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f7f2;
+      --soft: #e7eee9;
+      --panel: #fff;
+      --ink: #18252b;
+      --muted: #657278;
+      --line: #dfe5e1;
+      --coral: #ef714c;
+      --coral-dark: #da5e3b;
+      --coral-tint: #fff0e9;
+      --green: #16745a;
+      --green-tint: #e4f0e9;
+      --amber: #d29b35;
+      --amber-tint: #fff8df;
+      --code: #172a31;
+      --code-top: #243c42;
+      --code-ink: #d8e5df;
+      --shadow: 0 24px 60px rgba(24, 37, 43, .12);
+      --sans: 'DM Sans', sans-serif;
+      --display: 'Space Grotesk', sans-serif;
+      --mono: 'Source Code Pro', Consolas, monospace
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.6 var(--sans)
+    }
+
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 300;
+      width: 0;
+      height: 3px;
+      background: var(--coral)
+    }
+
+    nav {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 100;
+      width: 260px;
+      background: var(--bg);
+      border-right: 1px solid var(--line)
+    }
+
+    .navrow {
+      padding: 42px 26px
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 30px;
+      padding: 18px 16px;
+      color: #fff;
+      background: var(--code);
+      border-radius: 4px 22px 22px 22px;
+      font-weight: 700
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--coral)
+    }
+
+    .navlinks {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .navlinks:before {
+      content: 'CONTENIDO';
+      margin: 0 12px 10px;
+      color: #9aa6a7;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px
+    }
+
+    .navlinks a {
+      padding: 11px 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      text-decoration: none
+    }
+
+    .navlinks a:hover,
+    .navlinks a.active {
+      background: var(--soft);
+      color: var(--green);
+      font-weight: 700
+    }
+
+    main {
+      max-width: 1100px;
+      min-height: 100vh;
+      margin-left: 260px;
+      padding: 80px 6vw 62px
+    }
+
+    .head {
+      max-width: 810px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px
+    }
+
+    .pill {
+      padding: 5px 11px;
+      border-radius: 20px;
+      color: var(--green);
+      background: var(--green-tint);
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .kicker {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--display);
+      letter-spacing: -1.2px
+    }
+
+    h1 {
+      max-width: 15ch;
+      margin: 0 0 16px;
+      font-size: clamp(42px, 5vw, 70px);
+      line-height: .98
+    }
+
+    h2 {
+      max-width: 23ch;
+      margin: 62px 0 14px;
+      font-size: clamp(31px, 4vw, 51px);
+      line-height: 1.03;
+      scroll-margin-top: 30px
+    }
+
+    h3 {
+      margin: 34px 0 8px;
+      font-size: 22px
+    }
+
+    .lead {
+      max-width: 62ch;
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px
+    }
+
+    .box,
+    .note,
+    .ok {
+      margin: 22px 0;
+      padding: 16px 18px;
+      border-radius: 4px 14px 14px 4px
+    }
+
+    .box {
+      background: var(--green-tint);
+      border: 1px solid #bddbcf;
+      border-left: 5px solid var(--green)
+    }
+
+    .note {
+      background: var(--amber-tint);
+      border: 1px solid #ecd69d;
+      border-left: 5px solid var(--amber)
+    }
+
+    .ok {
+      background: var(--coral-tint);
+      border: 1px solid #f1c7b9;
+      border-left: 5px solid var(--coral)
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 24px 0
+    }
+
+    .card {
+      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--coral);
+      border-radius: 4px 18px 18px 18px
+    }
+
+    .card h3 {
+      margin: 0 0 7px;
+      font-size: 20px
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px
+    }
+
+    table {
+      width: 100%;
+      margin: 22px 0;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 24px -18px rgba(24, 37, 43, .3)
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line)
+    }
+
+    th {
+      background: var(--coral);
+      color: #fff;
+      font-size: 13px
+    }
+
+    tr:nth-child(even)td {
+      background: var(--soft)
+    }
+
+    code {
+      padding: .08em .28em;
+      border-radius: 4px;
+      color: var(--coral-dark);
+      background: var(--coral-tint);
+      font: .9em var(--mono)
+    }
+
+    pre {
+      position: relative;
+      margin: 18px 0;
+      padding: 22px 24px;
+      overflow: auto;
+      color: var(--code-ink);
+      background: var(--code);
+      border-radius: 4px 20px 20px 20px;
+      box-shadow: var(--shadow);
+      font: 13px/1.6 var(--mono)
+    }
+
+    pre code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      font-size: inherit
+    }
+
+    .tree {
+      color: var(--green);
+      background: var(--green-tint);
+      border: 1px solid var(--line);
+      box-shadow: none;
+      white-space: pre-wrap
+    }
+
+    .caption {
+      margin: 20px 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    h3.run,
+    h3.out {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 30px 0 10px;
+      padding: 9px 15px;
+      border-radius: 4px 14px 14px 4px;
+      font-size: 19px;
+      letter-spacing: -.6px
+    }
+
+    h3.run {
+      color: #0f5a45;
+      background: var(--green-tint);
+      border-left: 5px solid var(--green)
+    }
+
+    h3.out {
+      color: var(--coral-dark);
+      background: var(--coral-tint);
+      border-left: 5px solid var(--coral)
+    }
+
+    h3.run span,
+    h3.out span {
+      font-size: 15px
+    }
+
+    .filetag {
+      display: inline-block;
+      margin: 18px 0 -6px;
+      padding: 4px 11px;
+      border-radius: 4px 12px 12px 4px;
+      color: #fff;
+      background: var(--code-top);
+      font: 600 12px var(--mono)
+    }
+
+    .result {
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px 14px 14px 14px;
+      background: var(--panel);
+      font-family: var(--mono)
+    }
+
+    .footer {
+      margin-top: 62px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    .java-keyword {
+      color: #ef9470
+    }
+
+    .java-type {
+      color: #78c5d4
+    }
+
+    .java-string {
+      color: #f5cd62
+    }
+
+    .java-comment {
+      color: #8fb6a8;
+      font-style: italic
+    }
+
+    .java-number,
+    .java-literal,
+    .java-annotation {
+      color: #c9a7ed
+    }
+
+    pre.protected,
+    pre.protected code {
+      -webkit-user-select: none;
+      user-select: none;
+      cursor: default
+    }
+
+    pre.protected:after {
+      content: 'solo lectura';
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      color: #9fb5ad;
+      background: var(--code-top);
+      font: 600 10px var(--sans)
+    }
+
+    #copyToast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 400;
+      max-width: 88vw;
+      padding: 11px 18px;
+      border-radius: 999px;
+      color: var(--bg);
+      background: var(--ink);
+      box-shadow: var(--shadow);
+      font-weight: 600;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(12px);
+      transition: .22s
+    }
+
+    #copyToast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0)
+    }
+
+    @media(max-width:760px) {
+      nav {
+        position: sticky;
+        inset: 0;
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--line)
+      }
+
+      .navrow {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 18px
+      }
+
+      .brand {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 10px 12px
+      }
+
+      .navlinks {
+        flex-direction: row;
+        overflow-x: auto
+      }
+
+      .navlinks:before {
+        display: none
+      }
+
+      .navlinks a {
+        white-space: nowrap
+      }
+
+      main {
+        margin-left: 0;
+        padding: 52px 24px 40px
+      }
+
+      .cards {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+  <nav aria-label="Navegación de la guía">
+    <div class="navrow">
+      <div class="brand"><span class="dot"></span>Abstracto.java</div>
+      <div class="navlinks"><a href="#inicio">Inicio</a><a href="#problema">El problema</a><a href="#abstracta">Clase abstracta</a><a href="#evolucion">Persona abstracta</a><a href="#ejercicio1">Ejercicio: abstracto</a><a href="#interfaz">Interfaces</a><a href="#ejercicio2">Ejercicio: interface</a><a href="#comparacion">Comparación</a><a href="#reto">Reto final</a><a href="#resumen">Resumen</a></div>
+    </div>
+  </nav>
+  <main id="inicio">
+    <header class="head">
+      <div class="pills"><span class="pill">Java · POO</span><span class="pill">Clases abstractas</span><span class="pill">Interfaces</span></div>
+      <p class="kicker">Guía práctica</p>
+      <h1>Clases abstractas e interfaces en Java</h1>
+      <p class="lead">Continuación directa de la guía de herencia y polimorfismo. Seguiremos usando <code>Persona</code>, <code>Empleado</code> y <code>Consultor</code> para descubrir por qué necesitamos <code>abstract</code> e <code>interface</code>, y cuándo conviene usar cada uno.</p>
+    </header>
+
+    <h2 id="problema">1. ¿Qué problema aparece?</h2>
+    <p>En la guía anterior escribimos una clase <code>Persona</code> con un método <code>actividad()</code>. Después <code>Empleado</code> y <code>Consultor</code> lo sobrescribieron con <code>@Override</code>. Todo funcionó bien, pero quedaron dos detalles incómodos.</p>
+
+    <h3>1.1 Primer problema: objetos que no deberían existir</h3>
+    <p>Nada nos impide escribir esta línea:</p>
+    <pre><code>Persona persona = new Persona(1, "12345678", "Ana", "Rojas");
+        persona.actividad();</code></pre>
+    <p class="caption">Resultado en consola:</p>
+    <div class="result">La persona realiza una actividad</div>
+    <p>¿Qué actividad realiza exactamente? Ninguna. Una <em>persona genérica</em> no trabaja ni asesora. Solo tiene sentido como plantilla común para <code>Empleado</code> y <code>Consultor</code>. En el mundo real no contratamos «personas genéricas»: contratamos empleados o consultores.</p>
+
+    <h3>1.2 Segundo problema: mensajes de relleno</h3>
+    <p>El método <code>actividad()</code> de <code>Persona</code> imprime un texto que nunca queremos ver. Es un <strong>relleno</strong> que existe solo para que las clases hijas tengan algo que sobrescribir.</p>
+    <div class="note"><strong>Peor aún:</strong> si mañana creamos <code>Estudiante extends Persona</code> y olvidamos escribir <code>@Override actividad()</code>, el programa compila sin errores y muestra el mensaje de relleno. El error pasa desapercibido.</div>
+
+    <h3>1.3 La solución</h3>
+    <p>Java ofrece dos herramientas para resolver exactamente esto:</p>
+    <div class="cards">
+      <article class="card">
+        <h3>Clase abstracta</h3>
+        <p>Una plantilla que <strong>no se puede instanciar</strong> y que puede <strong>obligar</strong> a las hijas a escribir ciertos métodos.</p>
+      </article>
+      <article class="card">
+        <h3>Interfaz</h3>
+        <p>Un <strong>contrato</strong> de métodos que cualquier clase puede firmar, incluso varios contratos a la vez.</p>
+      </article>
+      <article class="card">
+        <h3>Objetivo</h3>
+        <p>Que el compilador detecte los olvidos, en lugar de descubrirlos ejecutando el programa.</p>
+      </article>
+    </div>
+
+    <h2 id="abstracta">2. Clases abstractas desde cero</h2>
+
+    <h3>2.1 ¿Qué es una clase abstracta?</h3>
+    <p>Una clase abstracta es una clase <strong>incompleta a propósito</strong>. Sirve como molde: define lo que todas sus hijas tienen en común, pero deja sin resolver aquello que cada hija debe decidir por su cuenta.</p>
+    <div class="box"><strong>Comparación sencilla:</strong> un formulario en blanco es una clase abstracta. Tiene los campos definidos (nombre, DNI, dirección), pero no sirve de nada hasta que alguien lo llena. El formulario lleno es el objeto.</div>
+
+    <h3>2.2 ¿Para qué sirve?</h3>
+    <ul>
+      <li>Compartir atributos y métodos ya escritos entre varias clases hijas.</li>
+      <li>Impedir que se creen objetos de la clase padre.</li>
+      <li>Obligar a las clases hijas a implementar determinados métodos.</li>
+    </ul>
+
+    <h3>2.3 La palabra reservada <code>abstract</code></h3>
+    <p><code>abstract</code> se escribe antes de <code>class</code> para declarar una clase abstracta, o antes del tipo de retorno para declarar un método abstracto.</p>
+    <pre><code>public abstract class Figura { // clase abstracta
+        public abstract double area(); // método abstracto: sin cuerpo
+        }</code></pre>
+
+    <h3>2.4 Clase normal frente a clase abstracta</h3>
+    <table>
+      <tr>
+        <th>Característica</th>
+        <th>Clase normal</th>
+        <th>Clase abstracta</th>
+      </tr>
+      <tr>
+        <td>Palabra reservada</td>
+        <td><code>class</code></td>
+        <td><code>abstract class</code></td>
+      </tr>
+      <tr>
+        <td>Se puede usar con <code>new</code></td>
+        <td>Sí</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>Métodos sin cuerpo</td>
+        <td>No los permite</td>
+        <td>Sí, los métodos abstractos</td>
+      </tr>
+      <tr>
+        <td>Atributos y constructor</td>
+        <td>Sí</td>
+        <td>Sí</td>
+      </tr>
+      <tr>
+        <td>Se usa como padre</td>
+        <td>Opcional</td>
+        <td>Es su única razón de existir</td>
+      </tr>
+    </table>
+
+    <h3>2.5 ¿Por qué no se puede instanciar?</h3>
+    <p>Porque puede tener métodos sin cuerpo. Si Java permitiera crear el objeto y alguien llamara a un método abstracto, no habría ninguna instrucción que ejecutar.</p>
+    <pre><code>Figura f = new Figura(); // ERROR de compilación
+        f.area(); // ¿qué código se ejecutaría aquí?</code></pre>
+    <div class="ok"><strong>Error común:</strong> <code>Figura is abstract; cannot be instantiated</code>. NetBeans lo marca en rojo antes de ejecutar. No es un fallo del programa: es la protección funcionando.</div>
+
+    <h3>2.6 ¿Qué es un método abstracto?</h3>
+    <p>Es un método que declara <strong>solo su firma</strong> —nombre, parámetros y tipo de retorno— y termina en punto y coma, sin llaves. Es una obligación escrita: «toda hija debe tener este método».</p>
+    <table>
+      <tr>
+        <th>Aspecto</th>
+        <th>Método normal</th>
+        <th>Método abstracto</th>
+      </tr>
+      <tr>
+        <td>Forma</td>
+        <td><code>void saludar() { ... }</code></td>
+        <td><code>abstract void saludar();</code></td>
+      </tr>
+      <tr>
+        <td>Tiene cuerpo</td>
+        <td>Sí, entre llaves</td>
+        <td>No, termina en <code>;</code></td>
+      </tr>
+      <tr>
+        <td>La hija lo sobrescribe</td>
+        <td>Si quiere</td>
+        <td>Está obligada</td>
+      </tr>
+      <tr>
+        <td>Dónde puede estar</td>
+        <td>En cualquier clase</td>
+        <td>Solo en clase abstracta o interfaz</td>
+      </tr>
+    </table>
+    <div class="note"><strong>Regla que se olvida mucho:</strong> una clase abstracta puede tener métodos normales y métodos abstractos mezclados. Lo que no puede existir es un método abstracto dentro de una clase normal.</div>
+
+    <h3>2.7 Ejemplo mínimo completo y ejecutable</h3>
+    <p><strong>Concepto que se demuestra:</strong> una clase abstracta define lo común (el nombre de la figura) y deja abierto lo que cada hija calcula de forma distinta (el área).</p>
+    <p><strong>Clases necesarias:</strong> crea el paquete <code>figuras</code> con cuatro archivos. Los tres primeros son las clases; el cuarto es el que ejecutarás.</p>
+    <pre class="tree">Source Packages
+│
+└── figuras
+    ├── Figura.java          (clase abstracta)
+    ├── Cuadrado.java        (clase hija)
+    ├── Circulo.java         (clase hija)
+    └── PruebaFigura.java    ← ejecuta este archivo</pre>
+    <span class="filetag">Figura.java</span>
+    <pre><code>package figuras;
+
+public abstract class Figura {
+        protected String nombre;
+
+        // Una clase abstracta SÍ puede tener constructor.
+        // Lo usarán las clases hijas mediante super(...).
+        public Figura(String nombre) {
+        this.nombre = nombre;
+        }
+
+        // Método normal: ya está resuelto, todas lo heredan igual.
+        public void mostrarNombre() {
+        System.out.println("Figura: " + nombre);
+        }
+
+        // Método abstracto: cada figura calcula su área de forma distinta,
+        // así que aquí NO se escribe el cuerpo.
+        public abstract double area();
+        }</code></pre>
+    <span class="filetag">Cuadrado.java</span>
+    <pre><code>package figuras;
+
+        public class Cuadrado extends Figura {
+        private double lado;
+
+        public Cuadrado(double lado) {
+        super("Cuadrado"); // llama al constructor de Figura
+        this.lado = lado;
+        }
+
+        @Override // obligatorio: Figura.area() es abstracto
+        public double area() {
+        return lado * lado;
+        }
+        }</code></pre>
+    <span class="filetag">Circulo.java</span>
+    <pre><code>package figuras;
+
+        public class Circulo extends Figura {
+        private double radio;
+
+        public Circulo(double radio) {
+        super("Círculo");
+        this.radio = radio;
+        }
+
+        @Override
+        public double area() {
+        return 3.1416 * radio * radio;
+        }
+        }</code></pre>
+    <h3 class="run"><span>▶</span> Ejecutar el ejemplo</h3>
+    <p>Las tres clases anteriores no hacen nada por sí solas: nadie las llama. Necesitamos una cuarta clase con <code>main()</code>. <strong>Ejecuta este archivo:</strong> <code>PruebaFigura.java</code>.</p>
+    <span class="filetag">PruebaFigura.java ← ejecutar</span>
+    <pre><code>package figuras;
+
+        public class PruebaFigura {
+
+        public static void main(String[] args) {
+
+        // Figura es abstracta: la línea siguiente NO compila.
+        // Figura f = new Figura("Genérica");
+
+        // Sí podemos crear las hijas, porque ellas ya implementan area().
+        Cuadrado cuadrado = new Cuadrado(4);
+        Circulo circulo = new Circulo(2);
+
+        // mostrarNombre() es heredado; area() es la versión de cada hija.
+        cuadrado.mostrarNombre();
+        System.out.println("Área: " + cuadrado.area());
+
+        System.out.println("------------------------");
+
+        circulo.mostrarNombre();
+        System.out.println("Área: " + circulo.area());
+
+        System.out.println("------------------------");
+
+        // Polimorfismo: una sola referencia de tipo Figura,
+        // dos objetos distintos, dos áreas distintas.
+        Figura[] figuras = { cuadrado, circulo };
+
+        for (Figura figura : figuras) {
+        // printf da formato: %s texto, %.2f número con 2 decimales, %n salto
+        System.out.printf("%s tiene un área de %.2f%n",
+        figura.nombre, figura.area());
+        }
+        }
+        }</code></pre>
+    <p><strong>Qué ocurre:</strong> <code>mostrarNombre()</code> se ejecuta igual para las dos figuras porque está resuelto en <code>Figura</code>. En cambio <code>area()</code> cambia de resultado según el objeto: Java elige la versión de <code>Cuadrado</code> o de <code>Circulo</code> durante la ejecución. El bucle final usa el tipo abstracto como referencia y funciona con ambos.</p>
+
+    <h3 class="out"><span>💻</span> Resultado esperado en consola</h3>
+    <div class="result">Figura: Cuadrado<br>Área: 16.0<br>------------------------<br>Figura: Círculo<br>Área: 12.5664<br>------------------------<br>Cuadrado tiene un área de 16,00<br>Círculo tiene un área de 12,57</div>
+    <div class="note"><strong>Sobre el separador decimal:</strong> <code>printf</code> usa la configuración regional del sistema. En Windows en español verás <code>16,00</code> con coma; en inglés, <code>16.00</code> con punto. <code>println</code> siempre muestra punto. No es un error.</div>
+
+    <h3>2.8 <code>extends</code> y <code>@Override</code> en este contexto</h3>
+    <p>Son las mismas palabras de la guía anterior, pero ahora cambian de significado:</p>
+    <table>
+      <tr>
+        <th>Palabra</th>
+        <th>Con herencia normal</th>
+        <th>Con clase abstracta</th>
+      </tr>
+      <tr>
+        <td><code>extends</code></td>
+        <td>Hereda código ya escrito.</td>
+        <td>Hereda código <strong>y acepta obligaciones</strong>.</td>
+      </tr>
+      <tr>
+        <td><code>@Override</code></td>
+        <td>Reemplaza un comportamiento existente.</td>
+        <td><strong>Completa</strong> un método que estaba vacío.</td>
+      </tr>
+    </table>
+    <div class="box"><strong>Idea clave:</strong> <code>@Override</code> no es obligatorio para que el programa funcione, pero escríbelo siempre. Si te equivocas en el nombre del método, el compilador te avisa de inmediato.</div>
+
+    <h2 id="evolucion">3. Convertir <code>Persona</code> en clase abstracta</h2>
+    <p>Volvamos al ejemplo conocido. No cambiaremos el proyecto: solo tres detalles del código anterior.</p>
+
+    <h3>3.1 Antes y después</h3>
+    <p class="caption">Código anterior (guía de herencia):</p>
+    <pre><code>public class Persona {
+
+        public void actividad() {
+        System.out.println("La persona realiza una actividad");
+        }
+        }</code></pre>
+    <p class="caption">Código nuevo (clase abstracta):</p>
+    <pre><code>public abstract class Persona {
+
+        public abstract void actividad();
+        }</code></pre>
+    <table>
+      <tr>
+        <th>Cambio</th>
+        <th>Antes</th>
+        <th>Ahora</th>
+      </tr>
+      <tr>
+        <td>Declaración</td>
+        <td><code>public class Persona</code></td>
+        <td><code>public abstract class Persona</code></td>
+      </tr>
+      <tr>
+        <td>Método <code>actividad()</code></td>
+        <td>Tenía cuerpo de relleno</td>
+        <td><code>abstract</code>, termina en <code>;</code></td>
+      </tr>
+      <tr>
+        <td><code>new Persona(...)</code></td>
+        <td>Permitido</td>
+        <td>Error de compilación</td>
+      </tr>
+      <tr>
+        <td>Hija sin <code>actividad()</code></td>
+        <td>Compilaba</td>
+        <td>Error de compilación</td>
+      </tr>
+    </table>
+    <div class="ok"><strong>Lo que NO cambia:</strong> los atributos <code>protected</code>, el constructor, <code>mostrarDatos()</code>, <code>super(...)</code> y <code>@Override</code> siguen funcionando exactamente igual. Las clases <code>Empleado</code> y <code>Consultor</code> casi no se tocan.</div>
+
+    <h2 id="ejercicio1">4. Ejercicio completo: paquete <code>abstracto</code></h2>
+    <p><strong>Concepto que se demuestra:</strong> la <code>Persona</code> de la guía anterior se convierte en un molde que no se puede instanciar y que obliga a <code>Empleado</code> y <code>Consultor</code> a definir su propia actividad.</p>
+    <p><strong>Clases necesarias:</strong> crea en NetBeans un paquete nuevo llamado <code>abstracto</code> con estos cuatro archivos. El último es el que ejecutarás.</p>
+    <pre class="tree">Source Packages
+      │
+      └── abstracto
+      ├── Persona.java          (clase abstracta)
+      ├── Empleado.java         (clase hija)
+      ├── Consultor.java        (clase hija)
+      └── PruebaAbstracta.java  ← ejecuta este archivo</pre>
+    <div class="note"><strong>Cómo crear el paquete:</strong> clic derecho en <strong>Source Packages</strong> → <strong>New → Java Package</strong>, escribe <code>abstracto</code> y pulsa <strong>Finish</strong>. Luego, clic derecho en el paquete → <strong>New → Java Class</strong> por cada archivo.</div>
+
+    <h3>4.1 <code>Persona.java</code> — la plantilla obligatoria</h3>
+    <span class="filetag">Persona.java</span>
+    <pre><code>package abstracto;
+
+        // "abstract" significa: esta clase es solo un molde.
+        // No se puede escribir new Persona(...) en ninguna parte.
+        public abstract class Persona {
+
+        // protected = visible dentro de esta clase y de sus hijas.
+        protected int id;
+        protected String dni;
+        protected String nombre;
+        protected String apellido;
+
+        // Una clase abstracta SÍ tiene constructor.
+        // No crea objetos de Persona: lo usan las hijas con super(...).
+        public Persona(int id, String dni, String nombre, String apellido) {
+        this.id = id;
+        this.dni = dni;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        }
+
+        // Método NORMAL: ya está resuelto y todas las hijas lo heredan.
+        public void mostrarDatos() {
+        System.out.println("ID: " + id);
+        System.out.println("DNI: " + dni);
+        System.out.println("Nombre: " + nombre + " " + apellido);
+        }
+
+        // Método ABSTRACTO: no tiene cuerpo, termina en punto y coma.
+        // Toda clase hija está OBLIGADA a escribirlo.
+        public abstract void actividad();
+        }</code></pre>
+    <div class="box"><strong>Observa:</strong> la clase tiene atributos, constructor, un método resuelto y un método pendiente. Esa mezcla es justamente lo que define a una clase abstracta.</div>
+
+    <h3>4.2 <code>Empleado.java</code> — cumple la obligación</h3>
+    <span class="filetag">Empleado.java</span>
+    <pre><code>package abstracto;
+
+        // extends Persona = hereda todo Y acepta la obligación
+        // de escribir el método abstracto actividad().
+        public class Empleado extends Persona {
+
+        private double sueldo;
+
+        public Empleado(int id, String dni, String nombre,
+        String apellido, double sueldo) {
+        super(id, dni, nombre, apellido); // primera instrucción, siempre
+        this.sueldo = sueldo;
+        }
+
+        public double getSueldo() {
+        return sueldo;
+        }
+
+        // Si borras este método, la clase NO compila.
+        @Override
+        public void actividad() {
+        System.out.println("El empleado trabaja en la empresa");
+        }
+
+        // Aquí sobrescribimos un método NORMAL, no uno abstracto.
+        // super.mostrarDatos() conserva lo que ya hacía Persona.
+        @Override
+        public void mostrarDatos() {
+        super.mostrarDatos();
+        System.out.println("Sueldo: " + sueldo);
+        }
+        }</code></pre>
+
+    <h3>4.3 <code>Consultor.java</code> — la misma obligación, otra respuesta</h3>
+    <span class="filetag">Consultor.java</span>
+    <pre><code>package abstracto;
+
+        public class Consultor extends Persona {
+
+        private String nombreConsultora;
+
+        public Consultor(int id, String dni, String nombre,
+        String apellido, String nombreConsultora) {
+        super(id, dni, nombre, apellido);
+        this.nombreConsultora = nombreConsultora;
+        }
+
+        // Misma obligación que Empleado, respuesta diferente.
+        // Eso es polimorfismo.
+        @Override
+        public void actividad() {
+        System.out.println("El consultor brinda asesoría");
+        }
+
+        @Override
+        public void mostrarDatos() {
+        super.mostrarDatos();
+        System.out.println("Consultora: " + nombreConsultora);
+        }
+        }</code></pre>
+
+    <h3 class="run"><span>▶</span> Ejecutar el ejemplo</h3>
+    <p>Las tres clases anteriores solo definen estructura. Esta cuarta clase es la que crea los objetos y produce salida. <strong>Ejecuta este archivo:</strong> <code>PruebaAbstracta.java</code>.</p>
+    <div class="note"><strong>En NetBeans:</strong> abre <code>PruebaAbstracta.java</code>, haz clic derecho sobre el editor y selecciona <strong>Run File</strong>, o presiona <strong>Shift + F6</strong>. Si pulsas <strong>F6</strong> se ejecutará la clase principal del proyecto, que puede ser otra.</div>
+    <span class="filetag">PruebaAbstracta.java ← ejecutar</span>
+    <pre><code>package abstracto;
+
+        public class PruebaAbstracta {
+
+        public static void main(String[] args) {
+
+        // ERROR: Persona es abstracta, no se puede instanciar.
+        // Persona p = new Persona(1, "12345678", "Ana", "Rojas");
+
+        Empleado empleado = new Empleado(1, "23456789",
+        "Carlos", "Pérez", 2500);
+
+        Consultor consultor = new Consultor(2, "34567890",
+        "Luis", "Torres", "Consultora ABC");
+
+        empleado.mostrarDatos();
+        empleado.actividad();
+
+        System.out.println("------------------------");
+
+        consultor.mostrarDatos();
+        consultor.actividad();
+
+        System.out.println("------------------------");
+
+        // La referencia es de tipo Persona (la clase abstracta),
+        // pero los objetos reales son Empleado y Consultor.
+        Persona[] personas = { empleado, consultor };
+
+        for (Persona persona : personas) {
+        persona.actividad(); // cada objeto responde a su manera
+        }
+
+        System.out.println("------------------------");
+
+        // El sueldo solo existe en Empleado, no en Persona.
+        System.out.printf("Sueldo del empleado: %.2f%n", empleado.getSueldo());
+        }
+        }</code></pre>
+    <p><strong>Qué ocurre:</strong> la línea comentada con <code>new Persona(...)</code> está ahí para que compruebes el error: quítale las barras y NetBeans la marcará en rojo. Después, <code>mostrarDatos()</code> ejecuta la versión ampliada de cada hija —que empieza llamando a <code>super.mostrarDatos()</code>— y el bucle final recorre el arreglo <code>Persona[]</code> obteniendo dos respuestas distintas de la misma llamada.</p>
+
+    <h3 class="out"><span>💻</span> Resultado esperado en consola</h3>
+    <div class="result">ID: 1<br>DNI: 23456789<br>Nombre: Carlos Pérez<br>Sueldo: 2500.0<br>El empleado trabaja en la empresa<br>------------------------<br>ID: 2<br>DNI: 34567890<br>Nombre: Luis Torres<br>Consultora: Consultora ABC<br>El consultor brinda asesoría<br>------------------------<br>El empleado trabaja en la empresa<br>El consultor brinda asesoría<br>------------------------<br>Sueldo del empleado: 2500,00</div>
+    <div class="ok"><strong>Fíjate en el arreglo:</strong> <code>Persona[]</code> funciona aunque <code>Persona</code> sea abstracta. Nunca creamos un objeto <code>Persona</code>; solo usamos su tipo como referencia. Una clase abstracta no se instancia, pero sí se usa como tipo.</div>
+
+    <h3>4.5 Errores frecuentes en este ejercicio</h3>
+    <table>
+      <tr>
+        <th>Mensaje de NetBeans</th>
+        <th>Causa</th>
+        <th>Solución</th>
+      </tr>
+      <tr>
+        <td><code>Persona is abstract; cannot be instantiated</code></td>
+        <td>Escribiste <code>new Persona(...)</code></td>
+        <td>Crea un <code>Empleado</code> o un <code>Consultor</code></td>
+      </tr>
+      <tr>
+        <td><code>Empleado is not abstract and does not override abstract method actividad()</code></td>
+        <td>Falta el método obligatorio</td>
+        <td>Escribe <code>actividad()</code> en la hija</td>
+      </tr>
+      <tr>
+        <td><code>missing method body</code></td>
+        <td>Método sin cuerpo en clase normal</td>
+        <td>Agrega <code>{ }</code> o marca la clase <code>abstract</code></td>
+      </tr>
+      <tr>
+        <td><code>call to super must be first statement</code></td>
+        <td><code>super(...)</code> no es la primera línea</td>
+        <td>Muévelo al inicio del constructor</td>
+      </tr>
+    </table>
+
+    <h2 id="interfaz">5. Interfaces</h2>
+    <p>La clase abstracta resolvió el problema de la obligación. Ahora aparece uno nuevo.</p>
+
+    <h3>5.1 El problema que resuelve una interfaz</h3>
+    <p>Imagina que la empresa también tiene <strong>máquinas</strong> que calculan un costo de operación. Una máquina no es una persona, así que no puede heredar de <code>Persona</code>. Pero sí queremos tratarla igual cuando calculamos pagos.</p>
+    <div class="note"><strong>Limitación de Java:</strong> una clase solo puede tener <strong>un</strong> padre. <code>class Maquina extends Persona, Equipo</code> no existe en Java. La interfaz es la salida a este callejón.</div>
+
+    <h3>5.2 ¿Qué es una interfaz?</h3>
+    <p>Una interfaz es un <strong>contrato</strong>: una lista de métodos que una clase se compromete a escribir. No dice <em>qué es</em> la clase, dice <strong>qué sabe hacer</strong>.</p>
+    <div class="box"><strong>Comparación sencilla:</strong> un carné de conducir no dice si eres médico o ingeniero. Solo certifica que sabes conducir. La interfaz es ese carné: certifica una capacidad, no una identidad.</div>
+
+    <h3>5.3 ¿Para qué sirve?</h3>
+    <ul>
+      <li>Obligar a implementar un conjunto de métodos sin imponer una jerarquía de herencia.</li>
+      <li>Permitir que clases no emparentadas compartan un mismo tipo.</li>
+      <li>Rodear la limitación de un solo padre: una clase puede implementar <strong>varias</strong> interfaces.</li>
+    </ul>
+
+    <h3>5.4 Las palabras <code>interface</code> e <code>implements</code></h3>
+    <p><strong>Concepto que se demuestra:</strong> dos clases sin ningún parentesco entre sí —un avión y un pájaro— pueden compartir el mismo tipo porque firman el mismo contrato.</p>
+    <p><strong>Clases necesarias:</strong> crea el paquete <code>volar</code> con estos cuatro archivos.</p>
+    <pre class="tree">Source Packages
+      │
+      └── volar
+      ├── Volador.java        (interfaz)
+      ├── Avion.java          (clase)
+      ├── Pajaro.java         (clase)
+      └── PruebaVolador.java  ← ejecuta este archivo</pre>
+    <span class="filetag">Volador.java</span>
+    <pre><code>package volar;
+
+        // Un contrato con un solo compromiso.
+        public interface Volador {
+        void volar(); // sin cuerpo, sin la palabra abstract
+        }</code></pre>
+    <span class="filetag">Avion.java</span>
+    <pre><code>package volar;
+
+        public class Avion implements Volador {
+
+        @Override
+        public void volar() {
+        System.out.println("El avión despega con motores");
+        }
+        }</code></pre>
+    <span class="filetag">Pajaro.java</span>
+    <pre><code>package volar;
+
+        // Pajaro NO hereda de Avion ni comparte padre con él.
+        // Lo único que tienen en común es saber volar.
+        public class Pajaro implements Volador {
+
+        @Override
+        public void volar() {
+        System.out.println("El pájaro vuela batiendo las alas");
+        }
+        }</code></pre>
+    <div class="note"><strong>Detalle importante:</strong> en una interfaz no hace falta escribir <code>public</code> ni <code>abstract</code>: los métodos ya son públicos y abstractos por definición. Pero en la clase que implementa, <code>public</code> <strong>sí</strong> es obligatorio.</div>
+
+    <h3 class="run"><span>▶</span> Ejecutar el ejemplo</h3>
+    <p><strong>Ejecuta este archivo:</strong> <code>PruebaVolador.java</code>.</p>
+    <span class="filetag">PruebaVolador.java ← ejecutar</span>
+    <pre><code>package volar;
+
+        public class PruebaVolador {
+
+        public static void main(String[] args) {
+
+        Avion avion = new Avion();
+        Pajaro pajaro = new Pajaro();
+
+        avion.volar();
+        pajaro.volar();
+
+        System.out.println("------------------------");
+
+        // Una interfaz NO se instancia, pero SÍ sirve como tipo.
+        // Volador v = new Volador(); // esto no compila
+
+        Volador[] voladores = { avion, pajaro };
+
+        for (Volador v : voladores) {
+        v.volar();
+        }
+
+        System.out.println("Total de voladores: " + voladores.length);
+        }
+        }</code></pre>
+    <p><strong>Qué ocurre:</strong> <code>Avion</code> y <code>Pajaro</code> no tienen ninguna relación de herencia, pero ambos entran en el arreglo <code>Volador[]</code>. Eso es lo que una interfaz permite y la herencia no: agrupar clases que no son familia pero comparten una capacidad.</p>
+
+    <h3 class="out"><span>💻</span> Resultado esperado en consola</h3>
+    <div class="result">El avión despega con motores<br>El pájaro vuela batiendo las alas<br>------------------------<br>El avión despega con motores<br>El pájaro vuela batiendo las alas<br>Total de voladores: 2</div>
+
+    <h3>5.5 <code>extends</code> frente a <code>implements</code></h3>
+    <table>
+      <tr>
+        <th>Aspecto</th>
+        <th><code>extends</code></th>
+        <th><code>implements</code></th>
+      </tr>
+      <tr>
+        <td>Se usa con</td>
+        <td>Clases</td>
+        <td>Interfaces</td>
+      </tr>
+      <tr>
+        <td>Significado</td>
+        <td>«es un»</td>
+        <td>«sabe hacer»</td>
+      </tr>
+      <tr>
+        <td>Cuántos se permiten</td>
+        <td>Solo uno</td>
+        <td>Varios, separados por coma</td>
+      </tr>
+      <tr>
+        <td>Hereda código</td>
+        <td>Sí, atributos y métodos</td>
+        <td>No, solo obligaciones</td>
+      </tr>
+      <tr>
+        <td>Ejemplo</td>
+        <td><code>Empleado extends Persona</code></td>
+        <td><code>Empleado implements Trabajable</code></td>
+      </tr>
+    </table>
+    <div class="box"><strong>Para recordarlo:</strong> <code>extends</code> responde «¿qué soy?». <code>implements</code> responde «¿qué sé hacer?». Un <code>Empleado</code> <em>es una</em> Persona y <em>sabe</em> calcular su pago.</div>
+
+    <h3>5.6 Varias interfaces a la vez</h3>
+    <p><strong>Concepto que se demuestra:</strong> una clase tiene un solo padre, pero puede firmar todos los contratos que necesite. Aquí un <code>Tecnico</code> sabe cobrar y además sabe generar un reporte.</p>
+    <p><strong>Clases necesarias:</strong> crea el paquete <code>variasinterfaces</code> con cuatro archivos.</p>
+    <pre class="tree">Source Packages
+      │
+      └── variasinterfaces
+      ├── Cobrable.java        (interfaz 1)
+      ├── Reportable.java      (interfaz 2)
+      ├── Tecnico.java         (implementa las dos)
+      └── PruebaVarias.java    ← ejecuta este archivo</pre>
+    <span class="filetag">Cobrable.java</span>
+    <pre><code>package variasinterfaces;
+
+        public interface Cobrable {
+        double calcularPago();
+        }</code></pre>
+    <span class="filetag">Reportable.java</span>
+    <pre><code>package variasinterfaces;
+
+        public interface Reportable {
+        String generarReporte();
+        }</code></pre>
+    <span class="filetag">Tecnico.java</span>
+    <pre><code>package variasinterfaces;
+
+        // Dos interfaces separadas por coma.
+        // La clase está obligada a escribir los métodos de AMBAS.
+        public class Tecnico implements Cobrable, Reportable {
+
+        private String nombre;
+        private int servicios;
+
+        public Tecnico(String nombre, int servicios) {
+        this.nombre = nombre;
+        this.servicios = servicios;
+        }
+
+        // Obligación de Cobrable.
+        @Override
+        public double calcularPago() {
+        return servicios * 80;
+        }
+
+        // Obligación de Reportable.
+        @Override
+        public String generarReporte() {
+        return "Técnico " + nombre + " atendió " + servicios + " servicios";
+        }
+        }</code></pre>
+    <div class="ok"><strong>Orden obligatorio:</strong> si además heredas de una clase, primero <code>extends</code> y después <code>implements</code>: <code>class Tecnico extends Persona implements Cobrable, Reportable</code>. Escribirlo al revés es un error de compilación.</div>
+
+    <h3 class="run"><span>▶</span> Ejecutar el ejemplo</h3>
+    <p><strong>Ejecuta este archivo:</strong> <code>PruebaVarias.java</code>.</p>
+    <span class="filetag">PruebaVarias.java ← ejecutar</span>
+    <pre><code>package variasinterfaces;
+
+        public class PruebaVarias {
+
+        public static void main(String[] args) {
+
+        Tecnico tecnico = new Tecnico("Rosa Díaz", 7);
+
+        // El objeto responde a los métodos de las dos interfaces.
+        System.out.println(tecnico.generarReporte());
+        System.out.printf("Pago: %.2f%n", tecnico.calcularPago());
+
+        System.out.println("------------------------");
+
+        // El MISMO objeto visto con dos tipos diferentes.
+        Cobrable comoCobrable = tecnico;
+        Reportable comoReportable = tecnico;
+
+        System.out.printf("Solo el pago: %.2f%n", comoCobrable.calcularPago());
+        System.out.println("Solo el reporte: " + comoReportable.generarReporte());
+        }
+        }</code></pre>
+    <p><strong>Qué ocurre:</strong> existe un solo objeto <code>Tecnico</code> en memoria. Las variables <code>comoCobrable</code> y <code>comoReportable</code> apuntan a él, pero cada una solo «ve» los métodos de su interfaz. Si escribes <code>comoCobrable.generarReporte()</code> el compilador lo rechaza, aunque el objeto real sepa hacerlo.</p>
+
+    <h3 class="out"><span>💻</span> Resultado esperado en consola</h3>
+    <div class="result">Técnico Rosa Díaz atendió 7 servicios<br>Pago: 560,00<br>------------------------<br>Solo el pago: 560,00<br>Solo el reporte: Técnico Rosa Díaz atendió 7 servicios</div>
+
+    <h2 id="ejercicio2">6. Ejercicio: paquete <code>abstracto_interface</code></h2>
+    <p><strong>Concepto que se demuestra:</strong> una misma clase puede heredar de una clase abstracta y, al mismo tiempo, firmar el contrato de una interfaz. <code>Empleado</code> <em>es una</em> <code>Persona</code> y además <em>sabe</em> calcular su pago.</p>
+    <p><strong>Clases necesarias:</strong> ampliamos el proyecto anterior con la interfaz <code>Trabajable</code>. Es el mismo ejemplo, un paso más adelante.</p>
+    <pre class="tree">Source Packages
+      │
+      └── abstracto_interface
+      ├── Persona.java          (clase abstracta)
+      ├── Trabajable.java       (interfaz)
+      ├── Empleado.java         (extends + implements)
+      ├── Consultor.java        (extends + implements)
+      └── PruebaInterface.java  ← ejecuta este archivo</pre>
+
+    <h3>6.1 <code>Persona.java</code> — sin cambios</h3>
+    <p>Copia la misma clase abstracta del paquete anterior y cambia únicamente la primera línea:</p>
+    <span class="filetag">Persona.java</span>
+    <pre><code>package abstracto_interface;
+
+        public abstract class Persona {
+
+        protected int id;
+        protected String dni;
+        protected String nombre;
+        protected String apellido;
+
+        public Persona(int id, String dni, String nombre, String apellido) {
+        this.id = id;
+        this.dni = dni;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        }
+
+        public void mostrarDatos() {
+        System.out.println("ID: " + id);
+        System.out.println("DNI: " + dni);
+        System.out.println("Nombre: " + nombre + " " + apellido);
+        }
+
+        public abstract void actividad();
+        }</code></pre>
+
+    <h3>6.2 <code>Trabajable.java</code> — el contrato</h3>
+    <div class="note"><strong>En NetBeans:</strong> clic derecho en el paquete → <strong>New → Java Interface</strong> (no «Java Class»). Escribe <code>Trabajable</code> y pulsa <strong>Finish</strong>.</div>
+    <span class="filetag">Trabajable.java</span>
+    <pre><code>package abstracto_interface;
+
+        // Una interfaz NO es una clase: es una lista de compromisos.
+        // No tiene atributos normales ni constructor.
+        public interface Trabajable {
+
+        // Todo lo que sea "trabajable" debe saber calcular su pago.
+        double calcularPago();
+
+        // Y debe saber mostrar su información completa.
+        void mostrarInformacion();
+        }</code></pre>
+    <div class="box"><strong>Observa:</strong> los dos métodos terminan en punto y coma, sin llaves. No escribimos <code>public</code> ni <code>abstract</code>: en una interfaz eso ya se da por hecho.</div>
+
+    <h3>6.3 <code>Empleado.java</code> — hereda y firma el contrato</h3>
+    <span class="filetag">Empleado.java</span>
+    <pre><code>package abstracto_interface;
+
+        // extends Persona -> ES una persona (hereda atributos y código)
+        // implements Trabajable -> SABE trabajar (se obliga a 2 métodos más)
+        public class Empleado extends Persona implements Trabajable {
+
+        private double sueldo;
+        private int horasExtra;
+
+        public Empleado(int id, String dni, String nombre,
+        String apellido, double sueldo, int horasExtra) {
+        super(id, dni, nombre, apellido);
+        this.sueldo = sueldo;
+        this.horasExtra = horasExtra;
+        }
+
+        // --- Obligación que viene de la clase abstracta Persona ---
+        @Override
+        public void actividad() {
+        System.out.println("El empleado trabaja en la empresa");
+        }
+
+        // --- Obligaciones que vienen de la interfaz Trabajable ---
+        // Ojo: aquí "public" SÍ es obligatorio.
+        @Override
+        public double calcularPago() {
+        return sueldo + (horasExtra * 20);
+        }
+
+        @Override
+        public void mostrarInformacion() {
+        mostrarDatos(); // heredado de Persona
+        actividad(); // versión de Empleado
+        System.out.println("Pago total: " + calcularPago());
+        }
+        }</code></pre>
+
+    <h3>6.4 <code>Consultor.java</code> — el mismo contrato, otro cálculo</h3>
+    <span class="filetag">Consultor.java</span>
+    <pre><code>package abstracto_interface;
+
+        public class Consultor extends Persona implements Trabajable {
+
+        private String nombreConsultora;
+        private double tarifaHora;
+        private int horas;
+
+        public Consultor(int id, String dni, String nombre, String apellido,
+        String nombreConsultora, double tarifaHora, int horas) {
+        super(id, dni, nombre, apellido);
+        this.nombreConsultora = nombreConsultora;
+        this.tarifaHora = tarifaHora;
+        this.horas = horas;
+        }
+
+        @Override
+        public void actividad() {
+        System.out.println("El consultor brinda asesoría");
+        }
+
+        // Mismo método, fórmula completamente distinta.
+        @Override
+        public double calcularPago() {
+        return tarifaHora * horas;
+        }
+
+        @Override
+        public void mostrarInformacion() {
+        mostrarDatos();
+        actividad();
+        System.out.println("Consultora: " + nombreConsultora);
+        System.out.println("Pago total: " + calcularPago());
+        }
+        }</code></pre>
+
+    <h3 class="run"><span>▶</span> Ejecutar el ejemplo</h3>
+    <p><strong>Ejecuta este archivo:</strong> <code>PruebaInterface.java</code>. Los cuatro archivos anteriores deben estar creados y sin errores antes de ejecutar.</p>
+    <span class="filetag">PruebaInterface.java ← ejecutar</span>
+    <pre><code>package abstracto_interface;
+
+        public class PruebaInterface {
+
+        public static void main(String[] args) {
+
+        Empleado empleado = new Empleado(1, "23456789",
+        "Carlos", "Pérez", 2500, 10);
+
+        Consultor consultor = new Consultor(2, "34567890",
+        "Luis", "Torres", "Consultora ABC", 150, 12);
+
+        empleado.mostrarInformacion();
+        System.out.println("------------------------");
+        consultor.mostrarInformacion();
+        System.out.println("------------------------");
+
+        // Ahora el arreglo NO usa la clase, usa la INTERFAZ.
+        // Solo importa que ambos sepan calcular su pago.
+        Trabajable[] planilla = { empleado, consultor };
+
+        double total = 0;
+        for (Trabajable t : planilla) {
+        // %-12s alinea el texto a la izquierda en 12 espacios.
+        System.out.printf("%-12s %10.2f%n", "Pago:", t.calcularPago());
+        total = total + t.calcularPago();
+        }
+
+        System.out.printf("%-12s %10.2f%n", "TOTAL:", total);
+        }
+        }</code></pre>
+    <p><strong>Qué ocurre:</strong> <code>mostrarInformacion()</code> viene de la interfaz, pero dentro llama a <code>mostrarDatos()</code> —heredado de la clase abstracta— y a <code>actividad()</code>, que es la versión propia de cada hija. Es decir: en un solo método se combinan la herencia, el polimorfismo y el contrato. El bucle final recorre <code>Trabajable[]</code> y suma pagos calculados con fórmulas distintas.</p>
+
+    <h3 class="out"><span>💻</span> Resultado esperado en consola</h3>
+    <div class="result">ID: 1<br>DNI: 23456789<br>Nombre: Carlos Pérez<br>El empleado trabaja en la empresa<br>Pago total: 2700.0<br>------------------------<br>ID: 2<br>DNI: 34567890<br>Nombre: Luis Torres<br>El consultor brinda asesoría<br>Consultora: Consultora ABC<br>Pago total: 1800.0<br>------------------------<br>Pago:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2700,00<br>Pago:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1800,00<br>TOTAL:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4500,00</div>
+    <div class="ok"><strong>El detalle más importante:</strong> el arreglo es <code>Trabajable[]</code>, no <code>Persona[]</code>. Mañana podemos agregar <code>class Maquina implements Trabajable</code> —que no hereda de <code>Persona</code>— y el bucle del total seguirá funcionando sin tocar ni una línea.</div>
+
+    <h3>6.6 Errores frecuentes con interfaces</h3>
+    <table>
+      <tr>
+        <th>Mensaje de NetBeans</th>
+        <th>Causa</th>
+        <th>Solución</th>
+      </tr>
+      <tr>
+        <td><code>attempting to assign weaker access privileges</code></td>
+        <td>Olvidaste <code>public</code> al implementar</td>
+        <td>Escribe <code>public double calcularPago()</code></td>
+      </tr>
+      <tr>
+        <td><code>does not override abstract method calcularPago()</code></td>
+        <td>Falta un método del contrato</td>
+        <td>Implementa todos los métodos de la interfaz</td>
+      </tr>
+      <tr>
+        <td><code>interface expected here</code></td>
+        <td>Usaste <code>implements</code> con una clase</td>
+        <td>Con clases se usa <code>extends</code></td>
+      </tr>
+      <tr>
+        <td><code>'{' expected</code> en la interfaz</td>
+        <td>Escribiste cuerpo en un método del contrato</td>
+        <td>Los métodos terminan en <code>;</code></td>
+      </tr>
+      <tr>
+        <td><code>class expected</code></td>
+        <td><code>implements</code> antes de <code>extends</code></td>
+        <td>Primero <code>extends</code>, luego <code>implements</code></td>
+      </tr>
+    </table>
+
+    <h2 id="comparacion">7. Comparación final</h2>
+    <p>Esta tabla es el resumen que conviene memorizar.</p>
+    <table>
+      <tr>
+        <th>Característica</th>
+        <th>Clase normal</th>
+        <th>Clase abstracta</th>
+        <th>Interfaz</th>
+      </tr>
+      <tr>
+        <td>Se puede instanciar con <code>new</code></td>
+        <td>Sí</td>
+        <td>No</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>Puede tener atributos</td>
+        <td>Sí</td>
+        <td>Sí</td>
+        <td>Solo constantes</td>
+      </tr>
+      <tr>
+        <td>Puede tener constructor</td>
+        <td>Sí</td>
+        <td>Sí (lo usa <code>super</code>)</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>Métodos ya implementados</td>
+        <td>Sí</td>
+        <td>Sí</td>
+        <td>No (en el nivel de este curso)</td>
+      </tr>
+      <tr>
+        <td>Métodos abstractos</td>
+        <td>No</td>
+        <td>Sí, opcionales</td>
+        <td>Sí, todos lo son</td>
+      </tr>
+      <tr>
+        <td>Se usa con <code>extends</code></td>
+        <td>Sí</td>
+        <td>Sí</td>
+        <td>No</td>
+      </tr>
+      <tr>
+        <td>Se usa con <code>implements</code></td>
+        <td>No</td>
+        <td>No</td>
+        <td>Sí</td>
+      </tr>
+      <tr>
+        <td>Herencia múltiple</td>
+        <td>No, un solo padre</td>
+        <td>No, un solo padre</td>
+        <td>Sí, varias interfaces</td>
+      </tr>
+      <tr>
+        <td>Sirve como tipo de referencia</td>
+        <td>Sí</td>
+        <td>Sí</td>
+        <td>Sí</td>
+      </tr>
+      <tr>
+        <td>Responde a la pregunta</td>
+        <td>«qué es y qué hace»</td>
+        <td>«qué es»</td>
+        <td>«qué sabe hacer»</td>
+      </tr>
+    </table>
+    <div class="box"><strong>Cómo decidir:</strong> si las clases comparten atributos y código, usa una <strong>clase abstracta</strong>. Si solo comparten capacidades y no están emparentadas, usa una <strong>interfaz</strong>. Se pueden combinar, como hicimos con <code>Empleado extends Persona implements Trabajable</code>.</div>
+
+    <h2 id="reto">8. Ejercicio para el estudiante</h2>
+    <p>Crea un paquete nuevo llamado <code>practicavehiculos</code>. Aquí tienes la estructura y las reglas; el código lo escribes tú.</p>
+    <pre class="tree">Source Packages
+      │
+      └── practicavehiculos
+      ├── Vehiculo.java (clase abstracta)
+      ├── Asegurable.java (interfaz)
+      ├── Auto.java (clase)
+      ├── Camion.java (clase)
+      └── PruebaVehiculos.java (clase con main)</pre>
+
+    <h3>8.1 Requisitos</h3>
+    <table>
+      <tr>
+        <th>Archivo</th>
+        <th>Debe contener</th>
+      </tr>
+      <tr>
+        <td><code>Vehiculo.java</code></td>
+        <td>Clase <strong>abstracta</strong>. Atributos <code>protected</code>: <code>placa</code>, <code>marca</code>, <code>precio</code>. Constructor con los tres. Método normal <code>mostrarDatos()</code>. Método <strong>abstracto</strong> <code>describir()</code>.</td>
+      </tr>
+      <tr>
+        <td><code>Asegurable.java</code></td>
+        <td><strong>Interfaz</strong> con dos métodos: <code>double calcularSeguro()</code> y <code>void mostrarPoliza()</code>.</td>
+      </tr>
+      <tr>
+        <td><code>Auto.java</code></td>
+        <td><code>extends Vehiculo implements Asegurable</code>. Atributo propio <code>numeroPuertas</code>. El seguro es el <strong>3 %</strong> del precio.</td>
+      </tr>
+      <tr>
+        <td><code>Camion.java</code></td>
+        <td><code>extends Vehiculo implements Asegurable</code>. Atributo propio <code>capacidadToneladas</code>. El seguro es el <strong>5 %</strong> del precio más <strong>100</strong> por tonelada.</td>
+      </tr>
+      <tr>
+        <td><code>PruebaVehiculos.java</code></td>
+        <td>Crea un <code>Auto</code> y un <code>Camion</code>. Recorre un arreglo <code>Vehiculo[]</code> llamando a <code>describir()</code>. Recorre un arreglo <code>Asegurable[]</code> sumando <code>calcularSeguro()</code>.</td>
+      </tr>
+    </table>
+
+    <h3>8.2 Pista: solo la firma de las clases</h3>
+    <pre><code>package practicavehiculos;
+
+        public abstract class Vehiculo {
+        // 1. Declara aquí los tres atributos protected.
+        // 2. Escribe el constructor con this.
+        // 3. Escribe mostrarDatos() con cuerpo.
+        // 4. Declara el método abstracto:
+        // public abstract void describir();
+        }</code></pre>
+    <pre><code>package practicavehiculos;
+
+        public interface Asegurable {
+        // Declara aquí los dos métodos, terminados en ;
+        }</code></pre>
+    <pre><code>package practicavehiculos;
+
+        public class Auto extends Vehiculo implements Asegurable {
+        // 1. Atributo numeroPuertas.
+        // 2. Constructor con super(...) en la PRIMERA línea.
+        // 3. @Override describir() -> viene de Vehiculo
+        // 4. @Override calcularSeguro() -> viene de Asegurable
+        // 5. @Override mostrarPoliza() -> viene de Asegurable
+        }</code></pre>
+    <p>La clase <code>Camion.java</code> se escribe igual, cambiando <code>numeroPuertas</code> por <code>capacidadToneladas</code> y la fórmula del seguro.</p>
+
+    <h3 class="run"><span>▶</span> Ejecutar el ejemplo</h3>
+    <p><strong>Ejecuta este archivo:</strong> <code>PruebaVehiculos.java</code>. Aquí tienes el esqueleto con los objetos y los bucles ya planteados; completa las líneas marcadas.</p>
+    <span class="filetag">PruebaVehiculos.java ← ejecutar</span>
+    <pre><code>package practicavehiculos;
+
+        public class PruebaVehiculos {
+
+        public static void main(String[] args) {
+
+        // 1. Crea los dos objetos con estos valores exactos.
+        Auto auto = new Auto("ABC-123", "Toyota", 45000, 4);
+        Camion camion = new Camion("XYZ-789", "Volvo", 120000, 8);
+
+        // 2. Recorre el arreglo del TIPO ABSTRACTO.
+        // Debe imprimir la descripción de cada vehículo.
+        Vehiculo[] vehiculos = { auto, camion };
+
+        for (Vehiculo v : vehiculos) {
+        // Llama aquí al método abstracto describir()
+        }
+
+        System.out.println("------------------------");
+
+        // 3. Recorre el arreglo del TIPO INTERFAZ y acumula el total.
+        Asegurable[] polizas = { auto, camion };
+
+        double total = 0;
+
+        for (Asegurable a : polizas) {
+        // Llama aquí a mostrarPoliza()
+        // y suma calcularSeguro() a la variable total
+        }
+
+        System.out.println("------------------------");
+
+        // 4. Muestra el total con dos decimales usando printf.
+        System.out.printf("Total en seguros: %.2f%n", total);
+        }
+        }</code></pre>
+    <div class="note"><strong>Fíjate:</strong> los dos arreglos contienen <em>los mismos dos objetos</em>, pero con tipos de referencia distintos. En <code>Vehiculo[]</code> solo puedes llamar a <code>describir()</code> y <code>mostrarDatos()</code>; en <code>Asegurable[]</code> solo a <code>calcularSeguro()</code> y <code>mostrarPoliza()</code>. Compruébalo intentando lo contrario.</div>
+
+    <h3 class="out"><span>💻</span> Resultado esperado en consola</h3>
+    <p>Con un auto de placa ABC-123, marca Toyota, precio 45000 y 4 puertas, y un camión de placa XYZ-789, marca Volvo, precio 120000 y 8 toneladas:</p>
+    <div class="result">Auto Toyota de 4 puertas, placa ABC-123<br>Camión Volvo de 8 toneladas, placa XYZ-789<br>------------------------<br>Póliza Auto ABC-123: 1350.0<br>Póliza Camión XYZ-789: 6800.0<br>------------------------<br>Total en seguros: 8150,00</div>
+    <div class="box"><strong>Comprueba tus fórmulas:</strong> el auto paga el 3 % de 45000 = <strong>1350</strong>. El camión paga el 5 % de 120000 = 6000, más 100 × 8 toneladas = 800, lo que da <strong>6800</strong>. El total debe ser <strong>8150</strong>.</div>
+
+    <h3>8.4 Lista de verificación</h3>
+    <table>
+      <tr>
+        <th>Concepto</th>
+        <th>Cómo comprobar que lo aplicaste</th>
+      </tr>
+      <tr>
+        <td>Herencia</td>
+        <td><code>Auto</code> y <code>Camion</code> usan <code>extends Vehiculo</code></td>
+      </tr>
+      <tr>
+        <td>Clase abstracta</td>
+        <td><code>new Vehiculo(...)</code> da error de compilación</td>
+      </tr>
+      <tr>
+        <td>Método abstracto</td>
+        <td><code>describir()</code> termina en <code>;</code> dentro de <code>Vehiculo</code></td>
+      </tr>
+      <tr>
+        <td>Interfaz</td>
+        <td><code>Asegurable.java</code> usa <code>interface</code>, no <code>class</code></td>
+      </tr>
+      <tr>
+        <td><code>implements</code></td>
+        <td>Aparece después de <code>extends</code> en ambas clases</td>
+      </tr>
+      <tr>
+        <td><code>@Override</code></td>
+        <td>Está sobre los tres métodos obligatorios de cada hija</td>
+      </tr>
+      <tr>
+        <td>Polimorfismo</td>
+        <td>Un mismo bucle produce salidas distintas por objeto</td>
+      </tr>
+      <tr>
+        <td><code>super</code></td>
+        <td>Es la primera instrucción de cada constructor hijo</td>
+      </tr>
+    </table>
+    <div class="note"><strong>Reto adicional:</strong> agrega <code>class Moto extends Vehiculo</code> <em>sin</em> <code>implements Asegurable</code>. Comprueba que aparece en el arreglo <code>Vehiculo[]</code> pero que el compilador no la acepta en <code>Asegurable[]</code>. Ahí se ve la diferencia entre «qué es» y «qué sabe hacer».</div>
+
+    <h2 id="resumen">9. Resumen</h2>
+    <table>
+      <tr>
+        <th>Concepto</th>
+        <th>Java</th>
+        <th>Finalidad</th>
+      </tr>
+      <tr>
+        <td>Clase abstracta</td>
+        <td><code>abstract class</code></td>
+        <td>Plantilla común que no se puede instanciar.</td>
+      </tr>
+      <tr>
+        <td>Método abstracto</td>
+        <td><code>abstract void m();</code></td>
+        <td>Obligar a las hijas a escribir su versión.</td>
+      </tr>
+      <tr>
+        <td>Heredar</td>
+        <td><code>extends</code></td>
+        <td>Recibir atributos, código y obligaciones. Solo un padre.</td>
+      </tr>
+      <tr>
+        <td>Constructor padre</td>
+        <td><code>super(...)</code></td>
+        <td>Inicializar los atributos heredados.</td>
+      </tr>
+      <tr>
+        <td>Sobrescribir</td>
+        <td><code>@Override</code></td>
+        <td>Completar un método abstracto o reemplazar uno normal.</td>
+      </tr>
+      <tr>
+        <td>Interfaz</td>
+        <td><code>interface</code></td>
+        <td>Contrato de capacidades, sin código heredado.</td>
+      </tr>
+      <tr>
+        <td>Firmar el contrato</td>
+        <td><code>implements</code></td>
+        <td>Comprometerse a escribir los métodos. Varias a la vez.</td>
+      </tr>
+      <tr>
+        <td>Polimorfismo</td>
+        <td>Tipo padre o interfaz</td>
+        <td>Un mismo bucle, respuestas distintas por objeto.</td>
+      </tr>
+    </table>
+    <div class="box"><strong>Secuencia conceptual completa:</strong> clase normal → herencia con <code>extends</code> → sobrescritura con <code>@Override</code> → polimorfismo → clase abstracta con <code>abstract</code> → interfaz con <code>implements</code>.</div>
+    <div class="ok"><strong>La pregunta que decide todo:</strong> ¿la relación es «es un»? Usa <code>extends</code> con clase o clase abstracta. ¿Es «sabe hacer»? Usa <code>implements</code> con una interfaz. ¿Son las dos cosas? Úsalas juntas.</div>
+    <div class="footer">Programación Orientada a Objetos · Java · Clases abstractas e interfaces</div>
+  </main>
+  <div id="copyToast" role="status" aria-live="polite"></div>
+  <script>
+    (function () {
+      var CONFIG = { allowCodeCopy: true };
+      function escapeHtml(text) { return text.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] }) }
+      function highlightJava(source) { var pattern = /\/\/[^\n]*|"(?:\\.|[^"\\])*"|@[A-Za-z]+|\b(?:package|import|public|protected|private|class|interface|abstract|implements|static|void|return|new|this|if|else|extends|super|for|try|catch)\b|\b(?:String|int|double|boolean|Integer|NumberFormatException|Persona|Empleado|Consultor|Trabajable|Reportable|Cobrable|Tecnico|Figura|Cuadrado|Circulo|Volador|Avion|Pajaro|Maquina|Vehiculo|Asegurable|Auto|Camion|Moto|PruebaFigura|PruebaAbstracta|PruebaVolador|PruebaVarias|PruebaInterface|PruebaVehiculos|System)\b|\b(?:true|false|null)\b|\b\d+(?:\.\d+)?\b/g, result = '', last = 0, match; while ((match = pattern.exec(source)) !== null) { var token = match[0], kind = 'java-number'; if (token.indexOf('//') === 0) kind = 'java-comment'; else if (token.charAt(0) === '"') kind = 'java-string'; else if (token.charAt(0) === '@') kind = 'java-annotation'; else if (/^(package|import|public|protected|private|class|interface|abstract|implements|static|void|return|new|this|if|else|extends|super|for|try|catch)$/.test(token)) kind = 'java-keyword'; else if (/^(String|int|double|boolean|Integer|NumberFormatException|Persona|Empleado|Consultor|Trabajable|Reportable|Cobrable|Tecnico|Figura|Cuadrado|Circulo|Volador|Avion|Pajaro|Maquina|Vehiculo|Asegurable|Auto|Camion|Moto|PruebaFigura|PruebaAbstracta|PruebaVolador|PruebaVarias|PruebaInterface|PruebaVehiculos|System)$/.test(token)) kind = 'java-type'; else if (/^(true|false|null)$/.test(token)) kind = 'java-literal'; result += escapeHtml(source.slice(last, match.index)) + '<span class="' + kind + '">' + escapeHtml(token) + '</span>'; last = pattern.lastIndex } return result + escapeHtml(source.slice(last)) }
+      document.querySelectorAll('pre > code').forEach(function (block) { block.innerHTML = highlightJava(block.textContent) });
+      function protect() { var toast = document.getElementById('copyToast'), timer; function show(message) { toast.textContent = message; toast.classList.add('show'); clearTimeout(timer); timer = setTimeout(function () { toast.classList.remove('show') }, 2600) } document.querySelectorAll('pre').forEach(function (block) { block.classList.add('protected'); block.addEventListener('copy', function (e) { e.preventDefault(); show('Este código es de solo lectura. Escríbelo en NetBeans.') }); block.addEventListener('cut', function (e) { e.preventDefault() }); block.addEventListener('selectstart', function (e) { e.preventDefault() }); block.addEventListener('dragstart', function (e) { e.preventDefault() }); block.addEventListener('contextmenu', function (e) { e.preventDefault(); show('El menú contextual está desactivado en el código.') }) }) }
+      if (!CONFIG.allowCodeCopy) protect();
+      var bar = document.getElementById('progress'), links = document.querySelectorAll('.navlinks a'), sections = Array.prototype.slice.call(document.querySelectorAll('main,h2[id]')); function update() { var root = document.documentElement, total = root.scrollHeight - root.clientHeight, pos = window.scrollY + 130, current = sections[0]; bar.style.width = (total > 0 ? root.scrollTop / total * 100 : 0) + '%'; sections.forEach(function (section) { if (section.offsetTop <= pos) current = section }); links.forEach(function (link) { link.classList.toggle('active', link.getAttribute('href') === '#' + current.id) }) } document.addEventListener('scroll', update, { passive: true }); update();
+    })();
+  </script>
+</body>
+</html>
