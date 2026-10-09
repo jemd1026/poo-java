@@ -974,7 +974,7 @@
   <div id="copyToast" role="status" aria-live="polite"></div>
   <script>
     (function () {
-      var CONFIG = { allowCodeCopy: false };
+      var CONFIG = { allowCodeCopy: true };
       function escapeHtml(text) { return text.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] }) }
       function highlightJava(source) { var pattern = /\/\/[^\n]*|"(?:\\.|[^"\\])*"|@[A-Za-z]+|\b(?:package|import|public|protected|private|class|static|void|return|new|this|if|else|extends|super|for|try|catch)\b|\b(?:String|int|double|boolean|Integer|NumberFormatException|Persona|Empleado|Consultor|Animal|Perro|Gato|Ave|System)\b|\b(?:true|false|null)\b|\b\d+(?:\.\d+)?\b/g, result = '', last = 0, match; while ((match = pattern.exec(source)) !== null) { var token = match[0], kind = 'java-number'; if (token.indexOf('//') === 0) kind = 'java-comment'; else if (token.charAt(0) === '"') kind = 'java-string'; else if (token.charAt(0) === '@') kind = 'java-annotation'; else if (/^(package|import|public|protected|private|class|static|void|return|new|this|if|else|extends|super|for|try|catch)$/.test(token)) kind = 'java-keyword'; else if (/^(String|int|double|boolean|Integer|NumberFormatException|Persona|Empleado|Consultor|Animal|Perro|Gato|Ave|System)$/.test(token)) kind = 'java-type'; else if (/^(true|false|null)$/.test(token)) kind = 'java-literal'; result += escapeHtml(source.slice(last, match.index)) + '<span class="' + kind + '">' + escapeHtml(token) + '</span>'; last = pattern.lastIndex } return result + escapeHtml(source.slice(last)) }
       document.querySelectorAll('pre > code').forEach(function (block) { block.innerHTML = highlightJava(block.textContent) });
