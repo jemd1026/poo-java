@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Práctica: FormPersonal en Java con JFrame</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Code+Pro:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f7f2;
+      --soft: #e7eee9;
+      --panel: #fff;
+      --ink: #18252b;
+      --muted: #657278;
+      --line: #dfe5e1;
+      --coral: #ef714c;
+      --coral-dark: #da5e3b;
+      --coral-tint: #fff0e9;
+      --green: #16745a;
+      --green-tint: #e4f0e9;
+      --amber: #d29b35;
+      --amber-tint: #fff8df;
+      --code: #172a31;
+      --code-top: #243c42;
+      --code-ink: #d8e5df;
+      --shadow: 0 24px 60px rgba(24, 37, 43, .12);
+      --sans: 'DM Sans', sans-serif;
+      --display: 'Space Grotesk', sans-serif;
+      --mono: 'Source Code Pro', Consolas, monospace
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.6 var(--sans)
+    }
+
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 300;
+      width: 0;
+      height: 3px;
+      background: var(--coral)
+    }
+
+    nav {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 100;
+      width: 260px;
+      overflow-y: auto;
+      background: var(--bg);
+      border-right: 1px solid var(--line)
+    }
+
+    .navrow {
+      padding: 42px 26px
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 30px;
+      padding: 18px 16px;
+      color: #fff;
+      background: var(--code);
+      border-radius: 4px 22px 22px 22px;
+      font-weight: 700
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--coral)
+    }
+
+    .navlinks {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .navlinks:before {
+      content: 'CONTENIDO';
+      margin: 0 12px 10px;
+      color: #9aa6a7;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px
+    }
+
+    .navlinks a {
+      padding: 11px 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      text-decoration: none
+    }
+
+    .navlinks a:hover,
+    .navlinks a.active {
+      background: var(--soft);
+      color: var(--green);
+      font-weight: 700
+    }
+
+    main {
+      max-width: 1100px;
+      min-height: 100vh;
+      margin-left: 260px;
+      padding: 80px 6vw 62px
+    }
+
+    .head {
+      max-width: 810px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--line)
+    }
+
+    .pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px
+    }
+
+    .pill {
+      padding: 5px 11px;
+      border-radius: 20px;
+      color: var(--green);
+      background: var(--green-tint);
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .kicker {
+      margin: 0 0 8px;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: var(--display);
+      letter-spacing: -1.2px
+    }
+
+    h1 {
+      max-width: 15ch;
+      margin: 0 0 16px;
+      font-size: clamp(42px, 5vw, 70px);
+      line-height: .98
+    }
+
+    h2 {
+      max-width: 23ch;
+      margin: 62px 0 14px;
+      font-size: clamp(31px, 4vw, 51px);
+      line-height: 1.03;
+      scroll-margin-top: 30px
+    }
+
+    h3 {
+      margin: 34px 0 8px;
+      font-size: 22px
+    }
+
+    .lead {
+      max-width: 62ch;
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px
+    }
+
+    .box,
+    .note,
+    .ok {
+      margin: 22px 0;
+      padding: 16px 18px;
+      border-radius: 4px 14px 14px 4px
+    }
+
+    .box {
+      background: var(--green-tint);
+      border: 1px solid #bddbcf;
+      border-left: 5px solid var(--green)
+    }
+
+    .note {
+      background: var(--amber-tint);
+      border: 1px solid #ecd69d;
+      border-left: 5px solid var(--amber)
+    }
+
+    .ok {
+      background: var(--coral-tint);
+      border: 1px solid #f1c7b9;
+      border-left: 5px solid var(--coral)
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 24px 0
+    }
+
+    .card {
+      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--coral);
+      border-radius: 4px 18px 18px 18px
+    }
+
+    .card h3 {
+      margin: 0 0 7px;
+      font-size: 20px
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px
+    }
+
+    table {
+      width: 100%;
+      margin: 22px 0;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 24px -18px rgba(24, 37, 43, .3)
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line)
+    }
+
+    th {
+      background: var(--coral);
+      color: #fff;
+      font-size: 13px
+    }
+
+    tr:nth-child(even)td {
+      background: var(--soft)
+    }
+
+    code {
+      padding: .08em .28em;
+      border-radius: 4px;
+      color: var(--coral-dark);
+      background: var(--coral-tint);
+      font: .9em var(--mono)
+    }
+
+    pre {
+      position: relative;
+      margin: 18px 0;
+      padding: 22px 24px;
+      overflow: auto;
+      color: var(--code-ink);
+      background: var(--code);
+      border-radius: 4px 20px 20px 20px;
+      box-shadow: var(--shadow);
+      font: 13px/1.6 var(--mono)
+    }
+
+    pre code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      font-size: inherit
+    }
+
+    .tree {
+      color: var(--green);
+      background: var(--green-tint);
+      border: 1px solid var(--line);
+      box-shadow: none;
+      white-space: pre-wrap
+    }
+
+    .caption {
+      margin: 20px 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .result {
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px 14px 14px 14px;
+      background: var(--panel);
+      font-family: var(--mono)
+    }
+
+    h3.run,
+    h3.out {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 30px 0 10px;
+      padding: 9px 15px;
+      border-radius: 4px 14px 14px 4px;
+      font-size: 19px;
+      letter-spacing: -.6px
+    }
+
+    h3.run {
+      color: #0f5a45;
+      background: var(--green-tint);
+      border-left: 5px solid var(--green)
+    }
+
+    h3.out {
+      color: var(--coral-dark);
+      background: var(--coral-tint);
+      border-left: 5px solid var(--coral)
+    }
+
+    h3.run span,
+    h3.out span {
+      font-size: 15px
+    }
+
+    .filetag {
+      display: inline-block;
+      margin: 18px 0 -6px;
+      padding: 4px 11px;
+      border-radius: 4px 12px 12px 4px;
+      color: #fff;
+      background: var(--code-top);
+      font: 600 12px var(--mono)
+    }
+
+    .steps {
+      margin: 18px 0;
+      padding-left: 22px
+    }
+
+    .steps li {
+      margin-bottom: 9px
+    }
+
+    .concept {
+      margin: 18px 0;
+      padding: 18px 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--green);
+      border-radius: 4px 14px 14px 4px
+    }
+
+    .concept h3 {
+      margin: 0 0 6px;
+      font-size: 19px
+    }
+
+    .concept pre {
+      margin: 10px 0 8px
+    }
+
+    .concept p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px
+    }
+
+    .footer {
+      margin-top: 62px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    .java-keyword {
+      color: #ef9470
+    }
+
+    .java-type {
+      color: #78c5d4
+    }
+
+    .java-string {
+      color: #f5cd62
+    }
+
+    .java-comment {
+      color: #8fb6a8;
+      font-style: italic
+    }
+
+    .java-number,
+    .java-literal,
+    .java-annotation {
+      color: #c9a7ed
+    }
+
+    pre.protected,
+    pre.protected code {
+      -webkit-user-select: none;
+      user-select: none;
+      cursor: default
+    }
+
+    pre.protected:after {
+      content: 'solo lectura';
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      color: #9fb5ad;
+      background: var(--code-top);
+      font: 600 10px var(--sans)
+    }
+
+    #copyToast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 400;
+      max-width: 88vw;
+      padding: 11px 18px;
+      border-radius: 999px;
+      color: var(--bg);
+      background: var(--ink);
+      box-shadow: var(--shadow);
+      font-weight: 600;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(12px);
+      transition: .22s
+    }
+
+    #copyToast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0)
+    }
+
+    @media(max-width:760px) {
+      nav {
+        position: sticky;
+        inset: 0;
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--line)
+      }
+
+      .navrow {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 18px
+      }
+
+      .brand {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 10px 12px
+      }
+
+      .navlinks {
+        flex-direction: row;
+        overflow-x: auto
+      }
+
+      .navlinks:before {
+        display: none
+      }
+
+      .navlinks a {
+        white-space: nowrap
+      }
+
+      main {
+        margin-left: 0;
+        padding: 52px 24px 40px
+      }
+
+      .cards {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+  <nav aria-label="Navegación de la guía">
+    <div class="navrow">
+      <div class="brand"><span class="dot"></span>FormPersonal.java</div>
+      <div class="navlinks"><a href="#inicio">Inicio</a><a href="#caso">Caso práctico</a><a href="#estructura">Estructura</a><a href="#personal">Personal</a><a href="#calculable">Calculable</a><a href="#docente">Docente</a><a href="#administrativo">Administrativo</a><a href="#formulario">Crear el JFrame</a><a href="#componentes">Componentes</a><a href="#referencia">Referencia polimórfica</a><a href="#registrar">Botón Registrar</a><a href="#limpiar">Limpiar y Salir</a><a href="#ejecutar">Ejecutar</a><a href="#conceptos">¿Dónde está cada concepto?</a><a href="#flujo">Flujo completo</a><a href="#errores">Errores comunes</a><a href="#resumen">Resumen</a></div>
+    </div>
+  </nav>
+  <main id="inicio">
+    <header class="head">
+      <div class="pills"><span class="pill">Java · POO</span><span class="pill">JFrame · NetBeans</span><span class="pill">Práctica integradora</span></div>
+      <p class="kicker">Práctica integradora</p>
+      <h1>FormPersonal: todo junto en un formulario</h1>
+      <p class="lead">Última parada del recorrido. En un solo formulario de NetBeans aplicaremos herencia, polimorfismo, clase abstracta, método abstracto e interfaz. Nada nuevo que aprender: solo juntar las piezas de las dos guías anteriores.</p>
+    </header>
+
+    <div class="box"><strong>Lo que ya sabes y aquí usarás:</strong> <code>extends</code>, <code>super(...)</code>, <code>@Override</code>, <code>abstract class</code>, <code>abstract</code> en métodos, <code>interface</code> e <code>implements</code>. Si alguno no te suena, repasa las guías de herencia y de clases abstractas antes de continuar.</div>
+
+    <h2 id="caso">1. El caso práctico</h2>
+    <p>Una empresa necesita registrar a su personal. Todos los trabajadores comparten los mismos datos básicos:</p>
+    <table>
+      <tr>
+        <th>Dato común</th>
+        <th>Tipo en Java</th>
+      </tr>
+      <tr>
+        <td>Nombres</td>
+        <td><code>String</code></td>
+      </tr>
+      <tr>
+        <td>Apellidos</td>
+        <td><code>String</code></td>
+      </tr>
+      <tr>
+        <td>DNI</td>
+        <td><code>String</code></td>
+      </tr>
+      <tr>
+        <td>Dirección</td>
+        <td><code>String</code></td>
+      </tr>
+      <tr>
+        <td>Sexo</td>
+        <td><code>String</code></td>
+      </tr>
+      <tr>
+        <td>Sueldo base</td>
+        <td><code>double</code></td>
+      </tr>
+    </table>
+    <p>Pero no todos los trabajadores son iguales. Hay <strong>docentes</strong> y hay <strong>administrativos</strong>, y cada tipo calcula su pago final de forma distinta: al docente se le suma una bonificación, al administrativo se le resta un descuento.</p>
+    <pre class="tree">Personal
+      │
+      ├── Docente (sueldo + bonificación)
+      └── Administrativo (sueldo - descuento)</pre>
+
+    <h3>1.1 ¿Por qué <code>Personal</code> será abstracta?</h3>
+    <p>Piénsalo desde el negocio: cuando la empresa contrata a alguien, contrata a un docente o a un administrativo. Nunca contrata a un «personal genérico». Ese objeto no existe en la realidad.</p>
+    <p>Además, si intentáramos calcular el pago de un <code>Personal</code> a secas, no sabríamos qué hacer: ¿le sumamos bonificación o le restamos descuento? No hay respuesta. Por eso:</p>
+    <div class="cards">
+      <article class="card">
+        <h3>Clase abstracta</h3>
+        <p><code>Personal</code> guarda los seis datos comunes, pero <strong>no se puede instanciar</strong>.</p>
+      </article>
+      <article class="card">
+        <h3>Método abstracto</h3>
+        <p><code>getTipoPersonal()</code> obliga a cada hija a declarar qué tipo es.</p>
+      </article>
+      <article class="card">
+        <h3>Interfaz</h3>
+        <p><code>Calculable</code> obliga a saber calcular el pago, cada uno a su manera.</p>
+      </article>
+    </div>
+    <div class="box"><strong>La frase que resume el diseño:</strong> un <code>Docente</code> <strong>ES un</strong> <code>Personal</code> (por eso <code>extends</code>) y <strong>SABE</strong> calcular su pago (por eso <code>implements</code>).</div>
+
+    <h2 id="estructura">2. Estructura del proyecto</h2>
+    <p>Crea un paquete nuevo llamado <code>formulariopersonal</code> con cinco archivos.</p>
+    <pre class="tree">Source Packages
+      │
+      └── formulariopersonal
+      ├── Personal.java (clase abstracta: los datos comunes)
+      ├── Calculable.java (interfaz: el contrato del pago)
+      ├── Docente.java (extends + implements)
+      ├── Administrativo.java (extends + implements)
+      └── FormPersonal.java ← ejecuta este archivo (JFrame Form)</pre>
+    <table>
+      <tr>
+        <th>Archivo</th>
+        <th>Qué es</th>
+        <th>Para qué sirve</th>
+      </tr>
+      <tr>
+        <td><code>Personal.java</code></td>
+        <td>Clase abstracta</td>
+        <td>Guarda los seis datos comunes y obliga a declarar el tipo.</td>
+      </tr>
+      <tr>
+        <td><code>Calculable.java</code></td>
+        <td>Interfaz</td>
+        <td>Obliga a tener un método <code>calcularPago()</code>.</td>
+      </tr>
+      <tr>
+        <td><code>Docente.java</code></td>
+        <td>Clase hija</td>
+        <td>Agrega bonificación. Suma al sueldo.</td>
+      </tr>
+      <tr>
+        <td><code>Administrativo.java</code></td>
+        <td>Clase hija</td>
+        <td>Agrega descuento. Resta al sueldo.</td>
+      </tr>
+      <tr>
+        <td><code>FormPersonal.java</code></td>
+        <td>JFrame Form</td>
+        <td>La ventana. Lee los datos y crea el objeto que corresponda.</td>
+      </tr>
+    </table>
+    <div class="note"><strong>Cómo crear el paquete:</strong> clic derecho en <strong>Source Packages</strong> → <strong>New → Java Package</strong>, escribe <code>formulariopersonal</code> y pulsa <strong>Finish</strong>.</div>
+    <div class="ok"><strong>Orden importante:</strong> crea los cuatro archivos de clases <em>antes</em> del formulario. Si creas primero el <code>JFrame</code>, NetBeans marcará en rojo los nombres <code>Docente</code> y <code>Administrativo</code> porque todavía no existen.</div>
+
+    <h2 id="personal">3. La clase abstracta <code>Personal</code></h2>
+    <p><strong>Concepto que se demuestra:</strong> una clase abstracta reúne todo lo común y deja pendiente lo que cada hija debe decidir.</p>
+    <p>Clic derecho en el paquete → <strong>New → Java Class</strong> → nombre <code>Personal</code>.</p>
+    <span class="filetag">Personal.java</span>
+    <pre><code>package formulariopersonal;
+
+        // abstract = esta clase es solo un molde.
+        // No se puede escribir new Personal(...) en ninguna parte.
+        public abstract class Personal {
+
+        // protected = visible aquí y en las clases hijas.
+        protected String nombres;
+        protected String apellidos;
+        protected String dni;
+        protected String direccion;
+        protected String sexo;
+        protected double sueldo;
+
+        // Una clase abstracta SÍ tiene constructor.
+        // No crea objetos Personal: lo usarán las hijas con super(...).
+        public Personal(String nombres, String apellidos, String dni,
+        String direccion, String sexo, double sueldo) {
+        this.nombres = nombres;
+        this.apellidos = apellidos;
+        this.dni = dni;
+        this.direccion = direccion;
+        this.sexo = sexo;
+        this.sueldo = sueldo;
+        }
+
+        // Método NORMAL: ya está resuelto y las dos hijas lo heredan igual.
+        public void mostrarDatosGenerales() {
+        System.out.println("Nombres: " + nombres);
+        System.out.println("Apellidos: " + apellidos);
+        System.out.println("DNI: " + dni);
+        System.out.println("Dirección: " + direccion);
+        System.out.println("Sexo: " + sexo);
+        System.out.printf("Sueldo base: S/ %.2f%n", sueldo);
+        }
+
+        // Método ABSTRACTO: no tiene cuerpo, termina en punto y coma.
+        // Cada hija está OBLIGADA a decir qué tipo de personal es.
+        public abstract String getTipoPersonal();
+
+        // Métodos get para que el formulario pueda leer los datos.
+        public double getSueldo() {
+        return sueldo;
+        }
+
+        public String getNombres() {
+        return nombres;
+        }
+        }</code></pre>
+    <div class="box"><strong>Observa la mezcla:</strong> atributos, constructor, un método resuelto (<code>mostrarDatosGenerales()</code>) y un método pendiente (<code>getTipoPersonal()</code>). Esa combinación es exactamente lo que define a una clase abstracta.</div>
+    <div class="ok"><strong>Esto NO se puede hacer:</strong> <code>Personal p = new Personal(...);</code> produce el error <code>Personal is abstract; cannot be instantiated</code>. Y está bien que falle: un «personal genérico» no existe en la empresa.</div>
+    <div class="note"><strong>Sobre <code>this</code> y <code>super</code>:</strong> dentro de este constructor usamos <code>this.nombres = nombres</code> porque el atributo y el parámetro se llaman igual; <code>this</code> señala al atributo del objeto. Más adelante, en <code>Docente</code>, usaremos <code>super(...)</code> para llamar a <em>este</em> constructor.</div>
+
+    <h2 id="calculable">4. La interfaz <code>Calculable</code></h2>
+    <p><strong>Concepto que se demuestra:</strong> la clase abstracta dice <em>qué es</em> el objeto; la interfaz dice <em>qué sabe hacer</em>.</p>
+    <div class="note"><strong>En NetBeans:</strong> clic derecho en el paquete → <strong>New → Java Interface</strong> (no «Java Class»). Escribe <code>Calculable</code> y pulsa <strong>Finish</strong>.</div>
+    <span class="filetag">Calculable.java</span>
+    <pre><code>package formulariopersonal;
+
+        // Una interfaz es un contrato: una lista de compromisos.
+        // No tiene atributos normales ni constructor.
+        public interface Calculable {
+
+        // Todo lo que sea "calculable" debe saber dar su pago final.
+        // Sin cuerpo, termina en punto y coma.
+        double calcularPago();
+        }</code></pre>
+    <p>Una sola línea, pero cambia el diseño por completo. Ahora cualquier clase que escriba <code>implements Calculable</code> queda obligada a tener un <code>calcularPago()</code>.</p>
+
+    <h3>4.1 Las dos frases que hay que memorizar</h3>
+    <pre class="tree">Docente ES un Personal → extends Personal
+      Docente SABE calcular pago → implements Calculable</pre>
+    <table>
+      <tr>
+        <th>Aspecto</th>
+        <th><code>extends Personal</code></th>
+        <th><code>implements Calculable</code></th>
+      </tr>
+      <tr>
+        <td>Se usa con</td>
+        <td>Una clase (o clase abstracta)</td>
+        <td>Una interfaz</td>
+      </tr>
+      <tr>
+        <td>Responde a</td>
+        <td>«¿qué soy?»</td>
+        <td>«¿qué sé hacer?»</td>
+      </tr>
+      <tr>
+        <td>Cuántos se permiten</td>
+        <td>Solo uno</td>
+        <td>Varios, separados por coma</td>
+      </tr>
+      <tr>
+        <td>Qué recibe la clase</td>
+        <td>Atributos y métodos ya escritos</td>
+        <td>Solo la obligación de escribirlos</td>
+      </tr>
+      <tr>
+        <td>Aquí aporta</td>
+        <td>Los seis datos y <code>mostrarDatosGenerales()</code></td>
+        <td>La obligación de <code>calcularPago()</code></td>
+      </tr>
+    </table>
+    <div class="ok"><strong>Orden obligatorio:</strong> primero <code>extends</code>, después <code>implements</code>. Escribir <code>implements Calculable extends Personal</code> es un error de compilación.</div>
+
+    <h2 id="docente">5. La clase <code>Docente</code></h2>
+    <p><strong>Concepto que se demuestra:</strong> una hija hereda de la clase abstracta y a la vez cumple el contrato de la interfaz.</p>
+    <span class="filetag">Docente.java</span>
+    <pre><code>package formulariopersonal;
+
+        // extends Personal -> ES un personal (hereda los seis datos)
+        // implements Calculable -> SABE calcular su pago
+        public class Docente extends Personal implements Calculable {
+
+        // Atributo propio de Docente. Administrativo no lo tiene.
+        private double bonificacion;
+
+        public Docente(String nombres, String apellidos, String dni,
+        String direccion, String sexo, double sueldo,
+        double bonificacion) {
+
+        // super(...) llama al constructor de Personal.
+        // SIEMPRE debe ser la primera instrucción.
+        super(nombres, apellidos, dni, direccion, sexo, sueldo);
+
+        this.bonificacion = bonificacion;
+        }
+
+        // Obligación que viene de la CLASE ABSTRACTA Personal.
+        @Override
+        public String getTipoPersonal() {
+        return "Docente";
+        }
+
+        // Obligación que viene de la INTERFAZ Calculable.
+        // Al docente se le SUMA la bonificación.
+        @Override
+        public double calcularPago() {
+        return sueldo + bonificacion;
+        }
+
+        public double getBonificacion() {
+        return bonificacion;
+        }
+        }</code></pre>
+    <div class="note"><strong>Fíjate en <code>sueldo</code>:</strong> dentro de <code>calcularPago()</code> usamos <code>sueldo</code> sin declararlo. Funciona porque es <code>protected</code> en <code>Personal</code> y esta clase es su hija. Si fuera <code>private</code>, tendríamos que usar <code>getSueldo()</code>.</div>
+
+    <h2 id="administrativo">6. La clase <code>Administrativo</code></h2>
+    <p><strong>Concepto que se demuestra:</strong> la misma obligación, resuelta con una fórmula distinta. Ese contraste es el polimorfismo.</p>
+    <span class="filetag">Administrativo.java</span>
+    <pre><code>package formulariopersonal;
+
+        public class Administrativo extends Personal implements Calculable {
+
+        // Atributo propio de Administrativo.
+        private double descuento;
+
+        public Administrativo(String nombres, String apellidos, String dni,
+        String direccion, String sexo, double sueldo,
+        double descuento) {
+
+        super(nombres, apellidos, dni, direccion, sexo, sueldo);
+
+        this.descuento = descuento;
+        }
+
+        // Misma obligación que Docente, respuesta diferente.
+        @Override
+        public String getTipoPersonal() {
+        return "Administrativo";
+        }
+
+        // Aquí se RESTA el descuento. Docente sumaba.
+        @Override
+        public double calcularPago() {
+        return sueldo - descuento;
+        }
+
+        public double getDescuento() {
+        return descuento;
+        }
+        }</code></pre>
+    <div class="box"><strong>Compara las dos clases:</strong> tienen la misma estructura y los mismos dos métodos obligatorios. Solo cambian el texto que devuelve <code>getTipoPersonal()</code> y el signo de la fórmula. Mismo contrato, distinta implementación.</div>
+    <div class="note"><strong>El objetivo no es la planilla:</strong> las fórmulas son <code>sueldo + bonificación</code> y <code>sueldo - descuento</code> a propósito. Lo que importa es que sean <em>diferentes</em>, no que sean realistas.</div>
+
+    <h2 id="formulario">7. Crear el formulario <code>FormPersonal</code></h2>
+    <p>Con las cuatro clases listas y sin errores, ahora sí creamos la ventana.</p>
+    <ol class="steps">
+      <li>Clic derecho en el paquete <code>formulariopersonal</code> → <strong>New → JFrame Form</strong>.</li>
+      <li>Si no aparece en la lista, elige <strong>New → Other</strong> → categoría <strong>Swing GUI Forms</strong> → tipo <strong>JFrame Form</strong>.</li>
+      <li>En <strong>Class Name</strong> escribe <code>FormPersonal</code> y pulsa <strong>Finish</strong>.</li>
+      <li>NetBeans abre la vista <strong>Design</strong>. A la derecha está la ventana <strong>Palette</strong>; abajo a la derecha, <strong>Properties</strong>.</li>
+      <li>Haz clic sobre el fondo del formulario para seleccionarlo. En <strong>Properties</strong>, busca <code>title</code> y escribe <code>Registro de Personal</code>.</li>
+    </ol>
+    <div class="note"><strong>Design y Source:</strong> arriba del editor hay dos pestañas. En <strong>Design</strong> arrastras componentes con el ratón; en <strong>Source</strong> escribes código. Iremos cambiando entre las dos.</div>
+    <p class="caption">Así debe quedar el formulario terminado:</p>
+    <pre class="tree">┌─ Registro de Personal ──────────────────────────┐
+      │ │
+      │ Tipo de personal: [ Docente ▾ ] │
+      │ │
+      │ Nombres: [ ] │
+      │ Apellidos: [ ] │
+      │ DNI: [ ] │
+      │ Dirección: [ ] │
+      │ │
+      │ Sexo: ( ) Masculino ( ) Femenino │
+      │ │
+      │ Sueldo base: [ ] │
+      │ Bonificación: [ ] │
+      │ │
+      │ [ Registrar ] [ Limpiar ] [ Salir ] │
+      │ │
+      └─────────────────────────────────────────────────┘</pre>
+
+    <h2 id="componentes">8. Agregar los componentes</h2>
+    <p>Desde <strong>Palette → Swing Controls</strong>, arrastra cada componente al formulario y colócalo según el esquema anterior.</p>
+
+    <h3>8.1 Los dos cambios que harás en cada componente</h3>
+    <table>
+      <tr>
+        <th>Qué cambiar</th>
+        <th>Cómo</th>
+      </tr>
+      <tr>
+        <td>El <strong>nombre de la variable</strong> (lo usa el código)</td>
+        <td>Clic derecho en el componente → <strong>Change Variable Name</strong></td>
+      </tr>
+      <tr>
+        <td>El <strong>texto visible</strong> (lo ve el usuario)</td>
+        <td>Selecciónalo y edita la propiedad <code>text</code> en <strong>Properties</strong></td>
+      </tr>
+    </table>
+    <div class="ok"><strong>El error más común de la práctica:</strong> olvidar el <strong>Change Variable Name</strong>. Si dejas los nombres que NetBeans pone solo (<code>jTextField1</code>, <code>jTextField2</code>…), el código de más adelante no compilará porque no encontrará <code>txtNombres</code>.</div>
+
+    <h3>8.2 Tabla de componentes</h3>
+    <table>
+      <tr>
+        <th>Campo</th>
+        <th>Componente (Palette)</th>
+        <th>Variable</th>
+        <th>Propiedad <code>text</code></th>
+      </tr>
+      <tr>
+        <td>Tipo de personal</td>
+        <td>Combo Box</td>
+        <td><code>cbTipoPersonal</code></td>
+        <td>ver 8.3</td>
+      </tr>
+      <tr>
+        <td>Nombres</td>
+        <td>Text Field</td>
+        <td><code>txtNombres</code></td>
+        <td>vacío</td>
+      </tr>
+      <tr>
+        <td>Apellidos</td>
+        <td>Text Field</td>
+        <td><code>txtApellidos</code></td>
+        <td>vacío</td>
+      </tr>
+      <tr>
+        <td>DNI</td>
+        <td>Text Field</td>
+        <td><code>txtDni</code></td>
+        <td>vacío</td>
+      </tr>
+      <tr>
+        <td>Dirección</td>
+        <td>Text Field</td>
+        <td><code>txtDireccion</code></td>
+        <td>vacío</td>
+      </tr>
+      <tr>
+        <td>Masculino</td>
+        <td>Radio Button</td>
+        <td><code>rbMasculino</code></td>
+        <td>Masculino</td>
+      </tr>
+      <tr>
+        <td>Femenino</td>
+        <td>Radio Button</td>
+        <td><code>rbFemenino</code></td>
+        <td>Femenino</td>
+      </tr>
+      <tr>
+        <td>Sueldo base</td>
+        <td>Text Field</td>
+        <td><code>txtSueldo</code></td>
+        <td>vacío</td>
+      </tr>
+      <tr>
+        <td>Bonificación / Descuento</td>
+        <td>Text Field</td>
+        <td><code>txtAdicional</code></td>
+        <td>vacío</td>
+      </tr>
+      <tr>
+        <td>Etiqueta del campo adicional</td>
+        <td>Label</td>
+        <td><code>lblAdicional</code></td>
+        <td>Bonificación:</td>
+      </tr>
+      <tr>
+        <td>Registrar</td>
+        <td>Button</td>
+        <td><code>btnRegistrar</code></td>
+        <td>Registrar</td>
+      </tr>
+      <tr>
+        <td>Limpiar</td>
+        <td>Button</td>
+        <td><code>btnLimpiar</code></td>
+        <td>Limpiar</td>
+      </tr>
+      <tr>
+        <td>Salir</td>
+        <td>Button</td>
+        <td><code>btnSalir</code></td>
+        <td>Salir</td>
+      </tr>
+    </table>
+    <div class="note"><strong>Las demás etiquetas:</strong> agrega también un <strong>Label</strong> delante de cada campo con los textos <code>Tipo de personal:</code>, <code>Nombres:</code>, <code>Apellidos:</code>, <code>DNI:</code>, <code>Dirección:</code>, <code>Sexo:</code> y <code>Sueldo base:</code>. A estas no necesitas cambiarles el nombre de variable, porque el código no las usa. La única etiqueta con nombre propio es <code>lblAdicional</code>.</div>
+
+    <h3>8.3 Cargar las opciones del Combo Box</h3>
+    <ol class="steps">
+      <li>Selecciona <code>cbTipoPersonal</code> en la vista <strong>Design</strong>.</li>
+      <li>En <strong>Properties</strong>, busca la propiedad <code>model</code> y haz clic en el botón <strong>…</strong> de la derecha.</li>
+      <li>Borra el contenido que trae por defecto (<code>Item 1</code>, <code>Item 2</code>, <code>Item 3</code>, <code>Item 4</code>).</li>
+      <li>Escribe las dos opciones, <strong>una por línea</strong> y exactamente así:</li>
+    </ol>
+    <pre class="tree">Docente
+      Administrativo</pre>
+    <ol class="steps" start="5">
+      <li>Pulsa <strong>OK</strong>. El combo debe mostrar ahora <code>Docente</code>.</li>
+    </ol>
+    <div class="ok"><strong>Cuidado con la escritura:</strong> más adelante el código compara con <code>equals("Docente")</code>. Si escribes <code>docente</code> en minúscula o dejas un espacio al final, la comparación fallará y siempre se creará un <code>Administrativo</code>.</div>
+
+    <h3>8.4 Agrupar los RadioButton con <code>ButtonGroup</code></h3>
+    <p>Sin agrupar, los dos RadioButton se pueden marcar a la vez. El <code>ButtonGroup</code> garantiza que solo uno esté seleccionado.</p>
+    <ol class="steps">
+      <li>En <strong>Palette</strong>, busca <strong>Button Group</strong> (está en la sección <strong>Swing Controls</strong>, al final).</li>
+      <li>Arrástralo <strong>sobre el formulario</strong>. No verás nada dibujado: es un componente invisible. Aparecerá en la ventana <strong>Navigator</strong>, abajo a la izquierda, dentro de <strong>Other Components</strong>.</li>
+      <li>Selecciona <code>rbMasculino</code> en el formulario.</li>
+      <li>En <strong>Properties</strong>, busca la propiedad <code>buttonGroup</code> y elige <code>buttonGroup1</code> en la lista.</li>
+      <li>Repite el paso anterior con <code>rbFemenino</code>, eligiendo el <strong>mismo</strong> <code>buttonGroup1</code>.</li>
+      <li>Opcional: selecciona <code>rbMasculino</code> y marca su propiedad <code>selected</code> para que arranque elegido por defecto.</li>
+    </ol>
+    <div class="note"><strong>Compruébalo ahora:</strong> ejecuta el formulario con <strong>Shift + F6</strong> y haz clic en los dos RadioButton. Si puedes marcar los dos al mismo tiempo, el <code>ButtonGroup</code> no está bien asignado: revisa que ambos apunten a <code>buttonGroup1</code>.</div>
+
+    <h2 id="referencia">9. El campo adicional y la referencia polimórfica</h2>
+
+    <h3>9.1 Un solo campo para dos significados</h3>
+    <p>Para no llenar el formulario de cajas, usamos un único campo <code>txtAdicional</code> que cambia de significado según el tipo elegido:</p>
+    <table>
+      <tr>
+        <th>Si el combo muestra</th>
+        <th><code>txtAdicional</code> significa</th>
+        <th>La fórmula será</th>
+      </tr>
+      <tr>
+        <td>Docente</td>
+        <td>Bonificación</td>
+        <td><code>sueldo + adicional</code></td>
+      </tr>
+      <tr>
+        <td>Administrativo</td>
+        <td>Descuento</td>
+        <td><code>sueldo - adicional</code></td>
+      </tr>
+    </table>
+
+    <h3>9.2 Cambiar la etiqueta automáticamente</h3>
+    <p>Para que el usuario sepa qué está escribiendo, haremos que <code>lblAdicional</code> cambie de texto al cambiar el combo. Son tres líneas.</p>
+    <ol class="steps">
+      <li>En la vista <strong>Design</strong>, haz clic derecho sobre <code>cbTipoPersonal</code>.</li>
+      <li>Elige <strong>Events → Action → actionPerformed</strong>.</li>
+      <li>NetBeans salta a <strong>Source</strong> y crea el método <code>cbTipoPersonalActionPerformed</code>. Escribe dentro:</li>
+    </ol>
+    <pre><code>// Leemos la opción elegida en el combo.
+        String tipo = cbTipoPersonal.getSelectedItem().toString();
+
+        if (tipo.equals("Docente")) {
+        lblAdicional.setText("Bonificación:");
+        } else {
+        lblAdicional.setText("Descuento:");
+        }</code></pre>
+    <div class="note"><strong>Si algo sale mal:</strong> no borres a mano el método que NetBeans generó. Para quitar un evento, vuelve a <strong>Design</strong>, clic derecho en el componente → <strong>Events</strong> y desmarca el evento. NetBeans limpia el código por ti.</div>
+
+    <h3>9.3 Declarar la referencia polimórfica</h3>
+    <p>Esta es <strong>la línea más importante de toda la práctica</strong>.</p>
+    <ol class="steps">
+      <li>Cambia a la vista <strong>Source</strong> de <code>FormPersonal.java</code>.</li>
+      <li>Busca la línea <code>public class FormPersonal extends javax.swing.JFrame {</code>.</li>
+      <li>Justo debajo de esa llave de apertura y <strong>antes</strong> del constructor <code>public FormPersonal()</code>, escribe la declaración.</li>
+      <li>No la escribas dentro de <code>FormPersonal()</code>, ni dentro de <code>initComponents()</code>, ni dentro de un evento de botón.</li>
+    </ol>
+    <pre><code>public class FormPersonal extends javax.swing.JFrame {
+
+        // ---- LA LÍNEA CLAVE DE LA PRÁCTICA ----
+        // El tipo es Personal (la clase abstracta),
+        // pero guardará un Docente o un Administrativo.
+        private Personal personal;
+
+        public FormPersonal() {
+        initComponents();
+        }
+
+        // ... aquí sigue el código que genera NetBeans ...
+        }</code></pre>
+    <pre class="tree"> Personal personal ← una sola variable
+      │
+      ┌───────┴───────┐
+      ▼ ▼
+      Docente Administrativo ← dos objetos posibles</pre>
+    <div class="box"><strong>Por qué esto es polimorfismo:</strong> una única variable de tipo <code>Personal</code> puede referirse a objetos de dos clases distintas. Cuando más adelante llamemos a <code>personal.getTipoPersonal()</code>, Java decidirá <em>durante la ejecución</em> si ejecuta la versión de <code>Docente</code> o la de <code>Administrativo</code>, según el objeto que se haya creado.</div>
+    <div class="ok"><strong>¿Por qué está fuera de los métodos?</strong> Porque debe seguir existiendo cuando el evento termine. Si la declararas dentro de <code>btnRegistrarActionPerformed</code>, el objeto se perdería al salir del método y los otros botones no podrían usarlo.</div>
+    <div class="note"><strong>Aviso de NetBeans:</strong> mientras no uses la variable, aparecerá un subrayado gris con el mensaje <em>«field personal is never used»</em>. Es solo un aviso, no un error. Desaparecerá en el paso siguiente.</div>
+
+    <h2 id="registrar">10. Programar el botón Registrar</h2>
+    <p>Aquí se junta todo: leemos el formulario, creamos el objeto que corresponda y usamos la interfaz.</p>
+    <ol class="steps">
+      <li>Vuelve a la vista <strong>Design</strong>.</li>
+      <li>Haz <strong>doble clic</strong> sobre el botón <code>btnRegistrar</code>.</li>
+      <li>NetBeans crea y abre el método <code>btnRegistrarActionPerformed</code>.</li>
+      <li>Escribe dentro el código de los tres pasos siguientes, uno tras otro.</li>
+    </ol>
+
+    <h3>10.1 Paso 1: leer los datos del formulario</h3>
+    <pre><code>// --- Datos de texto: se leen con getText() ---
+        String nombres = txtNombres.getText();
+        String apellidos = txtApellidos.getText();
+        String dni = txtDni.getText();
+        String direccion = txtDireccion.getText();
+
+        // --- Sexo: se decide con el RadioButton marcado ---
+        // isSelected() devuelve true si ese botón está elegido.
+        String sexo;
+
+        if (rbMasculino.isSelected()) {
+        sexo = "Masculino";
+        } else {
+        sexo = "Femenino";
+        }
+
+        // --- Números: el formulario da texto, hay que convertirlo ---
+        // Double.parseDouble transforma "2800" en el número 2800.0
+        double sueldo = Double.parseDouble(txtSueldo.getText());
+        double adicional = Double.parseDouble(txtAdicional.getText());
+
+        // --- Tipo elegido en el combo ---
+        String tipo = cbTipoPersonal.getSelectedItem().toString();</code></pre>
+    <div class="note"><strong>Por qué hay que convertir:</strong> un <code>JTextField</code> siempre entrega un <code>String</code>, aunque escribas números. <code>Double.parseDouble()</code> hace la traducción a <code>double</code>. Si el campo está vacío o tiene letras, el programa lanzará un error; lo veremos en la sección de errores comunes.</div>
+
+    <h3>10.2 Paso 2: crear el objeto que corresponda</h3>
+    <p>Este <code>if</code> es el corazón del polimorfismo: dos objetos distintos, una sola variable.</p>
+    <pre><code>if (tipo.equals("Docente")) {
+
+        // El valor adicional se interpreta como BONIFICACIÓN.
+        personal = new Docente(nombres, apellidos, dni,
+        direccion, sexo, sueldo, adicional);
+
+        } else {
+
+        // El valor adicional se interpreta como DESCUENTO.
+        personal = new Administrativo(nombres, apellidos, dni,
+        direccion, sexo, sueldo, adicional);
+        }</code></pre>
+    <div class="box"><strong>Lee otra vez las dos asignaciones:</strong> a la izquierda siempre está la misma variable <code>personal</code>, de tipo <code>Personal</code>. A la derecha, dos clases diferentes. Eso es polimorfismo en una línea: <em>la referencia del padre apunta al objeto de la hija</em>.</div>
+    <div class="note"><strong>Sobre <code>equals</code>:</strong> para comparar textos en Java se usa <code>tipo.equals("Docente")</code>, nunca <code>tipo == "Docente"</code>. El <code>==</code> compara posiciones de memoria, no el contenido de las palabras.</div>
+
+    <h3>10.3 Paso 3: usar la interfaz y mostrar en consola</h3>
+    <p>Ahora necesitamos el pago final, que es el método de la interfaz <code>Calculable</code>.</p>
+    <pre><code>// La forma más simple: llamamos al método sobre el objeto.
+        // Java ejecuta la versión de Docente o de Administrativo
+        // según lo que se haya creado arriba.
+        double pagoFinal = ((Calculable) personal).calcularPago();
+
+        // --- Salida en consola ---
+        System.out.println("=================================");
+        System.out.println(" DATOS DEL PERSONAL");
+        System.out.println("=================================");
+
+        // Método ABSTRACTO: cada hija devuelve su propio texto.
+        System.out.println("Tipo: " + personal.getTipoPersonal());
+
+        // Método NORMAL heredado de la clase abstracta.
+        personal.mostrarDatosGenerales();
+
+        // La etiqueta cambia según el tipo, igual que el formulario.
+        if (tipo.equals("Docente")) {
+        System.out.printf("Bonificación: S/ %.2f%n", adicional);
+        } else {
+        System.out.printf("Descuento: S/ %.2f%n", adicional);
+        }
+
+        System.out.printf("Pago final: S/ %.2f%n", pagoFinal);
+        System.out.println("=================================");</code></pre>
+
+    <h3>10.4 Cómo evitar ese casting</h3>
+    <p>La línea <code>((Calculable) personal).calcularPago()</code> funciona, pero el paréntesis doble es incómodo y a un principiante no le dice nada. El casting hace falta porque la variable es de tipo <code>Personal</code>, y <code>Personal</code> no sabe nada de <code>calcularPago()</code>.</p>
+    <p>Hay una salida mucho más clara: <strong>declarar una segunda variable del tipo de la interfaz</strong>.</p>
+    <ol class="steps">
+      <li>Vuelve al inicio de la clase, donde declaraste <code>private Personal personal;</code>.</li>
+      <li>Añade debajo una segunda declaración.</li>
+    </ol>
+    <pre><code>private Personal personal; // lo que el objeto ES
+        private Calculable calculable; // lo que el objeto SABE hacer</code></pre>
+    <p>Y en el <code>if</code> del paso 2, guarda el objeto en las dos variables a la vez:</p>
+    <pre><code>if (tipo.equals("Docente")) {
+
+        Docente docente = new Docente(nombres, apellidos, dni,
+        direccion, sexo, sueldo, adicional);
+
+        personal = docente; // lo vemos como Personal
+        calculable = docente; // y también como Calculable
+
+        } else {
+
+        Administrativo admin = new Administrativo(nombres, apellidos, dni,
+        direccion, sexo, sueldo, adicional);
+
+        personal = admin;
+        calculable = admin;
+        }
+
+        // Ahora la llamada se lee de corrido, sin casting:
+        double pagoFinal = calculable.calcularPago();</code></pre>
+    <div class="box"><strong>Lo que esto enseña:</strong> existe <strong>un solo objeto</strong> en memoria. Las dos variables apuntan a él, pero cada una lo ve de una manera: <code>personal</code> ve los datos y el tipo; <code>calculable</code> ve el pago. Es la diferencia entre «qué es» y «qué sabe hacer», ahora en código ejecutable.</div>
+    <div class="note"><strong>Compruébalo:</strong> escribe <code>calculable.getTipoPersonal()</code> y NetBeans lo marcará en rojo, aunque el objeto real sí tiene ese método. La variable limita lo que puedes llamar. Bórralo después de comprobarlo.</div>
+    <div class="ok"><strong>Usa una de las dos versiones, no las dos.</strong> Si eliges la de 10.4, borra la línea con <code>((Calculable) personal)</code> del paso 3 y deja solo <code>double pagoFinal = calculable.calcularPago();</code>.</div>
+
+    <h2 id="limpiar">11. Botones Limpiar y Salir</h2>
+
+    <h3>11.1 Botón Limpiar</h3>
+    <p>En <strong>Design</strong>, doble clic sobre <code>btnLimpiar</code> y escribe:</p>
+    <pre><code>// Vaciamos todas las cajas de texto.
+        txtNombres.setText("");
+        txtApellidos.setText("");
+        txtDni.setText("");
+        txtDireccion.setText("");
+        txtSueldo.setText("");
+        txtAdicional.setText("");
+
+        // Volvemos a la primera opción del combo (Docente).
+        cbTipoPersonal.setSelectedIndex(0);
+
+        // Y devolvemos la etiqueta a "Bonificación:".
+        lblAdicional.setText("Bonificación:");
+
+        // Dejamos marcado Masculino.
+        rbMasculino.setSelected(true);
+
+        // El cursor regresa al primer campo.
+        txtNombres.requestFocus();</code></pre>
+    <div class="note"><strong><code>requestFocus()</code>:</strong> coloca el cursor parpadeando dentro de <code>txtNombres</code>, para que el usuario pueda escribir de inmediato sin tener que hacer clic.</div>
+    <div class="ok"><strong>Si no agregaste la etiqueta dinámica</strong> de la sección 9.2, borra la línea <code>lblAdicional.setText("Bonificación:");</code>, porque esa etiqueta no tendrá ese nombre de variable y el código no compilará.</div>
+
+    <h3>11.2 Botón Salir</h3>
+    <p>Doble clic sobre <code>btnSalir</code> y escribe una sola línea:</p>
+    <pre><code>System.exit(0);</code></pre>
+    <div class="note"><strong><code>System.exit(0)</code> frente a <code>dispose()</code>:</strong> <code>exit(0)</code> termina todo el programa; el <code>0</code> significa «cerró sin errores». <code>dispose()</code> solo cierra esta ventana y dejaría el programa vivo si hubiera otras abiertas.</div>
+
+    <h2 id="ejecutar">12. Ejecutar la práctica</h2>
+    <h3 class="run"><span>▶</span> Ejecutar el ejemplo</h3>
+    <p><strong>Archivo a ejecutar:</strong> <code>FormPersonal.java</code>. Es el único de los cinco que se ejecuta; los otros cuatro solo definen clases.</p>
+    <span class="filetag">FormPersonal.java ← ejecutar</span>
+    <ol class="steps">
+      <li>Clic derecho sobre <code>FormPersonal.java</code> → <strong>Run File</strong>, o presiona <strong>Shift + F6</strong>.</li>
+      <li>En el combo deja <strong>Docente</strong>. Comprueba que la etiqueta diga <strong>Bonificación:</strong>.</li>
+      <li>Escribe estos datos de prueba y pulsa <strong>Registrar</strong>:</li>
+    </ol>
+    <table>
+      <tr>
+        <th>Campo</th>
+        <th>Prueba 1 (Docente)</th>
+        <th>Prueba 2 (Administrativo)</th>
+      </tr>
+      <tr>
+        <td>Tipo</td>
+        <td>Docente</td>
+        <td>Administrativo</td>
+      </tr>
+      <tr>
+        <td>Nombres</td>
+        <td>María Elena</td>
+        <td>Carlos Alberto</td>
+      </tr>
+      <tr>
+        <td>Apellidos</td>
+        <td>Ruiz Torres</td>
+        <td>Pérez Díaz</td>
+      </tr>
+      <tr>
+        <td>DNI</td>
+        <td>45879632</td>
+        <td>12345678</td>
+      </tr>
+      <tr>
+        <td>Dirección</td>
+        <td>Jr. Amazonas 450</td>
+        <td>Jr. Lima 250</td>
+      </tr>
+      <tr>
+        <td>Sexo</td>
+        <td>Femenino</td>
+        <td>Masculino</td>
+      </tr>
+      <tr>
+        <td>Sueldo base</td>
+        <td>2800</td>
+        <td>2500</td>
+      </tr>
+      <tr>
+        <td>Adicional</td>
+        <td>300 (bonificación)</td>
+        <td>150 (descuento)</td>
+      </tr>
+    </table>
+    <div class="note"><strong>Dónde mirar el resultado:</strong> la salida no aparece en la ventana, sino en la <strong>consola Output</strong> de NetBeans, en la parte inferior. Si no la ves, ábrela con <strong>Ctrl + 4</strong> o desde el menú <strong>Window → Output</strong>. Deja el formulario abierto mientras la lees.</div>
+
+    <h3 class="out"><span>💻</span> Resultado esperado en consola</h3>
+    <p class="caption">Prueba 1, con Docente:</p>
+    <div class="result">=================================<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATOS DEL PERSONAL<br>=================================<br>Tipo: Docente<br>Nombres: María Elena<br>Apellidos: Ruiz Torres<br>DNI: 45879632<br>Dirección: Jr. Amazonas 450<br>Sexo: Femenino<br>Sueldo base: S/ 2800,00<br>Bonificación: S/ 300,00<br>Pago final: S/ 3100,00<br>=================================</div>
+    <p class="caption">Prueba 2, con Administrativo:</p>
+    <div class="result">=================================<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DATOS DEL PERSONAL<br>=================================<br>Tipo: Administrativo<br>Nombres: Carlos Alberto<br>Apellidos: Pérez Díaz<br>DNI: 12345678<br>Dirección: Jr. Lima 250<br>Sexo: Masculino<br>Sueldo base: S/ 2500,00<br>Descuento: S/ 150,00<br>Pago final: S/ 2350,00<br>=================================</div>
+    <div class="note"><strong>Sobre la coma decimal:</strong> <code>printf</code> usa la configuración regional del sistema. En Windows en español verás <code>2800,00</code> con coma; en inglés, <code>2800.00</code> con punto. No es un error.</div>
+    <div class="ok"><strong>La comprobación que demuestra el polimorfismo:</strong> pulsa <strong>Registrar</strong> con Docente y después con Administrativo, sin cerrar el formulario. Es <em>el mismo botón</em> y <em>el mismo código</em>, pero la consola muestra «Tipo: Docente» o «Tipo: Administrativo» y suma o resta el adicional. Nunca escribiste un <code>if</code> para decidir eso: lo decidió el objeto.</div>
+
+    <h2 id="conceptos">13. ¿Dónde está cada concepto?</h2>
+    <p>Esta sección es la más importante para el examen. Cada concepto del curso, señalado en el código que acabas de escribir.</p>
+
+    <div class="concept">
+      <h3>Herencia</h3>
+      <pre><code>public class Docente extends Personal</code></pre>
+      <p><code>Docente</code> recibe los seis atributos y <code>mostrarDatosGenerales()</code> sin volver a escribirlos. Archivos: <code>Docente.java</code> y <code>Administrativo.java</code>.</p>
+    </div>
+
+    <div class="concept">
+      <h3>Clase abstracta</h3>
+      <pre><code>public abstract class Personal</code></pre>
+      <p>Plantilla común que no se puede instanciar. Evita crear un «personal genérico» que no existe en la empresa. Archivo: <code>Personal.java</code>.</p>
+    </div>
+
+    <div class="concept">
+      <h3>Método abstracto</h3>
+      <pre><code>public abstract String getTipoPersonal();</code></pre>
+      <p>Sin cuerpo, termina en punto y coma. Obliga a las dos hijas a declarar qué tipo de personal son. Archivo: <code>Personal.java</code>.</p>
+    </div>
+
+    <div class="concept">
+      <h3>Interfaz</h3>
+      <pre><code>public interface Calculable {
+          double calcularPago();
+          }</code></pre>
+      <p>Un contrato de capacidades. No dice qué es el objeto, dice qué sabe hacer. Archivo: <code>Calculable.java</code>.</p>
+    </div>
+
+    <div class="concept">
+      <h3>Implementación de la interfaz</h3>
+      <pre><code>public class Docente extends Personal implements Calculable</code></pre>
+      <p>Al firmar el contrato, la clase queda obligada a escribir <code>calcularPago()</code>. Primero <code>extends</code>, después <code>implements</code>.</p>
+    </div>
+
+    <div class="concept">
+      <h3>Polimorfismo</h3>
+      <pre><code>private Personal personal;
+
+          personal = new Docente(...); // o bien
+          personal = new Administrativo(...);</code></pre>
+      <p>Una sola variable del tipo padre guarda objetos de dos clases distintas. Al llamar a <code>getTipoPersonal()</code>, Java elige la versión correcta en tiempo de ejecución. Archivo: <code>FormPersonal.java</code>.</p>
+    </div>
+
+    <div class="concept">
+      <h3>Sobrescritura</h3>
+      <pre><code>@Override
+          public double calcularPago() {
+          return sueldo + bonificacion;
+          }</code></pre>
+      <p>Cada hija escribe su propia versión del método obligatorio. <code>Docente</code> suma, <code>Administrativo</code> resta.</p>
+    </div>
+
+    <div class="concept">
+      <h3>Constructor del padre</h3>
+      <pre><code>super(nombres, apellidos, dni, direccion, sexo, sueldo);</code></pre>
+      <p>Llama al constructor de <code>Personal</code> para inicializar los seis datos heredados. Debe ser la primera instrucción del constructor de la hija.</p>
+    </div>
+
+    <div class="concept">
+      <h3>Encapsulamiento</h3>
+      <pre><code>protected double sueldo; // visible en las hijas
+          private double bonificacion; // solo dentro de Docente</code></pre>
+      <p><code>protected</code> permite a <code>Docente</code> usar <code>sueldo</code> directamente; <code>private</code> protege lo que es exclusivo de cada hija.</p>
+    </div>
+
+    <h2 id="flujo">14. El flujo completo</h2>
+    <p>Sigue el recorrido de un dato desde que lo escribes hasta que aparece en la consola.</p>
+    <pre class="tree"> FORMULARIO
+      │
+      ▼
+      Datos ingresados
+      (nombres, DNI, sueldo, adicional…)
+      │
+      ▼
+      Tipo de personal (cbTipoPersonal)
+      │
+      ┌───────────┴───────────┐
+      ▼ ▼
+      Docente Administrativo
+      sueldo + bonif. sueldo - desc.
+      │ │
+      └───────────┬───────────┘
+      ▼
+      Personal personal ← una sola variable
+      │
+      ▼
+      POLIMORFISMO
+      (Java elige la versión correcta)
+      │
+      ▼
+      calcularPago()
+      │
+      ▼
+      INTERFAZ Calculable
+      │
+      ▼
+      Mostrar en consola</pre>
+    <div class="box"><strong>Léelo al revés para estudiar:</strong> el pago final salió de <code>calcularPago()</code>, que es un método de la interfaz, implementado de forma distinta en cada hija, elegido por el polimorfismo según el objeto que creó el <code>if</code> del botón, a partir del tipo que seleccionaste en el combo.</div>
+
+    <h2 id="errores">15. Errores comunes</h2>
+
+    <h3>15.1 Errores de compilación</h3>
+    <table>
+      <tr>
+        <th>Mensaje de NetBeans</th>
+        <th>Causa</th>
+        <th>Solución</th>
+      </tr>
+      <tr>
+        <td><code>cannot find symbol: txtNombres</code></td>
+        <td>No hiciste <strong>Change Variable Name</strong></td>
+        <td>Renombra el componente en <strong>Design</strong></td>
+      </tr>
+      <tr>
+        <td><code>Personal is abstract; cannot be instantiated</code></td>
+        <td>Escribiste <code>new Personal(...)</code></td>
+        <td>Crea un <code>Docente</code> o un <code>Administrativo</code></td>
+      </tr>
+      <tr>
+        <td><code>Docente is not abstract and does not override abstract method getTipoPersonal()</code></td>
+        <td>Falta un método obligatorio</td>
+        <td>Escribe <code>getTipoPersonal()</code> en la hija</td>
+      </tr>
+      <tr>
+        <td><code>does not override abstract method calcularPago()</code></td>
+        <td>Falta el método de la interfaz</td>
+        <td>Implementa <code>calcularPago()</code></td>
+      </tr>
+      <tr>
+        <td><code>attempting to assign weaker access privileges</code></td>
+        <td>Olvidaste <code>public</code> al implementar</td>
+        <td>Escribe <code>public double calcularPago()</code></td>
+      </tr>
+      <tr>
+        <td><code>call to super must be first statement</code></td>
+        <td><code>super(...)</code> no es la primera línea</td>
+        <td>Muévelo al inicio del constructor</td>
+      </tr>
+      <tr>
+        <td><code>cannot find symbol: calcularPago()</code></td>
+        <td>La llamaste sobre una variable <code>Personal</code></td>
+        <td>Usa la variable <code>Calculable</code> (sección 10.4)</td>
+      </tr>
+      <tr>
+        <td><code>class expected</code></td>
+        <td><code>implements</code> antes de <code>extends</code></td>
+        <td>Primero <code>extends</code>, luego <code>implements</code></td>
+      </tr>
+    </table>
+
+    <h3>15.2 Errores al ejecutar</h3>
+    <table>
+      <tr>
+        <th>Qué ocurre</th>
+        <th>Causa</th>
+        <th>Solución</th>
+      </tr>
+      <tr>
+        <td>Se llena la consola de rojo con <code>NumberFormatException</code></td>
+        <td><code>txtSueldo</code> o <code>txtAdicional</code> está vacío o tiene letras</td>
+        <td>Escribe un número antes de pulsar <strong>Registrar</strong></td>
+      </tr>
+      <tr>
+        <td><code>NullPointerException</code> al pulsar Registrar</td>
+        <td>Declaraste <code>personal</code> dentro de un método</td>
+        <td>Declárala antes del constructor (sección 9.3)</td>
+      </tr>
+      <tr>
+        <td>Los dos RadioButton se marcan a la vez</td>
+        <td>Falta el <code>ButtonGroup</code></td>
+        <td>Asigna <code>buttonGroup1</code> a ambos (sección 8.4)</td>
+      </tr>
+      <tr>
+        <td>Siempre registra Administrativo</td>
+        <td>El texto del combo no coincide con <code>equals("Docente")</code></td>
+        <td>Revisa mayúsculas y espacios en el <code>model</code></td>
+      </tr>
+      <tr>
+        <td>No se ve nada en pantalla</td>
+        <td>La salida va a la consola, no al formulario</td>
+        <td>Abre <strong>Output</strong> con <strong>Ctrl + 4</strong></td>
+      </tr>
+      <tr>
+        <td>La etiqueta no cambia de texto</td>
+        <td>Falta el evento del combo</td>
+        <td>Agrégalo con <strong>Events → Action</strong> (sección 9.2)</td>
+      </tr>
+    </table>
+    <div class="note"><strong>Sobre <code>NumberFormatException</code>:</strong> es el error más frecuente de la práctica y no es un fallo de tu diseño de clases. Ocurre porque <code>Double.parseDouble("")</code> no puede convertir un texto vacío en número. Por ahora basta con escribir siempre un número; la validación con <code>try/catch</code> se ve en otra guía.</div>
+
+    <h2 id="resumen">16. Resumen</h2>
+    <p>Los cinco archivos y el concepto que aporta cada uno:</p>
+    <table>
+      <tr>
+        <th>Archivo</th>
+        <th>Palabra clave</th>
+        <th>Concepto que demuestra</th>
+      </tr>
+      <tr>
+        <td><code>Personal.java</code></td>
+        <td><code>abstract class</code></td>
+        <td>Clase abstracta y método abstracto</td>
+      </tr>
+      <tr>
+        <td><code>Calculable.java</code></td>
+        <td><code>interface</code></td>
+        <td>Contrato de capacidades</td>
+      </tr>
+      <tr>
+        <td><code>Docente.java</code></td>
+        <td><code>extends</code> + <code>implements</code></td>
+        <td>Herencia, <code>super</code>, <code>@Override</code></td>
+      </tr>
+      <tr>
+        <td><code>Administrativo.java</code></td>
+        <td><code>extends</code> + <code>implements</code></td>
+        <td>La misma obligación, otra fórmula</td>
+      </tr>
+      <tr>
+        <td><code>FormPersonal.java</code></td>
+        <td><code>Personal personal;</code></td>
+        <td>Polimorfismo en tiempo de ejecución</td>
+      </tr>
+    </table>
+    <div class="box"><strong>El recorrido completo del curso:</strong> clase normal → herencia con <code>extends</code> → sobrescritura con <code>@Override</code> → polimorfismo → clase abstracta con <code>abstract</code> → interfaz con <code>implements</code> → <strong>esta práctica, donde todo funciona junto</strong>.</div>
+    <div class="ok"><strong>La pregunta que decide el diseño:</strong> ¿la relación es «es un»? Usa <code>extends</code>. ¿Es «sabe hacer»? Usa <code>implements</code>. Aquí eran las dos: un <code>Docente</code> <strong>es</strong> personal y <strong>sabe</strong> calcular su pago.</div>
+
+    <h3>16.1 Para seguir practicando</h3>
+    <p>Cuando la práctica te funcione, prueba estas ampliaciones. Todas usan solo lo que ya sabes:</p>
+    <ol class="steps">
+      <li>Agrega una tercera opción al combo, <strong>Practicante</strong>, con una clase <code>Practicante extends Personal implements Calculable</code> cuyo pago sea la mitad del sueldo.</li>
+      <li>Agrega a <code>Personal</code> un segundo método abstracto, <code>getDescripcionPago()</code>, que devuelva <code>"Sueldo más bonificación"</code> o <code>"Sueldo menos descuento"</code> según la hija.</li>
+      <li>Crea una clase <code>Maquina implements Calculable</code> que <strong>no</strong> herede de <code>Personal</code>. Comprueba que el compilador la acepta como <code>Calculable</code> pero la rechaza como <code>Personal</code>: ahí se ve la diferencia entre «es un» y «sabe hacer».</li>
+    </ol>
+    <div class="footer">Programación Orientada a Objetos · Java · Práctica integradora con JFrame</div>
+  </main>
+  <div id="copyToast" role="status" aria-live="polite"></div>
+  <script>
+    (function () {
+      var CONFIG = { allowCodeCopy: false };
+      function escapeHtml(text) { return text.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] }) }
+      function highlightJava(source) { var pattern = /\/\/[^\n]*|"(?:\\.|[^"\\])*"|@[A-Za-z]+|\b(?:package|import|public|protected|private|class|interface|abstract|implements|static|void|return|new|this|if|else|extends|super|for|try|catch)\b|\b(?:String|int|double|boolean|Double|Integer|NumberFormatException|Personal|Calculable|Docente|Administrativo|Practicante|Maquina|FormPersonal|System)\b|\b(?:true|false|null)\b|\b\d+(?:\.\d+)?\b/g, result = '', last = 0, match; while ((match = pattern.exec(source)) !== null) { var token = match[0], kind = 'java-number'; if (token.indexOf('//') === 0) kind = 'java-comment'; else if (token.charAt(0) === '"') kind = 'java-string'; else if (token.charAt(0) === '@') kind = 'java-annotation'; else if (/^(package|import|public|protected|private|class|interface|abstract|implements|static|void|return|new|this|if|else|extends|super|for|try|catch)$/.test(token)) kind = 'java-keyword'; else if (/^(String|int|double|boolean|Double|Integer|NumberFormatException|Personal|Calculable|Docente|Administrativo|Practicante|Maquina|FormPersonal|System)$/.test(token)) kind = 'java-type'; else if (/^(true|false|null)$/.test(token)) kind = 'java-literal'; result += escapeHtml(source.slice(last, match.index)) + '<span class="' + kind + '">' + escapeHtml(token) + '</span>'; last = pattern.lastIndex } return result + escapeHtml(source.slice(last)) }
+      document.querySelectorAll('pre > code').forEach(function (block) { block.innerHTML = highlightJava(block.textContent) });
+      function protect() { var toast = document.getElementById('copyToast'), timer; function show(message) { toast.textContent = message; toast.classList.add('show'); clearTimeout(timer); timer = setTimeout(function () { toast.classList.remove('show') }, 2600) } document.querySelectorAll('pre').forEach(function (block) { block.classList.add('protected'); block.addEventListener('copy', function (e) { e.preventDefault(); show('Este código es de solo lectura. Escríbelo en NetBeans.') }); block.addEventListener('cut', function (e) { e.preventDefault() }); block.addEventListener('selectstart', function (e) { e.preventDefault() }); block.addEventListener('dragstart', function (e) { e.preventDefault() }); block.addEventListener('contextmenu', function (e) { e.preventDefault(); show('El menú contextual está desactivado en el código.') }) }) }
+      if (!CONFIG.allowCodeCopy) protect();
+      var bar = document.getElementById('progress'), links = document.querySelectorAll('.navlinks a'), sections = Array.prototype.slice.call(document.querySelectorAll('main,h2[id]')); function update() { var root = document.documentElement, total = root.scrollHeight - root.clientHeight, pos = window.scrollY + 130, current = sections[0]; bar.style.width = (total > 0 ? root.scrollTop / total * 100 : 0) + '%'; sections.forEach(function (section) { if (section.offsetTop <= pos) current = section }); links.forEach(function (link) { link.classList.toggle('active', link.getAttribute('href') === '#' + current.id) }) } document.addEventListener('scroll', update, { passive: true }); update();
+    })();
+  </script>
+</body>
+</html>
