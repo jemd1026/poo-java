@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía: Manejo de excepciones en Java</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Code+Pro:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f7f2;
+      --soft: #e7eee9;
+      --panel: #fff;
+      --ink: #18252b;
+      --muted: #657278;
+      --line: #dfe5e1;
+      --coral: #ef714c;
+      --coral-dark: #da5e3b;
+      --coral-tint: #fff0e9;
+      --green: #16745a;
+      --green-tint: #e4f0e9;
+      --amber: #d29b35;
+      --amber-tint: #fff8df;
+      --code: #172a31;
+      --code-top: #243c42;
+      --code-ink: #d8e5df;
+      --shadow: 0 24px 60px rgba(24, 37, 43, .12);
+      --sans: 'DM Sans', sans-serif;
+      --display: 'Space Grotesk', sans-serif;
+      --mono: 'Source Code Pro', Consolas, monospace;
+    }
+
+    * { box-sizing: border-box }
+    html { scroll-behavior: smooth }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--sans) }
+    #progress { position: fixed; top: 0; left: 0; z-index: 300; width: 0; height: 3px; background: var(--coral) }
+
+    nav { position: fixed; inset: 0 auto 0 0; z-index: 100; width: 260px; background: var(--bg); border-right: 1px solid var(--line) }
+    .navrow { padding: 42px 26px }
+    .brand { display: flex; align-items: center; gap: 9px; margin-bottom: 30px; padding: 18px 16px; color: #fff; background: var(--code); border-radius: 4px 22px 22px 22px; font-weight: 700 }
+    .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--coral) }
+    .navlinks { display: flex; flex-direction: column; gap: 3px }
+    .navlinks:before { content: 'CONTENIDO'; margin: 0 12px 10px; color: #9aa6a7; font-size: 11px; font-weight: 700; letter-spacing: 1.5px }
+    .navlinks a { padding: 11px 12px; border-radius: 8px; color: var(--muted); font-size: 14px; text-decoration: none }
+    .navlinks a:hover, .navlinks a.active { background: var(--soft); color: var(--green); font-weight: 700 }
+
+    main { max-width: 1100px; min-height: 100vh; margin-left: 260px; padding: 80px 6vw 62px }
+    .head { max-width: 810px; padding-bottom: 48px; border-bottom: 1px solid var(--line) }
+    .pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px }
+    .pill { padding: 5px 11px; border-radius: 20px; color: var(--green); background: var(--green-tint); font-size: 12px; font-weight: 700 }
+    .kicker { margin: 0 0 8px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase }
+    h1, h2, h3 { font-family: var(--display); letter-spacing: -1.2px }
+    h1 { max-width: 15ch; margin: 0 0 16px; font-size: clamp(42px, 5vw, 70px); line-height: .98 }
+    h2 { max-width: 23ch; margin: 62px 0 14px; font-size: clamp(31px, 4vw, 51px); line-height: 1.03; scroll-margin-top: 30px }
+    h3 { margin: 34px 0 8px; font-size: 22px }
+    .lead { max-width: 62ch; margin: 0; color: var(--muted); font-size: 18px }
+    .box, .note, .ok { margin: 22px 0; padding: 16px 18px; border-radius: 4px 14px 14px 4px }
+    .box { background: var(--green-tint); border: 1px solid #bddbcf; border-left: 5px solid var(--green) }
+    .note { background: var(--amber-tint); border: 1px solid #ecd69d; border-left: 5px solid var(--amber) }
+    .ok { background: var(--coral-tint); border: 1px solid #f1c7b9; border-left: 5px solid var(--coral) }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 24px 0 }
+    .card { padding: 20px; background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--coral); border-radius: 4px 18px 18px 18px }
+    .card h3 { margin: 0 0 7px; font-size: 20px }
+    .card p { margin: 0; color: var(--muted); font-size: 14px }
+    table { width: 100%; margin: 22px 0; border-collapse: collapse; border: 1px solid var(--line); box-shadow: 0 8px 24px -18px rgba(24, 37, 43, .3) }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--line) }
+    th { background: var(--coral); color: #fff; font-size: 13px }
+    tr:nth-child(even) td { background: var(--soft) }
+    code { padding: .08em .28em; border-radius: 4px; color: var(--coral-dark); background: var(--coral-tint); font: .9em var(--mono) }
+    pre { position: relative; margin: 18px 0; padding: 22px 24px; overflow: auto; color: var(--code-ink); background: var(--code); border-radius: 4px 20px 20px 20px; box-shadow: var(--shadow); font: 13px/1.6 var(--mono) }
+    pre code { padding: 0; color: inherit; background: transparent; font-size: inherit }
+    .caption { margin: 20px 0 8px; color: var(--muted); font-size: 13px; font-weight: 700 }
+    .result { padding: 16px 18px; border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; background: var(--panel); font-family: var(--mono) }
+    .footer { margin-top: 62px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px }
+    .java-keyword { color: #ef9470 }
+    .java-type { color: #78c5d4 }
+    .java-string { color: #f5cd62 }
+    .java-comment { color: #8fb6a8; font-style: italic }
+    .java-number, .java-literal, .java-annotation { color: #c9a7ed }
+    .tag { display: inline-block; margin: 8px 0 0; padding: 4px 9px; border-radius: 999px; color: var(--green); background: var(--green-tint); font: 600 11px var(--sans) }
+    .bad { color: #b34d3a; font-weight: 700 }
+    .good { color: var(--green); font-weight: 700 }
+
+    @media(max-width:760px) {
+      nav { position: sticky; inset: 0; width: 100%; border-right: 0; border-bottom: 1px solid var(--line) }
+      .navrow { display: flex; gap: 12px; align-items: center; padding: 12px 18px }
+      .brand { margin: 0; padding: 12px 14px; white-space: nowrap }
+      .navlinks { display: block; overflow-x: auto; white-space: nowrap }
+      .navlinks:before { display: none }
+      .navlinks a { display: inline-block; padding: 8px 10px; font-size: 12px }
+      main { margin-left: 0; padding: 44px 22px }
+      .head { padding-bottom: 34px }
+      .cards { grid-template-columns: 1fr }
+      h2 { margin-top: 48px }
+      th, td { padding: 10px 9px; font-size: 13px }
+      pre { padding: 17px; font-size: 12px }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+  <nav>
+    <div class="navrow">
+      <div class="brand"><span class="dot"></span> Java · POO</div>
+      <div class="navlinks">
+        <a href="#inicio">Inicio</a>
+        <a href="#concepto">Concepto</a>
+        <a href="#tipos">Tipos</a>
+        <a href="#sintaxis">try-catch</a>
+        <a href="#practica">Ejemplo</a>
+        <a href="#otras-excepciones">Otras excepciones</a>
+        <a href="#buenas-practicas">Buenas prácticas</a>
+        <a href="#reto">Reto</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="head" id="inicio">
+      <div class="pills"><span class="pill">Java</span><span class="pill">Manejo de errores</span><span class="pill">Buenas prácticas</span></div>
+      <p class="kicker">Programación orientada a objetos</p>
+      <h1>Manejo de excepciones</h1>
+      <p class="lead">Aprende a detectar situaciones inesperadas, responder con mensajes claros y mantener el programa funcionando de forma segura.</p>
+      <div class="box"><strong>Idea clave:</strong> una excepción no es una solución para ocultar errores. Es una señal que debemos manejar para decidir qué hacer cuando una operación no puede completarse.</div>
+    </section>
+
+    <h2 id="concepto">1. ¿Qué es una excepción?</h2>
+    <p>Una excepción es un evento que ocurre durante la ejecución y altera el flujo normal del programa. Por ejemplo: dividir entre cero, convertir texto inválido a número o acceder a una posición inexistente de un arreglo.</p>
+    <div class="cards">
+      <article class="card"><h3>try</h3><p>Contiene el código que puede producir una excepción.</p><span class="tag">intenta</span></article>
+      <article class="card"><h3>catch</h3><p>Captura una excepción y define cómo responder ante ella.</p><span class="tag">responde</span></article>
+      <article class="card"><h3>finally</h3><p>Se ejecuta al terminar, haya ocurrido una excepción o no.</p><span class="tag">limpia</span></article>
+    </div>
+
+    <h2 id="tipos">2. Tipos principales</h2>
+    <p>En este nivel conviene distinguir las excepciones que Java obliga a controlar de las que aparecen durante la ejecución.</p>
+    <table>
+      <tr><th>Tipo</th><th>Características</th><th>Ejemplos</th></tr>
+      <tr><td><strong>Checked</strong></td><td>El compilador obliga a capturarlas o declararlas.</td><td><code>IOException</code>, <code>SQLException</code></td></tr>
+      <tr><td><strong>Unchecked</strong></td><td>Ocurren durante la ejecución; normalmente revelan una condición que debemos validar.</td><td><code>ArithmeticException</code>, <code>NumberFormatException</code></td></tr>
+      <tr><td><strong>Error</strong></td><td>Problemas graves de la JVM o del sistema. No suelen corregirse con <code>catch</code>.</td><td><code>OutOfMemoryError</code></td></tr>
+    </table>
+    <h3>Ejemplo sencillo de cada tipo</h3>
+    <div class="cards">
+      <article class="card">
+        <h3>Checked</h3>
+        <p>Java obliga a manejar el posible error al abrir el archivo.</p>
+        <pre><code>try {
+    FileReader archivo = new FileReader("datos.txt");
+} catch (FileNotFoundException e) {
+    System.out.println("Archivo no encontrado");
+}</code></pre>
+      </article>
+      <article class="card">
+        <h3>Unchecked</h3>
+        <p>El programa compila, pero falla al ejecutar la operación.</p>
+        <pre><code>int resultado = 10 / 0;
+// ArithmeticException</code></pre>
+      </article>
+      <article class="card">
+        <h3>Error</h3>
+        <p>Es un problema grave de la JVM. No se recomienda provocarlo ni capturarlo.</p>
+        <pre><code>static void repetir() {
+    repetir();
+}
+// StackOverflowError</code></pre>
+      </article>
+    </div>
+    <div class="box"><strong>En palabras simples:</strong> <strong>Checked</strong> se revisa al compilar; <strong>Unchecked</strong> aparece durante la ejecución por una operación o dato inválido; <strong>Error</strong> indica un problema grave del sistema o de la JVM.</div>
+    <div class="note"><strong>Regla práctica:</strong> captura la excepción más específica que puedas. Un <code>catch (Exception e)</code> demasiado general puede ocultar la causa real del problema.</div>
+
+    <h2 id="sintaxis">3. Estructura try-catch-finally</h2>
+    <p>El bloque <code>try</code> protege una operación; <code>catch</code> ofrece una respuesta y <code>finally</code> permite cerrar recursos o dejar una tarea terminada.</p>
+    <pre><code>try {
+    // Código que puede fallar
+} catch (TipoDeExcepcion e) {
+    // Respuesta ante ese problema
+} finally {
+    // Código de limpieza o cierre
+}</code></pre>
+    <div class="ok"><strong>Importante:</strong> el programa continúa después del <code>catch</code> si la excepción fue manejada. Sin un manejo adecuado, la aplicación puede terminar abruptamente.</div>
+
+    <h2 id="practica">4. Ejemplo práctico: división segura</h2>
+    <p>El siguiente programa valida la entrada, captura errores diferentes y usa <code>finally</code> para cerrar el <code>Scanner</code>.</p>
+    <p class="caption">PruebaExcepciones.java ← archivo que se ejecuta</p>
+    <pre><code>package excepciones;
+
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class PruebaExcepciones {
+
+    public static int dividir(int numerador, int denominador) {
+        if (denominador == 0) {
+            throw new IllegalArgumentException("El divisor no puede ser cero");
+        }
+        return numerador / denominador;
+    }
+
+    public static void main(String[] args) {
+        Scanner teclado = new Scanner(System.in);
+
+        try {
+            System.out.print("Numerador: ");
+            int numerador = teclado.nextInt();
+            System.out.print("Denominador: ");
+            int denominador = teclado.nextInt();
+
+            System.out.println("Resultado: " + dividir(numerador, denominador));
+        } catch (InputMismatchException e) {
+            System.out.println("Error: debes ingresar números enteros.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        } finally {
+            teclado.close();
+            System.out.println("Proceso finalizado.");
+        }
+    }
+}</code></pre>
+    <h3>¿Qué está ocurriendo?</h3>
+    <table>
+      <tr><th>Elemento</th><th>Función en el ejemplo</th></tr>
+      <tr><td><code>try</code></td><td>Intenta leer los datos y calcular la división.</td></tr>
+      <tr><td><code>InputMismatchException</code></td><td>Informa si el usuario escribe letras en lugar de enteros.</td></tr>
+      <tr><td><code>throw</code></td><td>Lanza una excepción cuando el divisor es cero.</td></tr>
+      <tr><td><code>finally</code></td><td>Cierra el teclado y muestra que el proceso terminó.</td></tr>
+    </table>
+    <p class="caption">Posibles resultados</p>
+    <div class="result">Numerador: 20<br>Denominador: 4<br>Resultado: 5<br>Proceso finalizado.</div>
+    <div class="result" style="margin-top:10px">Numerador: 20<br>Denominador: 0<br>Error: El divisor no puede ser cero<br>Proceso finalizado.</div>
+
+    <h2 id="otras-excepciones">5. Otras excepciones frecuentes</h2>
+    <p>Java cuenta con muchas excepciones. Estas son algunas de las más comunes en los primeros programas:</p>
+    <table>
+      <tr><th>Excepción</th><th>¿Cuándo ocurre?</th></tr>
+      <tr><td><code>ArithmeticException</code></td><td>Cuando se realiza una operación matemática inválida, como dividir entre cero.</td></tr>
+      <tr><td><code>NullPointerException</code></td><td>Cuando se intenta utilizar un objeto que tiene el valor <code>null</code>.</td></tr>
+      <tr><td><code>ArrayIndexOutOfBoundsException</code></td><td>Cuando se accede a una posición que no existe en un arreglo.</td></tr>
+      <tr><td><code>NumberFormatException</code></td><td>Cuando se intenta convertir un texto inválido a número.</td></tr>
+      <tr><td><code>ClassCastException</code></td><td>Cuando se realiza una conversión incorrecta entre objetos.</td></tr>
+      <tr><td><code>IOException</code></td><td>Cuando ocurre un problema al leer o escribir archivos y datos.</td></tr>
+      <tr><td><code>FileNotFoundException</code></td><td>Cuando el archivo que se desea abrir no existe.</td></tr>
+      <tr><td><code>SQLException</code></td><td>Cuando ocurre un problema al trabajar con una base de datos.</td></tr>
+    </table>
+    <div class="note"><strong>Recuerda:</strong> no todas se manejan igual. Las excepciones como <code>IOException</code> y <code>SQLException</code> suelen ser verificadas; Java obliga a capturarlas o declararlas con <code>throws</code>.</div>
+
+    <h2 id="buenas-practicas">6. Buenas prácticas</h2>
+    <p>El manejo de excepciones debe hacer el código más claro y confiable, no más difícil de entender.</p>
+    <table>
+      <tr><th>Evita</th><th>Prefiere</th></tr>
+      <tr><td class="bad">Capturar <code>Exception</code> para todo</td><td class="good">Capturar tipos específicos</td></tr>
+      <tr><td class="bad">Dejar un <code>catch</code> vacío</td><td class="good">Mostrar, registrar o propagar información útil</td></tr>
+      <tr><td class="bad">Usar excepciones para controlar cada decisión</td><td class="good">Validar antes cuando la situación sea previsible</td></tr>
+      <tr><td class="bad">Mostrar el error técnico al usuario</td><td class="good">Dar un mensaje claro y amigable</td></tr>
+      <tr><td class="bad">Olvidar cerrar recursos</td><td class="good">Usar <code>finally</code> o <code>try-with-resources</code></td></tr>
+    </table>
+    <h3>try-with-resources</h3>
+    <p>Para archivos, conexiones u otros recursos, Java puede cerrarlos automáticamente.</p>
+    <pre><code>try (Scanner teclado = new Scanner(System.in)) {
+    int edad = teclado.nextInt();
+    System.out.println("Edad: " + edad);
+} catch (InputMismatchException e) {
+    System.out.println("Ingresa una edad válida.");
+}</code></pre>
+
+    <h2 id="reto">7. Reto para el estudiante</h2>
+    <p>Crea el paquete <code>practicacobros</code> y una clase <code>PruebaCobros</code> que calcule el total de una compra.</p>
+    <div class="box">
+      <strong>Requisitos:</strong>
+      <ul>
+        <li>Solicitar precio y cantidad con <code>Scanner</code>.</li>
+        <li>Capturar <code>InputMismatchException</code> si la entrada no es numérica.</li>
+        <li>Lanzar <code>IllegalArgumentException</code> si el precio o la cantidad son menores o iguales que cero.</li>
+        <li>Mostrar un mensaje claro y cerrar el recurso con <code>finally</code> o <code>try-with-resources</code>.</li>
+      </ul>
+    </div>
+    <pre><code>public static double calcularTotal(double precio, int cantidad) {
+    // Valida los datos y lanza una excepción si son incorrectos.
+    // Retorna precio * cantidad cuando todo es válido.
+}</code></pre>
+    <div class="note"><strong>Comprobación:</strong> prueba el programa con datos correctos, con letras, con cantidad cero y con un precio negativo. Cada caso debe recibir una respuesta comprensible.</div>
+
+    <h2 id="resumen">Resumen</h2>
+    <table>
+      <tr><th>Concepto</th><th>Idea para recordar</th></tr>
+      <tr><td><code>try</code></td><td>Contiene la operación que podría fallar.</td></tr>
+      <tr><td><code>catch</code></td><td>Responde ante una excepción específica.</td></tr>
+      <tr><td><code>finally</code></td><td>Ejecuta tareas de cierre o limpieza.</td></tr>
+      <tr><td><code>throw</code></td><td>Lanza una excepción manualmente.</td></tr>
+      <tr><td><code>throws</code></td><td>Declara que un método puede propagar una excepción.</td></tr>
+      <tr><td>Buena práctica</td><td>Validar, informar con claridad y no ocultar errores.</td></tr>
+    </table>
+    <div class="ok"><strong>Secuencia recomendada:</strong> valida los datos → ejecuta la operación → captura el problema específico → informa al usuario → libera los recursos.</div>
+    <div class="footer">Programación Orientada a Objetos · Java · Manejo de excepciones y buenas prácticas</div>
+  </main>
+
+  <script>
+    (function () {
+      function escapeHtml(text) {
+        return text.replace(/[&<>]/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
+        });
+      }
+
+      function highlightJava(source) {
+        var pattern = /\/\/[^\n]*|"(?:\\.|[^"\\])*"|\b(?:package|import|public|private|protected|class|static|void|int|double|boolean|return|new|this|if|else|try|catch|finally|throw|throws|extends|implements|for)\b|\b(?:String|Scanner|InputMismatchException|IllegalArgumentException|System|Exception)\b|\b(?:true|false|null)\b|\b\d+(?:\.\d+)?\b/g;
+        var result = '', last = 0, match;
+        while ((match = pattern.exec(source)) !== null) {
+          var token = match[0], kind = 'java-number';
+          if (token.indexOf('//') === 0) kind = 'java-comment';
+          else if (token.charAt(0) === '"') kind = 'java-string';
+          else if (/^(package|import|public|private|protected|class|static|void|int|double|boolean|return|new|this|if|else|try|catch|finally|throw|throws|extends|implements|for)$/.test(token)) kind = 'java-keyword';
+          else if (/^(String|Scanner|InputMismatchException|IllegalArgumentException|System|Exception)$/.test(token)) kind = 'java-type';
+          else if (/^(true|false|null)$/.test(token)) kind = 'java-literal';
+          result += escapeHtml(source.slice(last, match.index)) + '<span class="' + kind + '">' + escapeHtml(token) + '</span>';
+          last = pattern.lastIndex;
+        }
+        return result + escapeHtml(source.slice(last));
+      }
+
+      document.querySelectorAll('pre > code').forEach(function (block) {
+        block.innerHTML = highlightJava(block.textContent);
+      });
+
+      var bar = document.getElementById('progress');
+      var links = document.querySelectorAll('.navlinks a');
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main > section, h2[id]'));
+      function update() {
+        var root = document.documentElement;
+        var total = root.scrollHeight - root.clientHeight;
+        var position = window.scrollY + 130;
+        var current = sections[0];
+        bar.style.width = (total > 0 ? root.scrollTop / total * 100 : 0) + '%';
+        sections.forEach(function (section) {
+          if (section.offsetTop <= position) current = section;
+        });
+        links.forEach(function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + current.id);
+        });
+      }
+      document.addEventListener('scroll', update, { passive: true });
+      update();
+    })();
+  </script>
+</body>
+</html>
