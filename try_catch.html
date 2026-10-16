@@ -70,6 +70,8 @@
     code { padding: .08em .28em; border-radius: 4px; color: var(--coral-dark); background: var(--coral-tint); font: .9em var(--mono) }
     pre { position: relative; margin: 18px 0; padding: 22px 24px; overflow: auto; color: var(--code-ink); background: var(--code); border-radius: 4px 20px 20px 20px; box-shadow: var(--shadow); font: 13px/1.6 var(--mono) }
     pre code { padding: 0; color: inherit; background: transparent; font-size: inherit }
+    pre.protected, pre.protected code { user-select: none; cursor: default }
+    pre.protected:after { content: 'solo lectura'; position: absolute; top: 8px; right: 12px; padding: 2px 7px; border-radius: 999px; color: #9fb5ad; background: var(--code-top); font: 600 10px var(--sans) }
     .caption { margin: 20px 0 8px; color: var(--muted); font-size: 13px; font-weight: 700 }
     .result { padding: 16px 18px; border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; background: var(--panel); font-family: var(--mono) }
     .footer { margin-top: 62px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px }
@@ -81,6 +83,8 @@
     .tag { display: inline-block; margin: 8px 0 0; padding: 4px 9px; border-radius: 999px; color: var(--green); background: var(--green-tint); font: 600 11px var(--sans) }
     .bad { color: #b34d3a; font-weight: 700 }
     .good { color: var(--green); font-weight: 700 }
+    #copyToast { position: fixed; left: 50%; bottom: 26px; z-index: 400; max-width: 88vw; padding: 11px 18px; border-radius: 999px; color: var(--bg); background: var(--ink); box-shadow: var(--shadow); font-weight: 600; text-align: center; opacity: 0; pointer-events: none; transform: translateX(-50%) translateY(12px); transition: .22s }
+    #copyToast.show { opacity: 1; transform: translateX(-50%) translateY(0) }
 
     @media(max-width:760px) {
       nav { position: sticky; inset: 0; width: 100%; border-right: 0; border-bottom: 1px solid var(--line) }
@@ -295,8 +299,11 @@ public class PruebaExcepciones {
     <div class="footer">Programación Orientada a Objetos · Java · Manejo de excepciones y buenas prácticas</div>
   </main>
 
+  <div id="copyToast" role="status" aria-live="polite"></div>
   <script>
     (function () {
+      // true = permite copiar el código; false = bloquea copia y selección.
+      var CONFIG = { allowCodeCopy: false };
       function escapeHtml(text) {
         return text.replace(/[&<>]/g, function (c) {
           return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
@@ -322,6 +329,25 @@ public class PruebaExcepciones {
       document.querySelectorAll('pre > code').forEach(function (block) {
         block.innerHTML = highlightJava(block.textContent);
       });
+
+      function protectCode() {
+        var toast = document.getElementById('copyToast'), timer;
+        function show(message) {
+          toast.textContent = message;
+          toast.classList.add('show');
+          clearTimeout(timer);
+          timer = setTimeout(function () { toast.classList.remove('show') }, 2600);
+        }
+        document.querySelectorAll('pre').forEach(function (block) {
+          block.classList.add('protected');
+          block.addEventListener('copy', function (event) { event.preventDefault(); show('Este código es de solo lectura. Escríbelo en NetBeans.') });
+          block.addEventListener('cut', function (event) { event.preventDefault() });
+          block.addEventListener('selectstart', function (event) { event.preventDefault() });
+          block.addEventListener('dragstart', function (event) { event.preventDefault() });
+          block.addEventListener('contextmenu', function (event) { event.preventDefault(); show('El menú contextual está desactivado en el código.') });
+        });
+      }
+      if (!CONFIG.allowCodeCopy) protectCode();
 
       var bar = document.getElementById('progress');
       var links = document.querySelectorAll('.navlinks a');
