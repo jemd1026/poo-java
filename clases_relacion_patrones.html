@@ -313,7 +313,7 @@
   <script>
     (function () {
       // true = permite copiar el código; false = bloquea copia y selección.
-      var CONFIG = { allowCodeCopy: false };
+      var CONFIG = { allowCodeCopy: true };
       function escapeHtml(text) { return text.replace(/[&<>]/g, function (c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c]; }); }
       function highlightJava(source) {
         var pattern = /\/\/[^\n]*|"(?:\\.|[^"\\])*"|\b(?:package|import|public|private|protected|class|interface|static|void|int|double|boolean|return|new|this|if|else|try|catch|finally|throw|throws|extends|implements|for)\b|\b(?:String|System|IllegalArgumentException|Bibliotecario|Biblioteca|Libro|Capitulo|LibroDigital|LibroFisico|LibroFactory|Pedido|Cliente|Jugador|Equipo|Habitacion|Casa|Animal|Perro|Vehiculo|Auto|VehiculoFactory|Prueba|EjemploAsociacion|EjemploAgregacion|EjemploComposicion|EjemploHerencia|EjemploFactory|ClasesDiseno)\b|\b(?:true|false|null)\b|\b\d+(?:\.\d+)?\b/g;
