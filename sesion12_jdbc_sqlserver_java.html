@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sesión 12 · JDBC + SQL Server + Java</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Code+Pro:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#f7f7f2; --soft:#e7eee9; --panel:#fff; --ink:#18252b; --muted:#657278; --line:#dfe5e1; --coral:#ef714c; --coral-dark:#da5e3b; --coral-tint:#fff0e9; --green:#16745a; --green-tint:#e4f0e9; --amber:#d29b35; --amber-tint:#fff8df; --code:#172a31; --code-ink:#d8e5df; --shadow:0 24px 60px rgba(24,37,43,.12); --sans:'DM Sans',sans-serif; --display:'Space Grotesk',sans-serif; --mono:'Source Code Pro',Consolas,monospace }
+    * { box-sizing:border-box } html { scroll-behavior:smooth } body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 var(--sans) }
+    #progress { position:fixed; top:0; left:0; z-index:300; width:0; height:3px; background:var(--coral) }
+    nav { position:fixed; inset:0 auto 0 0; z-index:100; width:260px; background:var(--bg); border-right:1px solid var(--line); overflow-y:auto }
+    .navrow { padding:42px 26px } .brand { display:flex; align-items:center; gap:9px; margin-bottom:30px; padding:18px 16px; color:#fff; background:var(--code); border-radius:4px 22px 22px 22px; font-weight:700 } .dot { width:11px; height:11px; border-radius:50%; background:var(--coral) }
+    .navlinks { display:flex; flex-direction:column; gap:3px } .navlinks:before { content:'CONTENIDO'; margin:0 12px 10px; color:#9aa6a7; font-size:11px; font-weight:700; letter-spacing:1.5px } .navlinks a { padding:9px 12px; border-radius:8px; color:var(--muted); font-size:13px; text-decoration:none } .navlinks a:hover,.navlinks a.active { background:var(--soft); color:var(--green); font-weight:700 }
+    main { max-width:1100px; min-height:100vh; margin-left:260px; padding:80px 6vw 62px } .head { max-width:820px; padding-bottom:48px; border-bottom:1px solid var(--line) } .pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px } .pill { padding:5px 11px; border-radius:20px; color:var(--green); background:var(--green-tint); font-size:12px; font-weight:700 } .kicker { margin:0 0 8px; color:var(--green); font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase }
+    h1,h2,h3 { font-family:var(--display); letter-spacing:-1.2px } h1 { max-width:18ch; margin:0 0 16px; font-size:clamp(39px,5vw,68px); line-height:.98 } h2 { max-width:24ch; margin:62px 0 14px; font-size:clamp(31px,4vw,51px); line-height:1.03; scroll-margin-top:30px } h3 { margin:34px 0 8px; font-size:22px; scroll-margin-top:30px } .lead { max-width:64ch; margin:0; color:var(--muted); font-size:18px }
+    .box,.note,.ok { margin:22px 0; padding:16px 18px; border-radius:4px 14px 14px 4px } .box { background:var(--green-tint); border:1px solid #bddbcf; border-left:5px solid var(--green) } .note { background:var(--amber-tint); border:1px solid #ecd69d; border-left:5px solid var(--amber) } .ok { background:var(--coral-tint); border:1px solid #f1c7b9; border-left:5px solid var(--coral) }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:24px 0 } .card { padding:20px; background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--coral); border-radius:4px 18px 18px 18px } .card h3 { margin:0 0 7px; font-size:20px } .card p { margin:0; color:var(--muted); font-size:14px }
+    code { padding:.08em .28em; border-radius:4px; color:var(--coral-dark); background:var(--coral-tint); font:.9em var(--mono) } pre { margin:18px 0; padding:22px 24px; overflow:auto; color:var(--code-ink); background:var(--code); border-radius:4px 20px 20px 20px; box-shadow:var(--shadow); font:13px/1.6 var(--mono) } pre code { padding:0; color:inherit; background:transparent; font-size:inherit } .tree { color:var(--green); background:var(--green-tint); border:1px solid var(--line); box-shadow:none; white-space:pre-wrap } .caption { margin:20px 0 8px; color:var(--muted); font-size:13px; font-weight:700 } .result { padding:16px 18px; border:1px solid var(--line); border-radius:4px 14px 14px 14px; background:var(--panel); font:13px/1.7 var(--mono); overflow-x:auto; white-space:pre } .footer { margin-top:62px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13px }
+    .tk-kw { color:#ff9e7a; font-weight:600 } .tk-str { color:#f4c879 } .tk-cm { color:#86a39a; font-style:italic } .tk-num { color:#c8a7ff } .tk-type { color:#79dfdd } .tk-fn { color:#9cd0ff } .tk-an { color:#ffb86c } .tk-const { color:#d7b8ff } .tk-tag { color:#ff9e7a }
+    .code-lang { position:absolute; top:12px; right:84px; color:#86a39a; font:600 11px var(--sans); letter-spacing:1px; text-transform:uppercase; pointer-events:none }
+    .code-wrap { position:relative; margin:18px 0 } .code-wrap pre { margin:0 } .copy { position:absolute; top:10px; right:10px; padding:5px 10px; border:0; border-radius:7px; color:var(--code); background:#d8e5df; font:600 12px var(--sans); cursor:pointer; opacity:.85 } .copy:hover { opacity:1 }
+    .flow { display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:stretch; gap:12px; margin:26px 0 } .flow-card { padding:18px; border:1px solid var(--line); border-top:3px solid var(--coral); border-radius:4px 16px 16px 16px; background:var(--panel); text-align:center } .flow-card strong { display:block; color:var(--green); font-family:var(--display); font-size:19px } .flow-card small { display:block; margin-top:4px; color:var(--muted) } .flow-arrow { align-self:center; color:var(--coral); font-size:24px; font-weight:700 }
+    .cycle { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:24px 0; counter-reset:step } .cycle article { position:relative; padding:18px 16px 16px 50px; border:1px solid var(--line); border-radius:4px 14px 14px 14px; background:var(--panel); counter-increment:step } .cycle article:before { content:counter(step); position:absolute; top:16px; left:14px; display:grid; width:26px; height:26px; place-items:center; border-radius:50%; color:#fff; background:var(--green); font-weight:700 } .cycle strong { display:block; margin-bottom:4px } .cycle span { color:var(--muted); font-size:13px }
+    table { width:100%; margin:22px 0; border-collapse:collapse; border:1px solid var(--line); background:var(--panel) } th,td { padding:12px 14px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top } th { color:#fff; background:var(--coral); font-size:13px } tr:nth-child(even) td { background:var(--soft) }
+    .table-scroll { overflow-x:auto } .table-scroll table { min-width:640px }
+    .exercise { margin:16px 0; padding:20px; background:var(--panel); border:1px solid var(--line); border-left:5px solid var(--green); border-radius:4px 16px 16px 4px } .exercise h3 { margin:0 0 8px; color:var(--green); font-size:20px } .exercise p,.exercise li { font-size:14px }
+    details { margin:10px 0; padding:12px 16px; background:var(--panel); border:1px solid var(--line); border-radius:4px 14px 14px 14px } summary { color:var(--green); font-weight:700; cursor:pointer }
+    .check { list-style:none; padding-left:0 } .check li { padding-left:28px; position:relative; margin:6px 0 } .check li:before { content:'✓'; position:absolute; left:4px; color:var(--green); font-weight:700 }
+    @media(max-width:760px) { nav { position:sticky; inset:0; width:100%; border-right:0; border-bottom:1px solid var(--line) } .navrow { display:flex; gap:12px; align-items:center; padding:12px 18px } .brand { margin:0; padding:12px 14px; white-space:nowrap } .navlinks { display:block; overflow-x:auto; white-space:nowrap } .navlinks:before { display:none } .navlinks a { display:inline-block; padding:8px 9px; font-size:12px } main { margin-left:0; padding:44px 18px } .head { padding-bottom:34px } .cards,.cycle { grid-template-columns:1fr } h2 { margin-top:48px } pre { padding:17px; font-size:12px } .flow { grid-template-columns:1fr; gap:6px } .flow-arrow { transform:rotate(90deg); text-align:center } }
+    @media print { pre { print-color-adjust:exact; -webkit-print-color-adjust:exact } nav,#progress,.copy,.code-lang { display:none } main { margin-left:0; padding:20px } pre { white-space:pre-wrap; box-shadow:none } h2,h3 { break-after:avoid } pre,table,.note,.box,.ok { break-inside:avoid } }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+  <nav><div class="navrow"><div class="brand"><span class="dot"></span> Java · POO</div><div class="navlinks">
+    <a href="#inicio">Inicio</a><a href="#concepto">Conectividad</a><a href="#jdbc">JDBC</a><a href="#basedatos">1 · Base TIENDA</a><a href="#sqlserver">2 · SQL Server</a><a href="#proyecto">3 · Proyecto Java</a><a href="#conectar">4 · Conectar</a><a href="#dao">5 · PersonaDAO</a><a href="#formulario">6 · Formulario MVC</a><a href="#errores">Errores</a><a href="#laboratorio">Laboratorio</a><a href="#resumen">Resumen</a>
+  </div></div></nav>
+
+  <main>
+    <section class="head" id="inicio">
+      <div class="pills"><span class="pill">Java</span><span class="pill">JDBC</span><span class="pill">SQL Server 2022 / 2025</span><span class="pill">MVC</span></div>
+      <p class="kicker">Programación orientada a objetos · Sesión 12</p>
+      <h1>Conectar Java con SQL Server</h1>
+      <p class="lead">Paso a paso: crear la base de datos <strong>TIENDA</strong> con la tabla <strong>personas</strong>, preparar SQL Server, conectarse desde Java con JDBC y lograr que el formulario <em>Registro de Personas</em> de la guía MVC guarde sus datos de forma permanente.</p>
+      <div class="box"><strong>Idea clave:</strong> en la guía MVC las personas se guardaban en un <code>ArrayList</code> y se perdían al cerrar el programa. Ahora el <strong>Modelo</strong> las guardará en SQL Server. La Vista no cambia y el Controlador recibe un único ajuste.</div>
+    </section>
+
+    <h2 id="concepto">¿Para qué conectar Java con SQL Server?</h2>
+    <p>Una aplicación necesita <strong>guardar y recuperar información</strong> aunque se cierre. Java no habla directamente con SQL Server: lo hace a través de <strong>JDBC</strong> y del <strong>driver</strong> (controlador) de Microsoft.</p>
+    <div class="flow" aria-label="Java se comunica con SQL Server mediante JDBC">
+      <div class="flow-card"><strong>Aplicación Java</strong><small>Formulario Registro de Personas</small></div><span class="flow-arrow" aria-hidden="true">→</span>
+      <div class="flow-card"><strong>JDBC + driver</strong><small>mssql-jdbc de Microsoft</small></div><span class="flow-arrow" aria-hidden="true">→</span>
+      <div class="flow-card"><strong>SQL Server</strong><small>Base TIENDA · tabla personas</small></div>
+    </div>
+    <p>Para que la conexión funcione la primera vez, todo debe estar listo en este orden. Esta guía sigue exactamente esa secuencia:</p>
+    <div class="cycle">
+      <article><strong>Base de datos</strong><span>Crear TIENDA y la tabla <code>personas</code> con el script.</span></article>
+      <article><strong>SQL Server</strong><span>Autenticación mixta, usuario de laboratorio y TCP/IP con puerto.</span></article>
+      <article><strong>Proyecto Java</strong><span>Agregar el driver en <code>pom.xml</code> y las credenciales.</span></article>
+      <article><strong>Probar</strong><span>Ejecutar <code>PruebaConexion</code> y ver «Conexión exitosa».</span></article>
+    </div>
+    <div class="note"><strong>Importante:</strong> si un paso falla, no avances al siguiente. Casi todos los errores de conexión se deben a un paso anterior omitido (servicio detenido, TCP/IP desactivado, autenticación de Windows únicamente, etc.).</div>
+
+    <h2 id="jdbc">¿Qué es JDBC?</h2>
+    <p><strong>JDBC</strong> (<em>Java Database Connectivity</em>) es la API de Java para ejecutar sentencias SQL. Se usa siempre con las mismas cinco piezas:</p>
+    <table>
+      <tr><th>Elemento</th><th>Uso práctico</th></tr>
+      <tr><td><code>DriverManager</code></td><td>Abre una conexión a partir de una URL JDBC, un usuario y una contraseña.</td></tr>
+      <tr><td><code>Connection</code></td><td>Representa la conexión abierta con SQL Server.</td></tr>
+      <tr><td><code>PreparedStatement</code></td><td>Ejecuta SQL con parámetros <code>?</code> de forma segura.</td></tr>
+      <tr><td><code>ResultSet</code></td><td>Recorre las filas que devuelve un <code>SELECT</code>.</td></tr>
+      <tr><td><code>SQLException</code></td><td>Informa los errores de la base de datos (conexión, login, SQL inválido...).</td></tr>
+    </table>
+    <div class="cycle">
+      <article><strong>Conectar</strong><span><code>ConexionBD.conectar()</code> devuelve un <code>Connection</code>.</span></article>
+      <article><strong>Preparar</strong><span><code>cn.prepareStatement(sql)</code> y se llenan los <code>?</code>.</span></article>
+      <article><strong>Ejecutar</strong><span><code>executeQuery()</code> para leer; <code>executeUpdate()</code> para escribir.</span></article>
+      <article><strong>Leer y cerrar</strong><span>Se recorre el <code>ResultSet</code>; <em>try-with-resources</em> cierra todo.</span></article>
+    </div>
+    <div class="note"><strong>Antes se usaba JDBC-ODBC:</strong> ese puente ya no existe en Java moderno. Hoy se usa el <strong>driver JDBC oficial de Microsoft</strong> (<code>mssql-jdbc</code>), compatible con SQL Server 2022 y 2025.</div>
+
+    <!-- ============================ PASO 1 ============================ -->
+    <h2 id="basedatos">1. Crear la base de datos TIENDA</h2>
+    <p>La tabla <code>personas</code> tiene un campo por cada dato del formulario <em>Registro de Personas</em>. Así, cada fila de la tabla de SQL Server corresponde a un objeto <code>Persona</code> de Java.</p>
+    <div class="table-scroll"><table>
+      <tr><th>Campo del formulario</th><th>Columna SQL</th><th>Tipo</th><th>Regla en la base</th><th>Atributo Java</th></tr>
+      <tr><td>DNI</td><td><code>dni</code></td><td><code>CHAR(8)</code></td><td>Clave primaria · 8 dígitos</td><td><code>String dni</code></td></tr>
+      <tr><td>Nombres</td><td><code>nombres</code></td><td><code>VARCHAR(100)</code></td><td>Obligatorio</td><td><code>String nombres</code></td></tr>
+      <tr><td>Teléfono</td><td><code>telefono</code></td><td><code>VARCHAR(9)</code></td><td>Opcional · 9 dígitos</td><td><code>String telefono</code></td></tr>
+      <tr><td>Dirección</td><td><code>direccion</code></td><td><code>VARCHAR(150)</code></td><td>Opcional</td><td><code>String direccion</code></td></tr>
+      <tr><td>Email</td><td><code>email</code></td><td><code>VARCHAR(100)</code></td><td>Opcional · formato con @</td><td><code>String email</code></td></tr>
+      <tr><td>Sexo</td><td><code>sexo</code></td><td><code>VARCHAR(10)</code></td><td>Masculino o Femenino</td><td><code>String sexo</code></td></tr>
+      <tr><td>Profesión</td><td><code>profesion</code></td><td><code>VARCHAR(50)</code></td><td>Obligatorio</td><td><code>String profesion</code></td></tr>
+      <tr><td>F. Nacimiento</td><td><code>fecha_nacimiento</code></td><td><code>DATE</code></td><td>No puede ser futura</td><td><code>LocalDate fechaNacimiento</code></td></tr>
+      <tr><td>Edad</td><td colspan="3"><strong>No se guarda.</strong> Cambia cada año; se calcula al mostrarla.</td><td><code>calcularEdad()</code></td></tr>
+    </table></div>
+    <div class="note"><strong>¿Por qué no guardar la edad?</strong> Si se guardara 28, el próximo año seguiría diciendo 28. Se guarda la fecha de nacimiento, que nunca cambia, y la edad se calcula. Es la misma regla que ya tenía la clase <code>Persona</code> en la guía MVC.</div>
+
+    <h3>1.1 Ejecutar el script en SSMS</h3>
+    <ol>
+      <li>Abre <strong>SQL Server Management Studio (SSMS)</strong> y conéctate a tu servidor con <strong>Windows Authentication</strong>. En <em>Server name</em> escribe <code>localhost</code> (instancia predeterminada) o <code>localhost\SQLEXPRESS</code> (Express). En SSMS 20 o posterior, marca <strong>Trust server certificate</strong>.</li>
+      <li>Abre el archivo <code>tienda_db_sesion12.sql</code> con <strong>File → Open → File...</strong>, o pulsa <strong>New Query</strong> y pega el script de abajo.</li>
+      <li>Ejecuta las <strong>partes 1 a 4</strong> con <strong>Execute</strong> o <strong>F5</strong>. La parte 5 (usuario) se ejecuta en el paso 2.3.</li>
+      <li>En <strong>Object Explorer</strong>, clic derecho en <strong>Databases → Refresh</strong>. Debe aparecer <strong>TIENDA</strong> y, dentro de <em>Tables</em>, <strong>dbo.personas</strong>.</li>
+    </ol>
+    <p class="caption">Script · tienda_db_sesion12.sql (partes 1 a 4)</p>
+    <pre><code>-- PARTE 1. Crear la base de datos TIENDA
+IF DB_ID(N'TIENDA') IS NULL
+    EXEC(N'CREATE DATABASE TIENDA');
+GO
+USE TIENDA;
+GO
+
+-- PARTE 2. Crear la tabla personas
+-- Un campo por cada dato del formulario. La EDAD no se guarda:
+-- cambia cada año, por eso Java la calcula con calcularEdad().
+IF OBJECT_ID(N'dbo.personas', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.personas (
+        dni              CHAR(8)      NOT NULL,
+        nombres          VARCHAR(100) NOT NULL,
+        telefono         VARCHAR(9)   NULL,
+        direccion        VARCHAR(150) NULL,
+        email            VARCHAR(100) NULL,
+        sexo             VARCHAR(10)  NOT NULL,
+        profesion        VARCHAR(50)  NOT NULL,
+        fecha_nacimiento DATE         NOT NULL,
+        CONSTRAINT pk_personas PRIMARY KEY (dni),
+        CONSTRAINT ck_personas_dni
+            CHECK (LEN(dni) = 8 AND dni NOT LIKE '%[^0-9]%'),
+        CONSTRAINT ck_personas_telefono
+            CHECK (telefono IS NULL OR (LEN(telefono) = 9 AND telefono NOT LIKE '%[^0-9]%')),
+        CONSTRAINT ck_personas_email
+            CHECK (email IS NULL OR email LIKE '%_@_%._%'),
+        CONSTRAINT ck_personas_sexo
+            CHECK (sexo IN ('Masculino', 'Femenino')),
+        CONSTRAINT ck_personas_fecha
+            CHECK (fecha_nacimiento &lt;= CAST(GETDATE() AS DATE))
+    );
+END;
+GO
+
+-- PARTE 3. Datos de prueba (solo si la tabla está vacía)
+-- Formato de fecha ISO 'aaaa-mm-dd': funciona con cualquier idioma del servidor.
+IF NOT EXISTS (SELECT 1 FROM dbo.personas)
+BEGIN
+    INSERT INTO dbo.personas
+        (dni, nombres, telefono, direccion, email, sexo, profesion, fecha_nacimiento)
+    VALUES
+        ('12345678', 'Juan Carlos',    '987654321', 'Av. Los Olivos 123', 'juan@example.com',  'Masculino', 'Ing. Sistemas',  '1998-04-15'),
+        ('87654321', 'María Fernanda', '912345678', 'Jr. Lima 456',       'maria@example.com', 'Femenino',  'Ing. Civil',     '1995-08-02'),
+        ('11223344', 'Pedro Alvarez',  '998877665', 'Calle Sol 789',      'pedro@example.com', 'Masculino', 'Ing. Agrónomo',  '2000-01-20'),
+        ('44556677', 'Ana Torres',     '955443322', 'Av. Central 321',    'ana@example.com',   'Femenino',  'Ing. Sistemas',  '1997-12-10'),
+        ('99887766', 'Luis Mendoza',   '944332211', 'Jr. América 654',    'luis@example.com',  'Masculino', 'Ing. Civil',     '1992-06-05');
+END;
+GO
+
+-- PARTE 4. Verificar: listar personas con la edad calculada
+SELECT dni, nombres, telefono, direccion, email, sexo, profesion,
+       FORMAT(fecha_nacimiento, 'dd/MM/yyyy') AS f_nacimiento,
+       DATEDIFF(YEAR, fecha_nacimiento, CAST(GETDATE() AS DATE))
+         - CASE WHEN DATEADD(YEAR, DATEDIFF(YEAR, fecha_nacimiento, CAST(GETDATE() AS DATE)),
+                             fecha_nacimiento) &gt; CAST(GETDATE() AS DATE)
+                THEN 1 ELSE 0 END AS edad
+FROM dbo.personas
+ORDER BY nombres;
+GO</code></pre>
+    <p class="caption">Resultado esperado en la pestaña Results (edad calculada al 13/11/2026):</p>
+    <div class="result">dni       nombres          sexo       profesion       f_nacimiento  edad
+44556677  Ana Torres       Femenino   Ing. Sistemas   10/12/1997    28
+12345678  Juan Carlos      Masculino  Ing. Sistemas   15/04/1998    28
+99887766  Luis Mendoza     Masculino  Ing. Civil      05/06/1992    34
+87654321  María Fernanda   Femenino   Ing. Civil      02/08/1995    31
+11223344  Pedro Alvarez    Masculino  Ing. Agrónomo   20/01/2000    26</div>
+    <div class="box"><strong>Restricciones (<code>CONSTRAINT</code>):</strong> la base de datos también protege los datos. Aunque un programa tenga un error, SQL Server rechazará un DNI repetido (<code>PRIMARY KEY</code>), un DNI con letras, un teléfono de 5 dígitos o una fecha futura (<code>CHECK</code>). El Controlador valida primero; la base es la última defensa.</div>
+    <div class="note"><strong>El script se puede ejecutar varias veces:</strong> crea la base y la tabla solo si no existen, e inserta los datos de prueba solo si la tabla está vacía. No borra información.</div>
+
+    <!-- ============================ PASO 2 ============================ -->
+    <h2 id="sqlserver">2. Preparar SQL Server para Java</h2>
+    <p>SSMS se conecta con tu usuario de Windows y por memoria compartida. Java, en cambio, necesita <strong>usuario y contraseña de SQL Server</strong> y una conexión por <strong>TCP/IP</strong> con un <strong>puerto</strong>. Por eso SSMS puede funcionar mientras Java no. Estos pasos lo preparan.</p>
+
+    <h3>2.1 Verificar que el servicio esté en ejecución</h3>
+    <ol>
+      <li>Pulsa <strong>Windows + R</strong> y escribe <code>SQLServerManager16.msc</code> (SQL Server 2022) o <code>SQLServerManager17.msc</code> (SQL Server 2025). También puedes buscar <strong>SQL Server Configuration Manager</strong> en el menú Inicio.</li>
+      <li>Selecciona <strong>SQL Server Services</strong>.</li>
+      <li>Verifica que <strong>SQL Server (MSSQLSERVER)</strong> —o <strong>SQL Server (SQLEXPRESS)</strong>— diga <strong>Running</strong>. Si dice <em>Stopped</em>, clic derecho → <strong>Start</strong>.</li>
+    </ol>
+    <div class="note"><strong>Anota el nombre de tu instancia:</strong> lo que aparece entre paréntesis. <code>MSSQLSERVER</code> es la instancia predeterminada; <code>SQLEXPRESS</code> es una instancia con nombre. Lo usarás en el paso 2.4.</div>
+
+    <h3>2.2 Activar la autenticación mixta</h3>
+    <p>Por defecto SQL Server solo acepta usuarios de Windows. Java usará un usuario propio de SQL Server, así que hay que activar el modo mixto.</p>
+    <ol>
+      <li>En SSMS, en <strong>Object Explorer</strong>, clic derecho sobre el nombre del servidor (la primera línea) → <strong>Properties</strong>.</li>
+      <li>Ve a la página <strong>Security</strong>.</li>
+      <li>En <em>Server authentication</em> marca <strong>SQL Server and Windows Authentication mode</strong> y pulsa <strong>OK</strong>.</li>
+      <li>Reinicia el servicio: en Object Explorer, clic derecho sobre el servidor → <strong>Restart</strong> (o desde Configuration Manager → clic derecho → <strong>Restart</strong>).</li>
+    </ol>
+    <div class="note"><strong>Sin reiniciar no se aplica:</strong> si omites el reinicio, Java mostrará <code>Login failed for user 'tienda_app'</code> aunque la contraseña sea correcta.</div>
+
+    <h3>2.3 Crear el usuario de laboratorio <code>tienda_app</code></h3>
+    <p>Java no debe conectarse con <code>sa</code> (administrador total). Se crea un usuario que solo puede leer y escribir datos en TIENDA. Abre <strong>New Query</strong> y ejecuta la <strong>parte 5</strong> del script, <strong>cambiando antes la contraseña</strong>:</p>
+    <p class="caption">Script · tienda_db_sesion12.sql (parte 5)</p>
+    <pre><code>-- PARTE 5. Usuario de laboratorio para Java (NO usar la cuenta sa)
+USE master;
+GO
+IF SUSER_ID(N'tienda_app') IS NULL
+    CREATE LOGIN tienda_app
+        WITH PASSWORD = N'Cambiar#Tienda2026',
+             DEFAULT_DATABASE = TIENDA,
+             CHECK_POLICY = ON;
+GO
+USE TIENDA;
+GO
+IF USER_ID(N'tienda_app') IS NULL
+    CREATE USER tienda_app FOR LOGIN tienda_app;
+ALTER ROLE db_datareader ADD MEMBER tienda_app;  -- puede leer (SELECT)
+ALTER ROLE db_datawriter ADD MEMBER tienda_app;  -- puede escribir (INSERT, UPDATE, DELETE)
+GO</code></pre>
+    <table>
+      <tr><th>Instrucción</th><th>Qué hace</th></tr>
+      <tr><td><code>CREATE LOGIN</code></td><td>Crea la cuenta para <strong>entrar al servidor</strong> (usuario y contraseña).</td></tr>
+      <tr><td><code>CREATE USER</code></td><td>Le da <strong>acceso a la base TIENDA</strong>.</td></tr>
+      <tr><td><code>db_datareader</code> / <code>db_datawriter</code></td><td>Permisos mínimos: consultar y modificar filas, pero no borrar tablas ni crear bases.</td></tr>
+    </table>
+    <div class="note"><strong>Contraseña:</strong> con <code>CHECK_POLICY = ON</code> debe cumplir la política de Windows (mayúsculas, minúsculas, números y símbolos). Anótala: la usarás en el paso 3.4. No la publiques ni la subas a un repositorio.</div>
+
+    <h3>2.4 Habilitar TCP/IP y fijar el puerto</h3>
+    <p>En las ediciones <strong>Developer</strong> y <strong>Express</strong>, TCP/IP viene <strong>desactivado</strong>. Es la causa más frecuente de <em>Connection refused</em>.</p>
+    <ol>
+      <li>En <strong>SQL Server Configuration Manager</strong>, despliega <strong>SQL Server Network Configuration</strong> → <strong>Protocols for MSSQLSERVER</strong> (o <em>for SQLEXPRESS</em>).</li>
+      <li>Clic derecho en <strong>TCP/IP</strong> → <strong>Enable</strong>.</li>
+      <li>Clic derecho en <strong>TCP/IP</strong> → <strong>Properties</strong> → pestaña <strong>IP Addresses</strong>. Baja hasta la sección <strong>IPAll</strong>.</li>
+      <li>Configura los valores según la tabla y pulsa <strong>OK</strong>.</li>
+      <li>En <strong>SQL Server Services</strong>, clic derecho en el servicio de SQL Server → <strong>Restart</strong>.</li>
+    </ol>
+    <table>
+      <tr><th>IPAll</th><th>Valor</th><th>Por qué</th></tr>
+      <tr><td><strong>TCP Dynamic Ports</strong></td><td><em>vacío</em> (borra el valor, incluso el 0)</td><td>Un puerto dinámico cambia al reiniciar y la URL de Java dejaría de funcionar.</td></tr>
+      <tr><td><strong>TCP Port</strong></td><td><code>1433</code></td><td>Puerto fijo que se escribirá en la URL JDBC.</td></tr>
+    </table>
+    <div class="note"><strong>Si tienes dos instancias</strong> (por ejemplo MSSQLSERVER y SQLEXPRESS), solo una puede usar el 1433. Asigna otro puerto libre a la segunda, por ejemplo <code>1435</code>, y usa ese número en la URL del paso 4.1.</div>
+
+    <h3>2.5 Probar el usuario y el puerto desde SSMS</h3>
+    <p>Antes de escribir una línea de Java, comprueba que <code>tienda_app</code> puede entrar <strong>por TCP/IP y por el puerto</strong>. Si esta prueba funciona, Java también funcionará.</p>
+    <ol>
+      <li>En SSMS, pulsa <strong>Connect → Database Engine...</strong></li>
+      <li>En <em>Server name</em> escribe <code>localhost,1433</code> (con <strong>coma</strong>: así SSMS fuerza TCP/IP y ese puerto).</li>
+      <li>En <em>Authentication</em> elige <strong>SQL Server Authentication</strong>, escribe <code>tienda_app</code> y su contraseña.</li>
+      <li>Marca <strong>Trust server certificate</strong> y pulsa <strong>Connect</strong>.</li>
+      <li>Abre <strong>New Query</strong> y ejecuta la consulta de abajo.</li>
+    </ol>
+    <p class="caption">Consulta de verificación (conectado como tienda_app)</p>
+    <pre><code>USE TIENDA;
+SELECT DB_NAME()                            AS base_actual,
+       SUSER_SNAME()                        AS usuario,
+       CONNECTIONPROPERTY('net_transport')  AS protocolo,
+       CONNECTIONPROPERTY('local_tcp_port') AS puerto,
+       (SELECT COUNT(*) FROM dbo.personas)  AS total_personas;</code></pre>
+    <p class="caption">Resultado esperado:</p>
+    <div class="result">base_actual  usuario     protocolo  puerto  total_personas
+TIENDA       tienda_app  TCP        1433    5</div>
+    <p>También puedes comprobar el puerto desde <strong>PowerShell</strong>:</p>
+    <pre><code>Test-NetConnection -ComputerName localhost -Port 1433</code></pre>
+    <p>Debe mostrar <code>TcpTestSucceeded : True</code>.</p>
+    <div class="ok"><strong>Lista de comprobación antes de pasar a Java:</strong>
+      <ul class="check">
+        <li>El servicio de SQL Server está en <em>Running</em>.</li>
+        <li>Existe la base TIENDA con la tabla <code>personas</code> y 5 filas.</li>
+        <li>La autenticación mixta está activa y el servicio se reinició.</li>
+        <li><code>tienda_app</code> entra en SSMS con <code>localhost,1433</code> y ve 5 personas.</li>
+      </ul>
+    </div>
+
+    <!-- ============================ PASO 3 ============================ -->
+    <h2 id="proyecto">3. Preparar el proyecto Java</h2>
+    <p>Se trabaja sobre el proyecto Maven del formulario <strong>Registro de Personas</strong> de la guía MVC. Si aún no lo tienes, créalo primero siguiendo esa guía (<strong>File → New Project → Java with Maven → Java Application</strong>).</p>
+
+    <h3>3.1 Estructura final del proyecto</h3>
+    <p>Se agrega un paquete nuevo, <code>registro.datos</code>, con las clases que hablan con SQL Server. Lo marcado como <em>(nuevo)</em> o <em>(cambia)</em> es lo único que se toca:</p>
+    <pre class="tree">Source Packages
+      │
+      ├── registro
+      │ └── Main.java                    (cambia: carga los datos al iniciar)
+      │
+      ├── registro.controlador
+      │ └── PersonaController.java       (cambia: muestra errores de la BD)
+      │
+      ├── registro.datos                 (nuevo paquete)
+      │ ├── ConexionBD.java              (nuevo)
+      │ ├── PruebaConexion.java          (nuevo)
+      │ ├── PersonaDAO.java              (nuevo)
+      │ └── PruebaPersonaDAO.java        (nuevo)
+      │
+      ├── registro.modelo
+      │ ├── Persona.java                 (sin cambios)
+      │ └── RegistroPersonas.java        (cambia: usa la BD en vez del ArrayList)
+      │
+      └── registro.vista
+        └── FrmPersona.java              (sin cambios)
+
+Project Files
+  └── pom.xml                            (cambia: driver de SQL Server)</pre>
+    <ol>
+      <li>En <strong>Source Packages</strong>, clic derecho → <strong>New → Java Package</strong>.</li>
+      <li>Escribe <code>registro.datos</code> y pulsa <strong>Finish</strong>.</li>
+    </ol>
+
+    <h3>3.2 Agregar el driver de SQL Server en <code>pom.xml</code></h3>
+    <ol>
+      <li>En la pestaña <strong>Projects</strong>, despliega <strong>Project Files</strong> y abre <code>pom.xml</code>.</li>
+      <li>Busca la etiqueta <code>&lt;/properties&gt;</code>. Justo debajo, agrega el bloque <code>&lt;dependencies&gt;</code>. Si ya existe un <code>&lt;dependencies&gt;</code>, agrega solo el <code>&lt;dependency&gt;</code> dentro de él.</li>
+      <li>Guarda con <strong>Ctrl + S</strong>.</li>
+      <li>Clic derecho sobre el proyecto → <strong>Build with Dependencies</strong>. La primera vez necesita Internet para descargar el driver.</li>
+      <li>Despliega el nodo <strong>Dependencies</strong> del proyecto: debe aparecer <code>mssql-jdbc-13.2.1.jre11.jar</code>.</li>
+    </ol>
+    <p class="caption">Archivo · pom.xml (agregar debajo de &lt;/properties&gt;)</p>
+    <pre><code>    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.microsoft.sqlserver&lt;/groupId&gt;
+            &lt;artifactId&gt;mssql-jdbc&lt;/artifactId&gt;
+            &lt;version&gt;13.2.1.jre11&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;</code></pre>
+    <div class="note"><strong>Versión del driver:</strong> el sufijo <code>.jre11</code> sirve para JDK 11 o superior (17, 21, 25). Si tu proyecto usa JDK 8, usa la variante <code>.jre8</code>. Puedes consultar la versión más reciente en Maven Central. El número del driver no tiene que coincidir con el año de SQL Server.</div>
+    <div class="box"><strong>Alternativa sin escribir XML:</strong> clic derecho en <strong>Dependencies → Add Dependency...</strong>, escribe <code>mssql-jdbc</code> en <em>Query</em>, elige la versión terminada en <code>.jre11</code> y pulsa <strong>Add</strong>. NetBeans modifica el <code>pom.xml</code> por ti.</div>
+
+    <h3>3.3 ¿Por qué no escribir la contraseña en el código?</h3>
+    <p>Si la contraseña está dentro de un <code>.java</code>, cualquiera que vea el código (un compañero, GitHub, un ZIP entregado) la conoce. Por eso Java la leerá de <strong>variables de entorno</strong> de Windows con <code>System.getenv(...)</code>.</p>
+
+    <h3>3.4 Crear las variables de entorno</h3>
+    <ol>
+      <li>Pulsa la tecla <strong>Windows</strong>, escribe <strong>variables de entorno</strong> y abre <strong>Editar las variables de entorno de esta cuenta</strong>.</li>
+      <li>En <em>Variables de usuario</em>, pulsa <strong>Nueva...</strong> y crea las dos variables de la tabla.</li>
+      <li>Pulsa <strong>Aceptar</strong> en todas las ventanas.</li>
+      <li><strong>Cierra NetBeans por completo y vuelve a abrirlo.</strong> Los programas solo leen las variables de entorno al iniciar.</li>
+    </ol>
+    <table>
+      <tr><th>Nombre de la variable</th><th>Valor</th></tr>
+      <tr><td><code>TIENDA_DB_USER</code></td><td><code>tienda_app</code></td></tr>
+      <tr><td><code>TIENDA_DB_PASSWORD</code></td><td>La contraseña que pusiste en el paso 2.3</td></tr>
+    </table>
+    <div class="note"><strong>El error más común de este paso:</strong> crear las variables con NetBeans abierto. Java mostrará «Configura las variables TIENDA_DB_USER y TIENDA_DB_PASSWORD» hasta que reinicies NetBeans.</div>
+
+    <!-- ============================ PASO 4 ============================ -->
+    <h2 id="conectar">4. Conectarse desde Java</h2>
+
+    <h3>4.1 Clase <code>ConexionBD</code></h3>
+    <p>En <code>registro.datos</code>, crea la clase <code>ConexionBD</code> con <strong>New → Java Class</strong>. Es la <strong>única</strong> clase que conoce la dirección del servidor: si mañana cambia el puerto, se corrige solo aquí.</p>
+    <p class="caption">Archivo · ConexionBD.java (dentro del paquete registro.datos)</p>
+    <pre><code>package registro.datos;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class ConexionBD {
+
+    // Servidor:puerto · base de datos · opciones de laboratorio
+    private static final String URL =
+            "jdbc:sqlserver://localhost:1433;"
+            + "databaseName=TIENDA;"
+            + "encrypt=true;"
+            + "trustServerCertificate=true;"
+            + "loginTimeout=5;";
+
+    private ConexionBD() {
+    }
+
+    public static Connection conectar() throws SQLException {
+        String usuario = System.getenv("TIENDA_DB_USER");
+        String clave = System.getenv("TIENDA_DB_PASSWORD");
+        if (usuario == null || clave == null) {
+            throw new SQLException("Configura las variables TIENDA_DB_USER y "
+                    + "TIENDA_DB_PASSWORD y reinicia NetBeans.");
+        }
+        return DriverManager.getConnection(URL, usuario, clave);
+    }
+}</code></pre>
+    <p>La URL JDBC se lee por partes, separadas por punto y coma:</p>
+    <table>
+      <tr><th>Parte de la URL</th><th>Significado</th><th>Cámbiala si...</th></tr>
+      <tr><td><code>jdbc:sqlserver://</code></td><td>Indica que se usará el driver de SQL Server.</td><td>Nunca.</td></tr>
+      <tr><td><code>localhost:1433</code></td><td>Equipo y puerto TCP (paso 2.4). Aquí se usan <strong>dos puntos</strong>, no coma como en SSMS.</td><td>Usas otro puerto u otro equipo.</td></tr>
+      <tr><td><code>databaseName=TIENDA</code></td><td>Base de datos a la que se entra.</td><td>Tu base tiene otro nombre.</td></tr>
+      <tr><td><code>encrypt=true</code></td><td>Cifra la comunicación (valor por defecto en el driver actual).</td><td>—</td></tr>
+      <tr><td><code>trustServerCertificate=true</code></td><td>Acepta el certificado local que SQL Server genera por su cuenta.</td><td><strong>Solo para laboratorio.</strong> En producción se valida un certificado real.</td></tr>
+      <tr><td><code>loginTimeout=5</code></td><td>Si el servidor no responde en 5 segundos, falla en lugar de quedarse esperando.</td><td>—</td></tr>
+    </table>
+    <div class="note"><strong>Constructor privado:</strong> <code>ConexionBD</code> solo tiene un método <code>static</code>, así que no tiene sentido crear objetos de ella. Se usa así: <code>ConexionBD.conectar()</code>.</div>
+
+    <h3>4.2 Clase <code>PruebaConexion</code></h3>
+    <p>En el mismo paquete, crea <code>PruebaConexion</code>. Es un programa de consola cuyo único objetivo es confirmar que la conexión funciona y mostrar con qué servidor y usuario se conectó.</p>
+    <p class="caption">Archivo · PruebaConexion.java (dentro del paquete registro.datos)</p>
+    <pre><code>package registro.datos;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+
+public class PruebaConexion {
+
+    public static void main(String[] args) {
+        // try-with-resources: la conexión se cierra sola al terminar el bloque
+        try (Connection cn = ConexionBD.conectar()) {
+            DatabaseMetaData info = cn.getMetaData();
+            System.out.println("Conexión exitosa a " + cn.getCatalog());
+            System.out.println("Servidor : " + info.getDatabaseProductName() + " "
+                    + info.getDatabaseProductVersion());
+            System.out.println("Usuario  : " + info.getUserName());
+            System.out.println("Driver   : " + info.getDriverName() + " "
+                    + info.getDriverVersion());
+        } catch (SQLException e) {
+            System.out.println("No se pudo conectar.");
+            System.out.println("Mensaje : " + e.getMessage());
+            System.out.println("Código  : " + e.getErrorCode());
+        }
+    }
+}</code></pre>
+
+    <h3>4.3 Ejecutar la prueba de conexión</h3>
+    <ol>
+      <li>Abre <code>PruebaConexion.java</code> y presiona <strong>Shift + F6</strong> (<em>Run File</em>).</li>
+      <li>Revisa la ventana <strong>Output</strong>.</li>
+    </ol>
+    <p class="caption">Resultado esperado:</p>
+    <div class="result">Conexión exitosa a TIENDA
+Servidor : Microsoft SQL Server 16.00.xxxx      (17.00.xxxx en SQL Server 2025)
+Usuario  : tienda_app
+Driver   : Microsoft JDBC Driver 13.2 for SQL Server 13.2.1.0</div>
+    <div class="ok"><strong>¡Conexión lograda!</strong> Si ves «Conexión exitosa a TIENDA», SQL Server, el driver y las credenciales están bien configurados. Todo lo que sigue usa esta misma conexión.</div>
+    <div class="note"><strong>¿Salió «No se pudo conectar»?</strong> Copia el <em>Mensaje</em> y búscalo en la tabla <a href="#errores">Errores frecuentes</a>: cada mensaje indica qué paso revisar.</div>
+
+    <!-- ============================ PASO 5 ============================ -->
+    <h2 id="dao">5. Leer y guardar personas: <code>PersonaDAO</code></h2>
+    <p>Un <strong>DAO</strong> (<em>Data Access Object</em>, objeto de acceso a datos) reúne todo el SQL de una tabla en una sola clase. Así, ni la Vista ni el Controlador escriben SQL.</p>
+    <table>
+      <tr><th>Método</th><th>SQL que ejecuta</th><th>Método JDBC</th></tr>
+      <tr><td><code>listar()</code></td><td><code>SELECT ... ORDER BY nombres</code></td><td><code>executeQuery()</code></td></tr>
+      <tr><td><code>buscar(dni)</code></td><td><code>SELECT ... WHERE dni = ?</code></td><td><code>executeQuery()</code></td></tr>
+      <tr><td><code>insertar(persona)</code></td><td><code>INSERT INTO personas ...</code></td><td><code>executeUpdate()</code></td></tr>
+      <tr><td><code>actualizar(persona)</code></td><td><code>UPDATE personas SET ... WHERE dni = ?</code></td><td><code>executeUpdate()</code></td></tr>
+      <tr><td><code>eliminar(dni)</code></td><td><code>DELETE FROM personas WHERE dni = ?</code></td><td><code>executeUpdate()</code></td></tr>
+    </table>
+
+    <h3>5.1 Clase <code>PersonaDAO</code></h3>
+    <p>En <code>registro.datos</code>, crea la clase <code>PersonaDAO</code>. Usa la clase <code>Persona</code> que ya existe en <code>registro.modelo</code>.</p>
+    <p class="caption">Archivo · PersonaDAO.java (dentro del paquete registro.datos)</p>
+    <pre><code>package registro.datos;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import registro.modelo.Persona;
+
+public class PersonaDAO {
+
+    private static final String SELECT =
+            "SELECT dni, nombres, telefono, direccion, email, sexo, profesion, "
+            + "fecha_nacimiento FROM personas ";
+
+    public List&lt;Persona&gt; listar() throws SQLException {
+        String sql = SELECT + "ORDER BY nombres";
+        List&lt;Persona&gt; lista = new ArrayList&lt;&gt;();
+        try (Connection cn = ConexionBD.conectar();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {              // avanza fila por fila
+                lista.add(crearPersona(rs));
+            }
+        }
+        return lista;
+    }
+
+    public Persona buscar(String dni) throws SQLException {
+        String sql = SELECT + "WHERE dni = ?";
+        try (Connection cn = ConexionBD.conectar();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, dni);            // reemplaza el primer ?
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? crearPersona(rs) : null;
+            }
+        }
+    }
+
+    public int insertar(Persona p) throws SQLException {
+        String sql = "INSERT INTO personas (dni, nombres, telefono, direccion, email, "
+                + "sexo, profesion, fecha_nacimiento) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection cn = ConexionBD.conectar();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, p.getDni());
+            ps.setString(2, p.getNombres());
+            ps.setString(3, vacioANull(p.getTelefono()));
+            ps.setString(4, vacioANull(p.getDireccion()));
+            ps.setString(5, vacioANull(p.getEmail()));
+            ps.setString(6, p.getSexo());
+            ps.setString(7, p.getProfesion());
+            ps.setDate(8, Date.valueOf(p.getFechaNacimiento()));
+            return ps.executeUpdate();       // filas insertadas (1)
+        }
+    }
+
+    public int actualizar(Persona p) throws SQLException {
+        String sql = "UPDATE personas SET nombres = ?, telefono = ?, direccion = ?, "
+                + "email = ?, sexo = ?, profesion = ?, fecha_nacimiento = ? WHERE dni = ?";
+        try (Connection cn = ConexionBD.conectar();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, p.getNombres());
+            ps.setString(2, vacioANull(p.getTelefono()));
+            ps.setString(3, vacioANull(p.getDireccion()));
+            ps.setString(4, vacioANull(p.getEmail()));
+            ps.setString(5, p.getSexo());
+            ps.setString(6, p.getProfesion());
+            ps.setDate(7, Date.valueOf(p.getFechaNacimiento()));
+            ps.setString(8, p.getDni());     // el DNI va al final: está en el WHERE
+            return ps.executeUpdate();       // 1 si existía, 0 si no
+        }
+    }
+
+    public int eliminar(String dni) throws SQLException {
+        String sql = "DELETE FROM personas WHERE dni = ?";
+        try (Connection cn = ConexionBD.conectar();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setString(1, dni);
+            return ps.executeUpdate();
+        }
+    }
+
+    // Convierte una fila del ResultSet en un objeto Persona
+    private Persona crearPersona(ResultSet rs) throws SQLException {
+        return new Persona(
+                rs.getString("dni"),
+                rs.getString("nombres"),
+                nullAVacio(rs.getString("telefono")),
+                nullAVacio(rs.getString("direccion")),
+                nullAVacio(rs.getString("email")),
+                rs.getString("sexo"),
+                rs.getString("profesion"),
+                rs.getDate("fecha_nacimiento").toLocalDate());
+    }
+
+    // Un campo opcional vacío en el formulario se guarda como NULL
+    private String vacioANull(String texto) {
+        return texto == null || texto.isEmpty() ? null : texto;
+    }
+
+    // Un NULL de la base se muestra como texto vacío en el formulario
+    private String nullAVacio(String texto) {
+        return texto == null ? "" : texto;
+    }
+}</code></pre>
+    <div class="box"><strong>Cómo se llenan los <code>?</code>:</strong> se numeran desde <strong>1</strong>, de izquierda a derecha. En <code>actualizar</code> hay 8 signos <code>?</code>: los 7 del <code>SET</code> y, al final, el del <code>WHERE dni = ?</code>. El tipo del método debe coincidir con la columna: <code>setString</code> para texto y <code>setDate</code> para <code>DATE</code>.</div>
+    <div class="note"><strong>Nunca concatenes datos en el SQL.</strong> <code>"... WHERE dni = '" + dni + "'"</code> permite que alguien escriba SQL dentro del formulario (<em>inyección SQL</em>). Con <code>?</code> y <code>setString</code>, el driver trata el valor solo como dato.</div>
+    <table>
+      <tr><th>Java</th><th>SQL Server</th><th>Conversión</th></tr>
+      <tr><td><code>LocalDate</code></td><td><code>DATE</code></td><td><code>Date.valueOf(fecha)</code> al guardar · <code>rs.getDate(...).toLocalDate()</code> al leer</td></tr>
+      <tr><td><code>""</code> (texto vacío)</td><td><code>NULL</code></td><td><code>vacioANull</code> al guardar · <code>nullAVacio</code> al leer</td></tr>
+    </table>
+
+    <h3>5.2 Probar el DAO en consola</h3>
+    <p>Antes de tocar el formulario, comprueba que el DAO lee la tabla. En <code>registro.datos</code>, crea <code>PruebaPersonaDAO</code>:</p>
+    <p class="caption">Archivo · PruebaPersonaDAO.java (dentro del paquete registro.datos)</p>
+    <pre><code>package registro.datos;
+
+import java.sql.SQLException;
+import registro.modelo.Persona;
+
+public class PruebaPersonaDAO {
+
+    public static void main(String[] args) {
+        PersonaDAO dao = new PersonaDAO();
+        try {
+            System.out.println("== Personas registradas en TIENDA ==");
+            for (Persona p : dao.listar()) {
+                System.out.printf("%s | %-15s | %-14s | %d años%n",
+                        p.getDni(), p.getNombres(), p.getProfesion(), p.calcularEdad());
+            }
+
+            Persona juan = dao.buscar("12345678");
+            System.out.println("\nBuscar 12345678: " + (juan == null ? "no existe" : juan.getNombres()));
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}</code></pre>
+    <p>Ejecuta con <strong>Shift + F6</strong>.</p>
+    <p class="caption">Resultado esperado (edades al 13/11/2026):</p>
+    <div class="result">== Personas registradas en TIENDA ==
+44556677 | Ana Torres      | Ing. Sistemas  | 28 años
+12345678 | Juan Carlos     | Ing. Sistemas  | 28 años
+99887766 | Luis Mendoza    | Ing. Civil     | 34 años
+87654321 | María Fernanda  | Ing. Civil     | 31 años
+11223344 | Pedro Alvarez   | Ing. Agrónomo  | 26 años
+
+Buscar 12345678: Juan Carlos</div>
+
+    <!-- ============================ PASO 6 ============================ -->
+    <h2 id="formulario">6. Conectar el formulario MVC a la base de datos</h2>
+    <p>Aquí se ve la ventaja de MVC. El Controlador usa el Modelo <code>RegistroPersonas</code> con cuatro métodos: <code>agregar</code>, <code>modificar</code>, <code>eliminar</code> y <code>listar</code>. Si el Modelo conserva esos mismos métodos y solo cambia <strong>dónde</strong> guarda los datos, la Vista no se entera.</p>
+    <div class="cycle">
+      <article><strong>Vista</strong><span>El usuario completa los datos y pulsa <em>Agregar</em>.</span></article>
+      <article><strong>Controlador</strong><span>Valida, crea un objeto <code>Persona</code> y llama a <code>modelo.agregar()</code>.</span></article>
+      <article><strong>Modelo</strong><span><code>RegistroPersonas</code> usa <code>PersonaDAO</code> para hacer el <code>INSERT</code>.</span></article>
+      <article><strong>SQL Server</strong><span>Guarda la fila en <code>personas</code>. Al reabrir, los datos siguen ahí.</span></article>
+    </div>
+
+    <h3>6.1 Modelo: reemplazar <code>RegistroPersonas</code></h3>
+    <p>Abre <code>registro.modelo.RegistroPersonas</code> y reemplaza <strong>todo</strong> su contenido. Los métodos públicos tienen los mismos nombres y parámetros que antes; por dentro ahora usan el DAO.</p>
+    <p class="caption">Archivo · RegistroPersonas.java (dentro del paquete registro.modelo)</p>
+    <pre><code>package registro.modelo;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import registro.datos.PersonaDAO;
+
+public class RegistroPersonas {
+    private final PersonaDAO dao = new PersonaDAO();
+    private List&lt;Persona&gt; personas = new ArrayList&lt;&gt;();   // copia de la tabla
+
+    public RegistroPersonas() {
+        recargar();                       // lee la tabla al iniciar
+    }
+
+    public boolean agregar(Persona persona) {
+        try {
+            if (dao.buscar(persona.getDni()) != null) {
+                return false;             // regla: el DNI no se repite
+            }
+            dao.insertar(persona);
+            recargar();
+            return true;
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo guardar: " + e.getMessage(), e);
+        }
+    }
+
+    public boolean modificar(Persona persona) {
+        try {
+            boolean modificado = dao.actualizar(persona) == 1;
+            recargar();
+            return modificado;
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo modificar: " + e.getMessage(), e);
+        }
+    }
+
+    public void eliminar(int indice) {
+        try {
+            dao.eliminar(personas.get(indice).getDni());
+            recargar();
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo eliminar: " + e.getMessage(), e);
+        }
+    }
+
+    public List&lt;Persona&gt; listar() {
+        return personas;
+    }
+
+    private void recargar() {
+        try {
+            personas = dao.listar();
+        } catch (SQLException e) {
+            throw new IllegalStateException("No se pudo leer la tabla personas: "
+                    + e.getMessage(), e);
+        }
+    }
+}</code></pre>
+    <table>
+      <tr><th>Antes (guía MVC)</th><th>Ahora (Sesión 12)</th></tr>
+      <tr><td><code>personas.add(persona)</code></td><td><code>dao.insertar(persona)</code> → <code>INSERT</code></td></tr>
+      <tr><td><code>personas.set(indice, persona)</code></td><td><code>dao.actualizar(persona)</code> → <code>UPDATE</code></td></tr>
+      <tr><td><code>personas.remove(indice)</code></td><td><code>dao.eliminar(dni)</code> → <code>DELETE</code></td></tr>
+      <tr><td>Los datos se pierden al cerrar</td><td>Los datos quedan en SQL Server</td></tr>
+    </table>
+    <div class="note"><strong>¿Por qué <code>recargar()</code>?</strong> La tabla de la Vista muestra la lista en el mismo orden que <code>listar()</code>. Después de cada cambio se vuelve a leer la base para que la fila número 3 de la pantalla sea la persona número 3 de la lista. Así, <code>eliminar(int indice)</code> sabe qué DNI borrar.</div>
+    <div class="note"><strong>El Modelo sigue sin usar <code>JOptionPane</code>.</strong> Si la base falla, lanza una <code>IllegalStateException</code> con un mensaje claro; mostrarlo le corresponde a la Vista, a pedido del Controlador.</div>
+
+    <h3>6.2 Controlador: mostrar los errores de la base de datos</h3>
+    <p>Es el <strong>único cambio</strong> en <code>PersonaController</code>. Reemplaza el método <code>actionPerformed</code> por esta versión, que envuelve las acciones en un <code>try-catch</code>:</p>
+    <p class="caption">Archivo · PersonaController.java (reemplazar solo el método actionPerformed)</p>
+    <pre><code>    @Override
+    public void actionPerformed(ActionEvent e) {
+        String accion = e.getActionCommand();
+        try {
+            if (accion.equals("Agregar")) {
+                agregar();
+            } else if (accion.equals("Modificar")) {
+                modificar();
+            } else if (accion.equals("Eliminar")) {
+                eliminar();
+            } else if (accion.equals("Limpiar")) {
+                vista.limpiar();
+            }
+        } catch (IllegalStateException ex) {
+            vista.mostrarMensaje(ex.getMessage());   // p. ej., SQL Server detenido
+        }
+    }</code></pre>
+    <p>Los métodos <code>agregar()</code>, <code>modificar()</code>, <code>eliminar()</code>, <code>leerPersona()</code> y <code>validar()</code> no cambian.</p>
+
+    <h3>6.3 Clase <code>Main</code>: cargar los datos al iniciar</h3>
+    <p>Antes la tabla empezaba vacía. Ahora, al abrir el formulario, debe mostrar lo que ya está guardado en SQL Server. Si la base no responde, se avisa y el programa termina. Reemplaza <code>Main.java</code>:</p>
+    <p class="caption">Archivo · Main.java (dentro del paquete registro)</p>
+    <pre><code>package registro;
+
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import registro.controlador.PersonaController;
+import registro.modelo.RegistroPersonas;
+import registro.vista.FrmPersona;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            System.out.println("No se pudo aplicar el estilo del sistema.");
+        }
+
+        RegistroPersonas modelo;
+        try {
+            modelo = new RegistroPersonas();          // se conecta y lee la tabla
+        } catch (IllegalStateException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(),
+                    "Base de datos", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        FrmPersona vista = new FrmPersona();
+        new PersonaController(modelo, vista);
+        vista.listar(modelo.listar());                // muestra los datos guardados
+        vista.setVisible(true);
+    }
+}</code></pre>
+
+    <h3>6.4 Ejecutar y probar</h3>
+    <ol>
+      <li>Abre <code>Main.java</code> y presiona <strong>Shift + F6</strong>. La tabla debe mostrar las <strong>5 personas</strong> del script.</li>
+      <li>Registra a una persona nueva, por ejemplo DNI <code>45678912</code>, nombres <code>Rosa Quispe</code>, sexo <strong>Femenino</strong>, profesión <strong>Ing. Industrial</strong> y fecha <code>03/03/2001</code>. Pulsa <strong>Agregar</strong>.</li>
+      <li><strong>Cierra el formulario y vuelve a ejecutar <code>Main</code>:</strong> Rosa Quispe debe seguir en la tabla. Esa es la prueba de que los datos son persistentes.</li>
+      <li>Selecciona a Rosa, cambia su teléfono a <code>987123456</code> y pulsa <strong>Modificar</strong>.</li>
+      <li>Selecciona a Rosa y pulsa <strong>Eliminar</strong>.</li>
+      <li>Pulsa <strong>Agregar</strong> con el DNI <code>12345678</code>: debe aparecer «Ya existe una persona con el DNI 12345678.».</li>
+    </ol>
+    <p>Después de cada paso, comprueba el cambio en SSMS con esta consulta (pulsa <strong>F5</strong> para repetirla):</p>
+    <pre><code>SELECT * FROM TIENDA.dbo.personas ORDER BY nombres;</code></pre>
+    <table>
+      <tr><th>Acción en el formulario</th><th>Qué ves en SSMS</th></tr>
+      <tr><td>Agregar a Rosa Quispe</td><td>Aparece una sexta fila con DNI 45678912.</td></tr>
+      <tr><td>Modificar su teléfono</td><td>La columna <code>telefono</code> muestra 987123456.</td></tr>
+      <tr><td>Agregar sin teléfono ni email</td><td>Esas columnas muestran <code>NULL</code>.</td></tr>
+      <tr><td>Eliminar a Rosa</td><td>Vuelven a quedar 5 filas.</td></tr>
+      <tr><td>Detener el servicio SQL Server y pulsar Agregar</td><td>El formulario muestra «No se pudo guardar: ...» y no se cierra.</td></tr>
+    </table>
+    <div class="ok"><strong>Conexión con MVC:</strong> cambió por completo la forma de guardar los datos (de <code>ArrayList</code> a SQL Server) y <code>FrmPersona</code> no se modificó en ninguna línea. Esa es la razón de separar Modelo, Vista y Controlador.</div>
+    <div class="box"><strong>Lista de comprobación:</strong> ¿todo el SQL está en <code>PersonaDAO</code>?, ¿la URL y las credenciales solo aparecen en <code>ConexionBD</code>?, ¿todos los SQL usan <code>?</code> en lugar de concatenar?, ¿cada <code>Connection</code> está dentro de un <em>try-with-resources</em>?</div>
+
+    <!-- ============================ ERRORES ============================ -->
+    <h2 id="errores">Errores frecuentes y cómo resolverlos</h2>
+    <p>El driver puede mostrar los mensajes en inglés o en español según el idioma del equipo. Busca la parte del mensaje que aparece en <code>Mensaje :</code> al ejecutar <code>PruebaConexion</code>.</p>
+    <div class="table-scroll"><table>
+      <tr><th>Mensaje (o parte del mensaje)</th><th>Causa probable</th><th>Qué revisar</th></tr>
+      <tr><td><code>Configura las variables TIENDA_DB_USER...</code></td><td>Variables no creadas o NetBeans no reiniciado.</td><td>Paso 3.4 y reiniciar NetBeans.</td></tr>
+      <tr><td><code>No suitable driver found for jdbc:sqlserver</code></td><td>El driver no está en el proyecto o la URL está mal escrita.</td><td>Paso 3.2: <em>Build with Dependencies</em> y que la URL empiece con <code>jdbc:sqlserver://</code>.</td></tr>
+      <tr><td><code>The TCP/IP connection to the host localhost, port 1433 has failed</code></td><td>Servicio detenido, TCP/IP desactivado o puerto distinto.</td><td>Pasos 2.1 y 2.4; prueba <code>Test-NetConnection</code>.</td></tr>
+      <tr><td><code>Login failed for user 'tienda_app'</code> (código 18456)</td><td>Contraseña incorrecta o modo mixto no activo.</td><td>Paso 2.2 (y reiniciar el servicio) y paso 2.5.</td></tr>
+      <tr><td><code>Cannot open database "TIENDA" requested by the login</code> (código 4060)</td><td>La base no existe o el usuario no tiene acceso a ella.</td><td>Paso 1.1 y la parte 5 del script (<code>CREATE USER</code>).</td></tr>
+      <tr><td><code>Invalid object name 'personas'</code> (código 208)</td><td>Se conectó a otra base (falta <code>databaseName</code>) o la tabla no existe.</td><td>URL del paso 4.1 y Object Explorer.</td></tr>
+      <tr><td><code>PKIX path building failed</code> / <code>could not establish a secure connection</code></td><td>Certificado local no confiable.</td><td>Que la URL tenga <code>trustServerCertificate=true</code> (solo laboratorio).</td></tr>
+      <tr><td><code>The INSERT statement conflicted with the CHECK constraint 'ck_personas_...'</code> (código 547)</td><td>Un dato no cumple una regla de la tabla.</td><td>La validación del Controlador; el nombre indica la columna.</td></tr>
+      <tr><td><code>UnsupportedClassVersionError</code></td><td>Driver <code>.jre11</code> con un JDK 8.</td><td>Usar JDK 11 o superior, o la variante <code>.jre8</code>.</td></tr>
+    </table></div>
+    <div class="note"><strong>Orden para diagnosticar:</strong> primero que SSMS entre con <code>localhost,1433</code> y <code>tienda_app</code> (paso 2.5). Si SSMS falla, el problema está en SQL Server; si SSMS funciona y Java no, el problema está en el proyecto (driver, URL o variables).</div>
+
+    <h2 id="buenas">Buenas prácticas</h2>
+    <div class="cards">
+      <article class="card"><h3>Cerrar recursos</h3><p><code>Connection</code>, <code>PreparedStatement</code> y <code>ResultSet</code> siempre dentro de <em>try-with-resources</em>.</p></article>
+      <article class="card"><h3>Parámetros <code>?</code></h3><p>Nunca concatenar lo que escribe el usuario dentro del SQL.</p></article>
+      <article class="card"><h3>Mínimos privilegios</h3><p>Un usuario propio como <code>tienda_app</code>; nunca <code>sa</code>. Contraseñas fuera del código.</p></article>
+    </div>
+    <div class="cards">
+      <article class="card"><h3>Un solo lugar para la URL</h3><p>Solo <code>ConexionBD</code> conoce el servidor, el puerto y la base.</p></article>
+      <article class="card"><h3>SQL en el DAO</h3><p>La Vista y el Controlador nunca escriben <code>SELECT</code> ni <code>INSERT</code>.</p></article>
+      <article class="card"><h3>Doble validación</h3><p>El Controlador valida para avisar al usuario; las restricciones de la tabla protegen los datos.</p></article>
+    </div>
+
+    <!-- ============================ LABORATORIO ============================ -->
+    <h2 id="laboratorio">Laboratorio</h2>
+    <article class="exercise">
+      <h3>Entregable de la sesión</h3>
+      <ol>
+        <li>Captura de SSMS con la consulta del paso 2.5 (usuario <code>tienda_app</code>, protocolo TCP).</li>
+        <li>Captura de la salida de <code>PruebaConexion</code> con «Conexión exitosa a TIENDA».</li>
+        <li>Captura del formulario con una persona nueva y de la misma fila vista en SSMS.</li>
+        <li>Breve explicación con tus palabras de <code>Connection</code>, <code>PreparedStatement</code> y <code>ResultSet</code>.</li>
+      </ol>
+    </article>
+    <article class="exercise">
+      <h3>Para seguir practicando</h3>
+      <ul>
+        <li><strong>DAO:</strong> agrega <code>listarPorProfesion(String profesion)</code> con <code>WHERE profesion = ?</code> y pruébalo en <code>PruebaPersonaDAO</code>.</li>
+        <li><strong>Vista y Controlador:</strong> agrega un campo y un botón <em>Buscar</em> que use <code>dao.buscar(dni)</code> a través del Modelo y cargue la persona en el formulario.</li>
+        <li><strong>Base de datos:</strong> crea la tabla <code>profesiones</code> (<code>id_profesion</code>, <code>nombre</code>) y reemplaza la columna <code>profesion</code> por una clave foránea. Luego llena el <code>JComboBox</code> desde la base.</li>
+        <li><strong>Reto:</strong> agrega la columna <code>fecha_registro DATETIME2 DEFAULT SYSDATETIME()</code> y muéstrala en la consola.</li>
+      </ul>
+    </article>
+    <details><summary>Pregunta de repaso 1: ¿Qué objeto recorre las filas de un SELECT?</summary><p><strong><code>ResultSet</code></strong>, avanzando con <code>rs.next()</code>, que devuelve <code>false</code> cuando ya no hay filas.</p></details>
+    <details><summary>Pregunta de repaso 2: ¿Por qué SSMS se conecta y Java no?</summary><p>SSMS suele entrar con autenticación de Windows y memoria compartida. Java necesita autenticación de SQL Server (modo mixto), TCP/IP habilitado y un puerto fijo.</p></details>
+    <details><summary>Pregunta de repaso 3: ¿Qué diferencia hay entre <code>executeQuery()</code> y <code>executeUpdate()</code>?</summary><p><code>executeQuery()</code> se usa con <code>SELECT</code> y devuelve un <code>ResultSet</code>. <code>executeUpdate()</code> se usa con <code>INSERT</code>, <code>UPDATE</code> y <code>DELETE</code> y devuelve el número de filas afectadas.</p></details>
+    <details><summary>Pregunta de repaso 4: ¿Por qué no se guarda la edad en la tabla?</summary><p>Porque cambia con el tiempo. Se guarda la fecha de nacimiento y la edad se calcula con <code>calcularEdad()</code> cada vez que se muestra.</p></details>
+
+    <h2 id="resumen">Resumen</h2>
+    <table>
+      <tr><th>Paso</th><th>Dónde</th><th>Resultado</th></tr>
+      <tr><td>1. Base de datos</td><td>SSMS · script</td><td>TIENDA y la tabla <code>personas</code> con 5 filas.</td></tr>
+      <tr><td>2. SQL Server</td><td>SSMS y Configuration Manager</td><td>Modo mixto, usuario <code>tienda_app</code>, TCP/IP en el 1433.</td></tr>
+      <tr><td>3. Proyecto</td><td>NetBeans · <code>pom.xml</code> · Windows</td><td>Driver <code>mssql-jdbc</code> y variables de entorno.</td></tr>
+      <tr><td>4. Conexión</td><td><code>ConexionBD</code> · <code>PruebaConexion</code></td><td>«Conexión exitosa a TIENDA».</td></tr>
+      <tr><td>5. Acceso a datos</td><td><code>PersonaDAO</code></td><td>SELECT, INSERT, UPDATE y DELETE con <code>PreparedStatement</code>.</td></tr>
+      <tr><td>6. MVC</td><td><code>RegistroPersonas</code> · <code>Main</code></td><td>El formulario guarda en SQL Server sin cambiar la Vista.</td></tr>
+    </table>
+    <div class="ok"><strong>Secuencia mental:</strong> la base existe → SQL Server acepta al usuario por TCP/IP → el proyecto tiene el driver → <code>ConexionBD</code> abre la conexión → el DAO ejecuta el SQL → el Modelo lo usa → el Controlador y la Vista siguen igual.</div>
+    <div class="footer">Programación Orientada a Objetos · Sesión 12 · Java / JDBC / SQL Server 2022–2025 · Base de datos TIENDA</div>
+  </main>
+
+  <script>
+    (function () {
+      var bar = document.getElementById('progress');
+      var links = document.querySelectorAll('.navlinks a');
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main > section, h2[id]'));
+
+      function update() {
+        var root = document.documentElement;
+        var total = root.scrollHeight - root.clientHeight;
+        var position = window.scrollY + 130;
+        var current = sections[0];
+
+        bar.style.width = (total > 0 ? root.scrollTop / total * 100 : 0) + '%';
+        sections.forEach(function (section) {
+          if (section.offsetTop <= position) current = section;
+        });
+        links.forEach(function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + current.id);
+        });
+      }
+
+      // ---------- Coloreado de código (Java, SQL, XML, PowerShell) ----------
+      var RULES = {
+        java: [
+          ['cm', /\/\/[^\n]*|\/\*[\s\S]*?\*\//y],
+          ['str', /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])'/y],
+          ['an', /@\w+/y],
+          ['num', /\b\d+(?:\.\d+)?\b/y],
+          ['kw', /\b(?:package|import|public|private|protected|static|final|class|interface|extends|implements|new|try|catch|finally|return|throws|throw|if|else|for|while|do|void|int|long|double|boolean|char|null|true|false|this|super|instanceof)\b/y],
+          ['const', /\b[A-Z][A-Z0-9_]+\b/y],
+          ['type', /\b[A-Z]\w*\b/y],
+          ['fn', /\b[a-z_]\w*(?=\s*\()/y]
+        ],
+        sql: [
+          ['cm', /--[^\n]*/y],
+          ['str', /N?'(?:''|[^'])*'/y],
+          ['an', /@\w+/y],
+          ['num', /\b\d+(?:\.\d+)?\b/y],
+          ['type', /\b(?:CHAR|VARCHAR|NVARCHAR|NCHAR|DATE|DATETIME2|INT|DECIMAL|BIT)\b/iy],
+          ['kw', /\b(?:IF|IS|NULL|NOT|EXEC|CREATE|ALTER|DROP|TRUNCATE|DATABASE|USE|GO|TABLE|BEGIN|END|PRIMARY|FOREIGN|KEY|REFERENCES|CONSTRAINT|CHECK|UNIQUE|IDENTITY|DEFAULT|AND|OR|LIKE|IN|INSERT|INTO|VALUES|SELECT|TOP|FROM|WHERE|INNER|LEFT|JOIN|ON|GROUP|ORDER|BY|ASC|DESC|AS|CASE|WHEN|THEN|ELSE|EXISTS|DECLARE|SET|UPDATE|DELETE|TRANSACTION|COMMIT|ROLLBACK|SAVE|GRANT|REVOKE|TO|LOGIN|WITH|PASSWORD|DEFAULT_DATABASE|CHECK_POLICY|OFF|USER|FOR|ROLE|ADD|MEMBER|YEAR)\b/iy],
+          ['fn', /\b\w+(?=\s*\()/y]
+        ],
+        xml: [
+          ['cm', /<!--[\s\S]*?-->/y],
+          ['tag', /<\/?[\w.-]+\s*\/?>/y]
+        ],
+        ps: [
+          ['fn', /\b[A-Z][a-z]+-[A-Za-z]+\b/y],
+          ['kw', /-[A-Za-z]+\b/y],
+          ['num', /\b\d+\b/y],
+          ['str', /"[^"\n]*"|'[^'\n]*'/y]
+        ]
+      };
+      var LABELS = { java:'Java', sql:'SQL', xml:'XML', ps:'PowerShell' };
+
+      function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+      function detectar(raw) {
+        if (/^\s*</.test(raw)) return 'xml';
+        if (/Test-NetConnection/.test(raw)) return 'ps';
+        if (/@Override|\bpackage\s|\bpublic\s|System\.out/.test(raw)) return 'java';
+        return 'sql';
+      }
+
+      function colorear(raw, lang) {
+        var rules = RULES[lang], out = '', i = 0;
+        while (i < raw.length) {
+          var hit = null;
+          for (var r = 0; r < rules.length && !hit; r++) {
+            rules[r][1].lastIndex = i;
+            var m = rules[r][1].exec(raw);
+            if (m && m[0].length) hit = [rules[r][0], m[0]];
+          }
+          if (hit) {
+            out += '<span class="tk-' + hit[0] + '">' + esc(hit[1]) + '</span>';
+            i += hit[1].length;
+          } else {
+            var w = /\w+/y; w.lastIndex = i;
+            var word = w.exec(raw);
+            var t = word ? word[0] : raw[i];
+            out += esc(t);
+            i += t.length;
+          }
+        }
+        return out;
+      }
+
+      // Colorear, y agregar botón "Copiar" en cada bloque de código (no en los árboles de carpetas)
+      document.querySelectorAll('pre:not(.tree)').forEach(function (pre) {
+        var code = pre.querySelector('code') || pre;
+        var raw = code.textContent;
+        var lang = detectar(raw);
+        code.innerHTML = colorear(raw, lang);
+
+        var wrap = document.createElement('div');
+        wrap.className = 'code-wrap';
+        pre.parentNode.insertBefore(wrap, pre);
+        wrap.appendChild(pre);
+        var etiqueta = document.createElement('span');
+        etiqueta.className = 'code-lang';
+        etiqueta.textContent = LABELS[lang];
+        wrap.appendChild(etiqueta);
+        var btn = document.createElement('button');
+        btn.className = 'copy';
+        btn.type = 'button';
+        btn.textContent = 'Copiar';
+        btn.addEventListener('click', function () {
+          var text = pre.innerText;
+          var done = function () {
+            btn.textContent = '¡Copiado!';
+            setTimeout(function () { btn.textContent = 'Copiar'; }, 1400);
+          };
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(done, function () { btn.textContent = 'Selecciona y copia'; });
+          } else {
+            btn.textContent = 'Selecciona y copia';
+          }
+        });
+        wrap.appendChild(btn);
+      });
+
+      document.addEventListener('scroll', update, { passive:true });
+      update();
+    })();
+  </script>
+</body>
+</html>

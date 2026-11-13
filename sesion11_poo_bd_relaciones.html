@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sesión 11 · Bases de datos, relaciones y GRASP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Source+Code+Pro:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#f7f7f2; --soft:#e7eee9; --panel:#fff; --ink:#18252b; --muted:#657278; --line:#dfe5e1; --coral:#ef714c; --coral-dark:#da5e3b; --coral-tint:#fff0e9; --green:#16745a; --green-tint:#e4f0e9; --amber:#d29b35; --amber-tint:#fff8df; --purple:#6b4fa0; --purple-tint:#efeaf8; --code:#172a31; --code-ink:#d8e5df; --shadow:0 24px 60px rgba(24,37,43,.12); --sans:'DM Sans',sans-serif; --display:'Space Grotesk',sans-serif; --mono:'Source Code Pro',Consolas,monospace }
+    * { box-sizing:border-box } html { scroll-behavior:smooth } body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 var(--sans) }
+    #progress { position:fixed; top:0; left:0; z-index:300; width:0; height:3px; background:var(--coral) }
+    nav { position:fixed; inset:0 auto 0 0; z-index:100; width:260px; background:var(--bg); border-right:1px solid var(--line); overflow-y:auto }
+    .navrow { padding:42px 26px } .brand { display:flex; align-items:center; gap:9px; margin-bottom:30px; padding:18px 16px; color:#fff; background:var(--code); border-radius:4px 22px 22px 22px; font-weight:700 } .dot { width:11px; height:11px; border-radius:50%; background:var(--coral) }
+    .navlinks { display:flex; flex-direction:column; gap:3px } .navlinks:before { content:'CONTENIDO'; margin:0 12px 10px; color:#9aa6a7; font-size:11px; font-weight:700; letter-spacing:1.5px } .navlinks a { padding:9px 12px; border-radius:8px; color:var(--muted); font-size:13px; text-decoration:none } .navlinks a:hover,.navlinks a.active { background:var(--soft); color:var(--green); font-weight:700 }
+    main { max-width:1100px; min-height:100vh; margin-left:260px; padding:80px 6vw 62px } .head { max-width:820px; padding-bottom:48px; border-bottom:1px solid var(--line) } .pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px } .pill { padding:5px 11px; border-radius:20px; color:var(--green); background:var(--green-tint); font-size:12px; font-weight:700 } .kicker { margin:0 0 8px; color:var(--green); font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase }
+    h1,h2,h3 { font-family:var(--display); letter-spacing:-1.2px } h1 { max-width:18ch; margin:0 0 16px; font-size:clamp(39px,5vw,68px); line-height:.98 } h2 { max-width:24ch; margin:62px 0 14px; font-size:clamp(31px,4vw,51px); line-height:1.03; scroll-margin-top:30px } h3 { margin:34px 0 8px; font-size:22px; scroll-margin-top:30px } .lead { max-width:64ch; margin:0; color:var(--muted); font-size:18px }
+    .box,.note,.ok { margin:22px 0; padding:16px 18px; border-radius:4px 14px 14px 4px } .box { background:var(--green-tint); border:1px solid #bddbcf; border-left:5px solid var(--green) } .note { background:var(--amber-tint); border:1px solid #ecd69d; border-left:5px solid var(--amber) } .ok { background:var(--coral-tint); border:1px solid #f1c7b9; border-left:5px solid var(--coral) }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:24px 0 } .cards.two { grid-template-columns:repeat(2,1fr) } .card { padding:20px; background:var(--panel); border:1px solid var(--line); border-top:3px solid var(--coral); border-radius:4px 18px 18px 18px; min-width:0 } .card h3 { margin:0 0 7px; font-size:20px } .card p { margin:0 0 8px; color:var(--muted); font-size:14px } .card pre { font-size:12px; padding:16px 18px }
+    code { padding:.08em .28em; border-radius:4px; color:var(--coral-dark); background:var(--coral-tint); font:.9em var(--mono) } pre { margin:18px 0; padding:22px 24px; overflow:auto; color:var(--code-ink); background:var(--code); border-radius:4px 20px 20px 20px; box-shadow:var(--shadow); font:13px/1.6 var(--mono) } pre code { padding:0; color:inherit; background:transparent; font-size:inherit } .tree { color:var(--green); background:var(--green-tint); border:1px solid var(--line); box-shadow:none; white-space:pre-wrap } .caption { margin:20px 0 8px; color:var(--muted); font-size:13px; font-weight:700 } .result { padding:16px 18px; border:1px solid var(--line); border-radius:4px 14px 14px 14px; background:var(--panel); font:13px/1.7 var(--mono); overflow-x:auto; white-space:pre } .footer { margin-top:62px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13px }
+    .tk-kw { color:#ff9e7a; font-weight:600 } .tk-str { color:#f4c879 } .tk-cm { color:#86a39a; font-style:italic } .tk-num { color:#c8a7ff } .tk-type { color:#79dfdd } .tk-fn { color:#9cd0ff } .tk-an { color:#ffb86c } .tk-const { color:#d7b8ff } .tk-tag { color:#ff9e7a }
+    .code-lang { position:absolute; top:12px; right:84px; color:#86a39a; font:600 11px var(--sans); letter-spacing:1px; text-transform:uppercase; pointer-events:none }
+    .code-wrap { position:relative; margin:18px 0 } .code-wrap pre { margin:0 } .copy { position:absolute; top:10px; right:10px; padding:5px 10px; border:0; border-radius:7px; color:var(--code); background:#d8e5df; font:600 12px var(--sans); cursor:pointer; opacity:.85 } .copy:hover { opacity:1 }
+    .flow { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; margin:26px 0 } .flow-card { padding:14px 18px; border:1px solid var(--line); border-top:3px solid var(--coral); border-radius:4px 16px 16px 16px; background:var(--panel); text-align:center } .flow-card strong { display:block; color:var(--green); font-family:var(--display); font-size:17px } .flow-card small { display:block; color:var(--muted) } .flow-arrow { color:var(--coral); font-size:15px; font-weight:700; white-space:nowrap }
+    .cycle { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin:24px 0; counter-reset:step } .cycle article { position:relative; padding:18px 14px 16px 48px; border:1px solid var(--line); border-radius:4px 14px 14px 14px; background:var(--panel); counter-increment:step } .cycle article:before { content:counter(step); position:absolute; top:16px; left:13px; display:grid; width:26px; height:26px; place-items:center; border-radius:50%; color:#fff; background:var(--green); font-weight:700 } .cycle span { color:var(--muted); font-size:13px }
+    table { width:100%; margin:22px 0; border-collapse:collapse; border:1px solid var(--line); background:var(--panel) } th,td { padding:11px 14px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top } th { color:#fff; background:var(--coral); font-size:13px } tr:nth-child(even) td { background:var(--soft) }
+    .table-scroll { overflow-x:auto } .table-scroll table { min-width:560px }
+    .diagram { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:14px; margin:22px 0; padding:22px; background:var(--panel); border:1px solid var(--line); border-radius:4px 18px 18px 18px }
+    .dbt { min-width:180px; overflow:hidden; background:#fff; border:2px solid var(--green); border-radius:10px } .dbt .t { padding:8px 12px; color:#fff; background:var(--green); font:700 15px var(--display); text-align:center } .dbt.coral { border-color:var(--coral) } .dbt.coral .t { background:var(--coral) } .dbt.purple { border-color:var(--purple) } .dbt.purple .t { background:var(--purple) } .dbt .f { padding:6px 12px; border-top:1px solid var(--line); font:13px var(--mono) } .pk { color:#9a6400; font-weight:700 } .fk { color:var(--purple); font-weight:700 }
+    .connector { min-width:70px; color:var(--coral); font:700 16px var(--display); text-align:center } .connector small { display:block; color:var(--muted); font:500 12px var(--sans) }
+    .legend { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; color:var(--muted); font-size:13px }
+    .exercise { margin:16px 0; padding:20px; background:var(--panel); border:1px solid var(--line); border-left:5px solid var(--green); border-radius:4px 16px 16px 4px } .exercise h3 { margin:0 0 8px; color:var(--green); font-size:20px } .exercise li { font-size:15px; margin:4px 0 }
+    details { margin:10px 0; padding:12px 16px; background:var(--panel); border:1px solid var(--line); border-radius:4px 14px 14px 14px } summary { color:var(--green); font-weight:700; cursor:pointer }
+    .quiz { padding:22px; background:var(--panel); border:1px solid var(--line); border-radius:4px 18px 18px 18px } .quiz p { margin:18px 0 6px; font-weight:700 } .quiz p:first-child { margin-top:0 } .quiz label { display:block; margin:4px 0; padding:8px 12px; border:1px solid var(--line); border-radius:8px; cursor:pointer } .quiz label:hover { background:var(--soft) } .quiz button { margin-top:16px; padding:10px 18px; border:0; border-radius:8px; color:#fff; background:var(--green); font:700 14px var(--sans); cursor:pointer } #score { margin-left:10px; color:var(--green) }
+    @media(max-width:900px) { .cycle { grid-template-columns:1fr 1fr } }
+    @media(max-width:760px) { nav { position:sticky; inset:0; width:100%; border-right:0; border-bottom:1px solid var(--line) } .navrow { display:flex; gap:12px; align-items:center; padding:12px 18px } .brand { margin:0; padding:12px 14px; white-space:nowrap } .navlinks { display:block; overflow-x:auto; white-space:nowrap } .navlinks:before { display:none } .navlinks a { display:inline-block; padding:8px 9px; font-size:12px } main { margin-left:0; padding:44px 18px } .head { padding-bottom:34px } .cards,.cards.two,.cycle { grid-template-columns:1fr } h2 { margin-top:48px } pre { padding:17px; font-size:12px } .connector { width:100%; } }
+    @media print { pre { print-color-adjust:exact; -webkit-print-color-adjust:exact } nav,#progress,.copy,.code-lang { display:none } main { margin-left:0; padding:20px } pre { white-space:pre-wrap; box-shadow:none } h2,h3 { break-after:avoid } pre,table,.note,.box,.ok,.diagram { break-inside:avoid } }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+  <nav><div class="navrow"><div class="brand"><span class="dot"></span> Java · POO</div><div class="navlinks">
+    <a href="#inicio">Inicio</a><a href="#objetivos">Propósito</a><a href="#tablas">Tablas y campos</a><a href="#claves">Claves PK / FK</a><a href="#relaciones">Relaciones</a><a href="#sql">Sentencias SQL</a><a href="#practica-bd">1 · Crear MARKET_DB</a><a href="#grasp">GRASP</a><a href="#practica-java">2 · GRASP en Java</a><a href="#otros">Otros principios</a><a href="#actividad">Actividad</a><a href="#evaluacion">Autoevaluación</a><a href="#resumen">Resumen</a>
+  </div></div></nav>
+
+  <main>
+    <section class="head" id="inicio">
+      <div class="pills"><span class="pill">SQL Server 2022 / 2025</span><span class="pill">Relaciones</span><span class="pill">GRASP</span><span class="pill">Java</span></div>
+      <p class="kicker">Programación orientada a objetos · Sesión 11</p>
+      <h1>Bases de datos, relaciones y GRASP</h1>
+      <p class="lead">Diseñar tablas relacionadas, crear paso a paso la base <strong>MARKET_DB</strong> en SQL Server y conectar ese modelo de datos con las responsabilidades de las clases Java mediante los principios <strong>GRASP</strong>.</p>
+      <div class="box"><strong>Caso transversal:</strong> un minimarket registra clientes, vende productos y necesita controlar el stock sin duplicar información. Las tablas guardan los datos; las clases deciden <em>quién hace qué</em>.</div>
+    </section>
+
+    <h2 id="objetivos">Propósito de aprendizaje</h2>
+    <div class="cards two">
+      <article class="card"><h3>Al finalizar podrás…</h3><p>Identificar campos, claves primarias y foráneas; distinguir relaciones 1:1, 1:N y N:M; reconocer sentencias DDL, DML, DCL y TCL.</p></article>
+      <article class="card"><h3>Aplicación práctica</h3><p>Crear MARKET_DB con clientes, productos, ventas y detalle de ventas, y programar en Java un ejemplo con cinco principios GRASP.</p></article>
+    </div>
+    <div class="cycle">
+      <article><strong>Conceptos</strong><br><span>Tablas, campos y claves.</span></article>
+      <article><strong>Relaciones</strong><br><span>1:1, 1:N y N:M.</span></article>
+      <article><strong>SQL</strong><br><span>DDL, DML, DCL y TCL.</span></article>
+      <article><strong>Práctica 1</strong><br><span>Crear MARKET_DB en SSMS.</span></article>
+      <article><strong>Práctica 2</strong><br><span>GRASP en Java con NetBeans.</span></article>
+    </div>
+
+    <h2 id="tablas">Tablas y campos</h2>
+    <p>Una <strong>tabla</strong> almacena los datos de una entidad. Cada <strong>fila</strong> es un registro y cada <strong>columna</strong> es un campo (atributo).</p>
+    <div class="cards two">
+      <article class="card">
+        <h3>Ejemplo: productos</h3>
+        <table>
+          <tr><th>id_producto</th><th>descripcion</th><th>precio_venta</th></tr>
+          <tr><td>1</td><td>Arroz 1 kg</td><td>4.80</td></tr>
+          <tr><td>2</td><td>Azúcar 1 kg</td><td>4.50</td></tr>
+          <tr><td>3</td><td>Leche evaporada</td><td>4.20</td></tr>
+        </table>
+      </article>
+      <article class="card">
+        <h3>Tipos y restricciones</h3>
+        <p><code>INT</code> números enteros · <code>VARCHAR(n)</code> textos · <code>DECIMAL(10,2)</code> importes · <code>DATE</code> / <code>DATETIME2</code> fechas.</p>
+        <p><code>NOT NULL</code> impide valores vacíos. <code>UNIQUE</code> evita valores repetidos. <code>CHECK</code> exige una condición, por ejemplo <code>precio_venta &gt;= 0</code>. <code>DEFAULT</code> pone un valor si no se indica.</p>
+      </article>
+    </div>
+    <div class="note"><strong>Tabla ↔ clase:</strong> la tabla <code>productos</code> se parece a la clase <code>Producto</code> de Java: cada columna es como un atributo y cada fila es como un objeto.</div>
+
+    <h2 id="claves">Claves primarias y foráneas</h2>
+    <div class="cards two">
+      <article class="card"><h3>Clave primaria · PK</h3><p>Identifica de forma única cada registro. No puede ser nula y no se repite.</p><p><strong>Ejemplo:</strong> <code>clientes.id_cliente</code></p></article>
+      <article class="card"><h3>Clave foránea · FK</h3><p>Apunta a la PK de otra tabla y mantiene la <strong>integridad referencial</strong>: no deja registrar una venta de un cliente que no existe.</p><p><strong>Ejemplo:</strong> <code>ventas.id_cliente</code></p></article>
+    </div>
+    <div class="diagram" aria-label="clientes se relaciona 1 a N con ventas">
+      <div class="dbt"><div class="t">clientes</div><div class="f pk">🔑 id_cliente (PK)</div><div class="f">nombres</div><div class="f">apellidos</div><div class="f">telefono</div></div>
+      <div class="connector">1 ─── N<small>realiza</small></div>
+      <div class="dbt coral"><div class="t">ventas</div><div class="f pk">🔑 id_venta (PK)</div><div class="f fk">id_cliente (FK)</div><div class="f fk">id_empleado (FK)</div><div class="f">fecha_venta</div></div>
+    </div>
+    <div class="legend"><span class="pk">🔑 PK = clave primaria</span><span class="fk">FK = clave foránea</span></div>
+
+    <h2 id="relaciones">Tipos de relaciones</h2>
+    <h3>Uno a uno (1:1)</h3>
+    <p>Un usuario tiene un único perfil y cada perfil pertenece a un único usuario. Para impedir dos perfiles del mismo usuario, la FK debe ser <strong>UNIQUE</strong> o formar parte de la PK.</p>
+    <div class="diagram">
+      <div class="dbt"><div class="t">usuarios</div><div class="f pk">🔑 id_usuario (PK)</div><div class="f">nombre</div><div class="f">correo</div></div>
+      <div class="connector">1 ─── 1<small>tiene</small></div>
+      <div class="dbt coral"><div class="t">perfiles</div><div class="f pk">🔑 id_usuario (PK, FK)</div><div class="f">rol</div><div class="f">descripcion</div></div>
+    </div>
+    <table>
+      <tr><th>usuarios.id_usuario</th><th>usuarios.nombre</th><th>perfiles.id_usuario</th><th>perfiles.rol</th></tr>
+      <tr><td>1</td><td>Ana</td><td>1</td><td>Administrador</td></tr>
+      <tr><td>2</td><td>Luis</td><td>2</td><td>Vendedor</td></tr>
+    </table>
+    <div class="box">El identificador 1 no puede aparecer dos veces en <code>perfiles</code>. Si el perfil es opcional, puede existir un usuario sin perfil.</div>
+
+    <h3>Uno a muchos (1:N)</h3>
+    <p>Un cliente puede realizar muchas ventas; cada venta pertenece a un solo cliente. La FK va en el lado «muchos» (<code>ventas</code>).</p>
+    <div class="diagram">
+      <div class="dbt"><div class="t">clientes</div><div class="f pk">🔑 id_cliente (PK)</div><div class="f">nombres</div></div>
+      <div class="connector">1 ─── N<small>realiza</small></div>
+      <div class="dbt coral"><div class="t">ventas</div><div class="f pk">🔑 id_venta (PK)</div><div class="f fk">id_cliente (FK)</div></div>
+    </div>
+    <table>
+      <tr><th>ventas.id_venta</th><th>ventas.id_cliente</th><th>Lectura</th></tr>
+      <tr><td>101</td><td>3</td><td rowspan="3">El cliente 3 tiene tres ventas.</td></tr>
+      <tr><td>102</td><td>3</td></tr>
+      <tr><td>103</td><td>3</td></tr>
+    </table>
+
+    <h3>Muchos a muchos (N:M)</h3>
+    <p>Una venta contiene varios productos y un producto aparece en muchas ventas. Se resuelve con una <strong>tabla intermedia</strong>, <code>detalle_ventas</code>, que crea dos relaciones 1:N.</p>
+    <div class="diagram">
+      <div class="dbt"><div class="t">ventas</div><div class="f pk">🔑 id_venta (PK)</div><div class="f">fecha_venta</div></div>
+      <div class="connector">1 ─── N<small>contiene</small></div>
+      <div class="dbt purple"><div class="t">detalle_ventas</div><div class="f pk">🔑 id_venta (PK, FK)</div><div class="f pk">🔑 id_producto (PK, FK)</div><div class="f">cantidad</div><div class="f">precio_unitario</div></div>
+      <div class="connector">N ─── 1<small>corresponde</small></div>
+      <div class="dbt coral"><div class="t">productos</div><div class="f pk">🔑 id_producto (PK)</div><div class="f">descripcion</div></div>
+    </div>
+    <div class="note"><strong>Clave primaria compuesta:</strong> <code>(id_venta, id_producto)</code> permite registrar cada producto una sola vez por venta; la columna <code>cantidad</code> acumula las unidades. <code>precio_unitario</code> guarda el precio <em>del día de la venta</em>, aunque luego cambie en <code>productos</code>.</div>
+
+    <h2 id="sql">Sentencias SQL</h2>
+    <p>SQL permite definir estructuras, manipular datos, gestionar permisos y controlar transacciones.</p>
+    <div class="cards two">
+      <article class="card"><h3>DDL · Estructura</h3><p><code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>, <code>TRUNCATE</code>.</p>
+<pre><code>-- Crea la estructura de una tabla
+CREATE TABLE categorias (
+  id_categoria INT IDENTITY(1,1) PRIMARY KEY,
+  nombre VARCHAR(80) NOT NULL UNIQUE
+);</code></pre></article>
+      <article class="card"><h3>DML · Datos</h3><p><code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>; <code>SELECT</code> suele clasificarse como DQL.</p>
+<pre><code>-- Agrega, modifica y elimina filas
+INSERT INTO categorias (nombre) VALUES ('Mascotas');
+UPDATE categorias SET nombre = 'Mascotas y hogar'
+WHERE nombre = 'Mascotas';
+DELETE FROM categorias WHERE nombre = 'Mascotas y hogar';</code></pre></article>
+      <article class="card"><h3>DCL · Permisos</h3><p><code>GRANT</code> y <code>REVOKE</code>.</p>
+<pre><code>-- Ejemplo conceptual
+GRANT SELECT ON dbo.productos TO usuario_lectura;
+REVOKE SELECT ON dbo.productos FROM usuario_lectura;</code></pre></article>
+      <article class="card"><h3>TCL · Transacciones</h3><p><code>BEGIN TRANSACTION</code>, <code>COMMIT</code>, <code>ROLLBACK</code> y <code>SAVE TRANSACTION</code>.</p>
+<pre><code>BEGIN TRANSACTION;
+UPDATE productos SET stock_actual = stock_actual - 2
+WHERE id_producto = 1;
+ROLLBACK TRANSACTION;  -- deshace el cambio</code></pre></article>
+    </div>
+    <div class="note">En SQL Server, un punto de guardado se crea con <code>SAVE TRANSACTION nombre</code>, no con la sentencia <code>SAVEPOINT</code> de otros motores.</div>
+
+    <!-- ===================== PRÁCTICA 1 ===================== -->
+    <h2 id="practica-bd">1. Práctica: crear MARKET_DB paso a paso</h2>
+    <p>Se crea la base del minimarket con 6 tablas relacionadas. El orden importa: primero las tablas que no dependen de nadie y después las que tienen claves foráneas.</p>
+    <div class="flow" aria-label="Orden de creación de las tablas">
+      <div class="flow-card"><strong>categorias</strong><small>clientes · empleados</small></div><span class="flow-arrow">→</span>
+      <div class="flow-card"><strong>productos</strong><small>FK categoría</small></div><span class="flow-arrow">→</span>
+      <div class="flow-card"><strong>ventas</strong><small>FK cliente · empleado</small></div><span class="flow-arrow">→</span>
+      <div class="flow-card"><strong>detalle_ventas</strong><small>FK venta · producto</small></div>
+    </div>
+    <div class="note"><strong>¿Por qué ese orden?</strong> <code>productos</code> necesita que exista <code>categorias</code> para crear su FK. Si se invierte el orden, SQL Server responde que la tabla referenciada no existe.</div>
+
+    <h3>1.1 Conectarse a SQL Server desde SSMS</h3>
+    <ol>
+      <li>Abre <strong>SQL Server Management Studio (SSMS)</strong>.</li>
+      <li>En <em>Server name</em> escribe <code>localhost</code> (instancia predeterminada) o <code>localhost\SQLEXPRESS</code> (Express).</li>
+      <li>En <em>Authentication</em> deja <strong>Windows Authentication</strong>. En SSMS 20 o posterior, marca <strong>Trust server certificate</strong>.</li>
+      <li>Pulsa <strong>Connect</strong>. En <strong>Object Explorer</strong> aparecerá el servidor con la carpeta <em>Databases</em>.</li>
+    </ol>
+
+    <h3>1.2 Abrir y ejecutar el script</h3>
+    <ol>
+      <li>Abre <code>market_db_sesiones_11_12.sql</code> con <strong>File → Open → File...</strong>, o pulsa <strong>New Query</strong> y pega el script de abajo.</li>
+      <li>Pulsa <strong>Execute</strong> o <strong>F5</strong> para ejecutar todo el script.</li>
+      <li>Revisa la pestaña <strong>Messages</strong>: no debe haber mensajes en rojo.</li>
+    </ol>
+    <p class="caption">Script · market_db_sesiones_11_12.sql</p>
+    <pre><code>-- SESIÓN 11 · SQL Server 2022 / 2025
+-- Ejecutar completo en SSMS (F5). Se puede ejecutar varias veces:
+-- crea la base y las tablas solo si no existen; no borra información.
+IF DB_ID(N'MARKET_DB') IS NULL
+    EXEC(N'CREATE DATABASE MARKET_DB');
+GO
+USE MARKET_DB;
+GO
+
+-- 1. Catálogos y personas: no dependen de otras tablas.
+IF OBJECT_ID(N'dbo.categorias', N'U') IS NULL
+CREATE TABLE categorias (
+    id_categoria INT IDENTITY(1,1) PRIMARY KEY,
+    nombre VARCHAR(80) NOT NULL UNIQUE
+);
+IF OBJECT_ID(N'dbo.clientes', N'U') IS NULL
+CREATE TABLE clientes (
+    id_cliente INT IDENTITY(1,1) PRIMARY KEY,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    telefono VARCHAR(15) NULL
+);
+IF OBJECT_ID(N'dbo.empleados', N'U') IS NULL
+CREATE TABLE empleados (
+    id_empleado INT IDENTITY(1,1) PRIMARY KEY,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL
+);
+
+-- 2. Productos: cada producto pertenece a una categoría.
+IF OBJECT_ID(N'dbo.productos', N'U') IS NULL
+CREATE TABLE productos (
+    id_producto INT IDENTITY(1,1) PRIMARY KEY,
+    descripcion VARCHAR(150) NOT NULL,
+    precio_venta DECIMAL(10,2) NOT NULL CHECK (precio_venta &gt;= 0),
+    stock_actual INT NOT NULL DEFAULT 0 CHECK (stock_actual &gt;= 0),
+    stock_minimo INT NOT NULL DEFAULT 0 CHECK (stock_minimo &gt;= 0),
+    id_categoria INT NOT NULL,
+    CONSTRAINT fk_productos_categorias FOREIGN KEY (id_categoria)
+        REFERENCES categorias(id_categoria)
+);
+
+-- 3. Ventas: una venta pertenece a un cliente y un empleado.
+IF OBJECT_ID(N'dbo.ventas', N'U') IS NULL
+CREATE TABLE ventas (
+    id_venta INT IDENTITY(1,1) PRIMARY KEY,
+    fecha_venta DATETIME2(0) NOT NULL DEFAULT SYSDATETIME(),
+    id_cliente INT NOT NULL,
+    id_empleado INT NOT NULL,
+    CONSTRAINT fk_ventas_clientes FOREIGN KEY (id_cliente)
+        REFERENCES clientes(id_cliente),
+    CONSTRAINT fk_ventas_empleados FOREIGN KEY (id_empleado)
+        REFERENCES empleados(id_empleado)
+);
+
+-- 4. Detalle: tabla puente entre ventas y productos.
+-- precio_unitario conserva el precio histórico de la venta.
+IF OBJECT_ID(N'dbo.detalle_ventas', N'U') IS NULL
+CREATE TABLE detalle_ventas (
+    id_venta INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL CHECK (cantidad &gt; 0),
+    precio_unitario DECIMAL(10,2) NOT NULL CHECK (precio_unitario &gt;= 0),
+    CONSTRAINT pk_detalle_ventas PRIMARY KEY (id_venta, id_producto),
+    CONSTRAINT fk_detalle_ventas_ventas FOREIGN KEY (id_venta)
+        REFERENCES ventas(id_venta),
+    CONSTRAINT fk_detalle_ventas_productos FOREIGN KEY (id_producto)
+        REFERENCES productos(id_producto)
+);
+GO
+
+-- 5. Datos de práctica. Se ejecutan solo cuando las tablas están vacías.
+IF NOT EXISTS (SELECT 1 FROM categorias)
+BEGIN
+    INSERT INTO categorias (nombre) VALUES
+    ('Abarrotes'), ('Lácteos'), ('Bebidas'), ('Limpieza');
+END;
+IF NOT EXISTS (SELECT 1 FROM clientes)
+BEGIN
+    INSERT INTO clientes (nombres, apellidos, telefono) VALUES
+    ('Ana', 'Torres', '900111222'),
+    ('Luis', 'Ramírez', '900333444'),
+    ('María', 'Flores', '900555666');
+END;
+IF NOT EXISTS (SELECT 1 FROM empleados)
+BEGIN
+    INSERT INTO empleados (nombres, apellidos) VALUES
+    ('Pedro', 'Gómez'), ('Lucía', 'Paredes');
+END;
+IF NOT EXISTS (SELECT 1 FROM productos)
+BEGIN
+    INSERT INTO productos (descripcion, precio_venta, stock_actual, stock_minimo, id_categoria)
+    VALUES
+    ('Arroz 1 kg', 4.80, 50, 10, (SELECT id_categoria FROM categorias WHERE nombre='Abarrotes')),
+    ('Azúcar 1 kg', 4.50, 35, 10, (SELECT id_categoria FROM categorias WHERE nombre='Abarrotes')),
+    ('Leche evaporada', 4.20, 28, 8, (SELECT id_categoria FROM categorias WHERE nombre='Lácteos')),
+    ('Agua mineral 625 ml', 2.00, 40, 10, (SELECT id_categoria FROM categorias WHERE nombre='Bebidas')),
+    ('Detergente 500 g', 8.90, 18, 5, (SELECT id_categoria FROM categorias WHERE nombre='Limpieza'));
+END;
+
+-- 6. Ventas de ejemplo: insertar cabecera y detalle en una transacción.
+-- No se descuenta stock aquí: los datos son una carga inicial didáctica.
+IF NOT EXISTS (SELECT 1 FROM ventas)
+BEGIN
+    BEGIN TRANSACTION;
+    DECLARE @venta1 INT, @venta2 INT;
+    INSERT INTO ventas (id_cliente, id_empleado)
+    VALUES ((SELECT TOP (1) id_cliente FROM clientes WHERE nombres='Ana'),
+            (SELECT TOP (1) id_empleado FROM empleados WHERE nombres='Pedro'));
+    SET @venta1 = SCOPE_IDENTITY();
+    INSERT INTO detalle_ventas (id_venta, id_producto, cantidad, precio_unitario)
+    SELECT @venta1, id_producto, 2, precio_venta FROM productos WHERE descripcion='Arroz 1 kg';
+    INSERT INTO detalle_ventas (id_venta, id_producto, cantidad, precio_unitario)
+    SELECT @venta1, id_producto, 1, precio_venta FROM productos WHERE descripcion='Leche evaporada';
+    INSERT INTO ventas (id_cliente, id_empleado)
+    VALUES ((SELECT TOP (1) id_cliente FROM clientes WHERE nombres='Luis'),
+            (SELECT TOP (1) id_empleado FROM empleados WHERE nombres='Lucía'));
+    SET @venta2 = SCOPE_IDENTITY();
+    INSERT INTO detalle_ventas (id_venta, id_producto, cantidad, precio_unitario)
+    SELECT @venta2, id_producto, 3, precio_venta FROM productos WHERE descripcion='Agua mineral 625 ml';
+    COMMIT TRANSACTION;
+END;
+GO
+
+-- 7. Consultas para verificar la base creada.
+SELECT p.id_producto, p.descripcion, p.precio_venta, p.stock_actual,
+       c.nombre AS categoria
+FROM productos AS p
+INNER JOIN categorias AS c ON c.id_categoria = p.id_categoria
+ORDER BY p.id_producto;
+
+SELECT v.id_venta, v.fecha_venta, c.nombres, c.apellidos,
+       SUM(d.cantidad * d.precio_unitario) AS total_venta
+FROM ventas AS v
+INNER JOIN clientes AS c ON c.id_cliente = v.id_cliente
+INNER JOIN detalle_ventas AS d ON d.id_venta = v.id_venta
+GROUP BY v.id_venta, v.fecha_venta, c.nombres, c.apellidos
+ORDER BY v.id_venta;</code></pre>
+    <div class="box"><strong>El script se puede ejecutar varias veces:</strong> cada <code>CREATE TABLE</code> está protegido con <code>IF OBJECT_ID(...) IS NULL</code> y los datos solo se insertan si la tabla está vacía. No borra información existente.</div>
+
+    <h3>1.3 Revisar el resultado</h3>
+    <p>En la pestaña <strong>Results</strong> aparecen dos grillas, una por cada <code>SELECT</code> de la parte 7:</p>
+    <p class="caption">Grilla 1 · productos con su categoría</p>
+    <div class="result">id_producto  descripcion          precio_venta  stock_actual  categoria
+1            Arroz 1 kg           4.80          50            Abarrotes
+2            Azúcar 1 kg          4.50          35            Abarrotes
+3            Leche evaporada      4.20          28            Lácteos
+4            Agua mineral 625 ml  2.00          40            Bebidas
+5            Detergente 500 g     8.90          18            Limpieza</div>
+    <p class="caption">Grilla 2 · total de cada venta (la fecha será la del día en que ejecutes el script)</p>
+    <div class="result">id_venta  fecha_venta          nombres  apellidos  total_venta
+1         aaaa-mm-dd hh:mm:ss  Ana      Torres     13.80      (2 × 4.80 + 1 × 4.20)
+2         aaaa-mm-dd hh:mm:ss  Luis     Ramírez    6.00       (3 × 2.00)</div>
+
+    <h3>1.4 Ver las tablas y sus claves en Object Explorer</h3>
+    <ol>
+      <li>En <strong>Object Explorer</strong>, clic derecho en <strong>Databases → Refresh</strong>.</li>
+      <li>Despliega <strong>MARKET_DB → Tables</strong>. Deben aparecer 6 tablas: <code>dbo.categorias</code>, <code>dbo.clientes</code>, <code>dbo.detalle_ventas</code>, <code>dbo.empleados</code>, <code>dbo.productos</code> y <code>dbo.ventas</code>.</li>
+      <li>Despliega <strong>dbo.productos → Keys</strong>. Verás la PK (nombre generado, como <code>PK__producto__...</code>) y la FK <code>fk_productos_categorias</code>.</li>
+      <li>Despliega <strong>dbo.detalle_ventas → Keys</strong>: la PK compuesta <code>pk_detalle_ventas</code> y dos FK.</li>
+    </ol>
+
+    <h3>1.5 Opcional: diagrama de la base de datos</h3>
+    <ol>
+      <li>Dentro de <strong>MARKET_DB</strong>, clic derecho en <strong>Database Diagrams → New Database Diagram</strong>.</li>
+      <li>Si SSMS pregunta si desea crear los objetos de soporte para diagramas, pulsa <strong>Yes</strong>.</li>
+      <li>Selecciona las 6 tablas, pulsa <strong>Add</strong> y luego <strong>Close</strong>.</li>
+      <li>Observa las líneas: el extremo con <strong>llave</strong> es el lado «1» y el extremo con <strong>∞</strong> es el lado «N».</li>
+    </ol>
+    <div class="note"><strong>Si no ves «Database Diagrams»</strong> o aparece un error de permisos, omite este paso: el diagrama de la sección <a href="#relaciones">Relaciones</a> muestra lo mismo.</div>
+
+    <h3>1.6 Comprobar la integridad referencial</h3>
+    <p>Las claves foráneas impiden datos «huérfanos». Abre <strong>New Query</strong> y ejecuta cada instrucción por separado (selecciónala y pulsa <strong>F5</strong>). <strong>Las dos deben fallar</strong>, y eso es lo correcto:</p>
+    <pre><code>USE MARKET_DB;
+
+-- Prueba A: un producto de una categoría que no existe (id 99)
+INSERT INTO productos (descripcion, precio_venta, id_categoria)
+VALUES ('Producto fantasma', 1.00, 99);
+
+-- Prueba B: borrar una categoría que todavía tiene productos
+DELETE FROM categorias WHERE nombre = 'Abarrotes';</code></pre>
+    <table>
+      <tr><th>Prueba</th><th>Mensaje esperado (Msg 547)</th><th>Significado</th></tr>
+      <tr><td>A</td><td><code>The INSERT statement conflicted with the FOREIGN KEY constraint "fk_productos_categorias"</code></td><td>No se puede apuntar a una categoría inexistente.</td></tr>
+      <tr><td>B</td><td><code>The DELETE statement conflicted with the REFERENCE constraint "fk_productos_categorias"</code></td><td>No se puede dejar productos sin categoría.</td></tr>
+    </table>
+    <div class="ok"><strong>Resultado:</strong> la base de datos protege las relaciones por sí sola. Aunque un programa tenga un error, no podrá guardar datos inconsistentes.</div>
+
+    <h3>1.7 Consultas con <code>INNER JOIN</code></h3>
+    <p>Un <code>JOIN</code> une tablas relacionadas usando la PK de una y la FK de la otra.</p>
+    <p class="caption">Consulta · relación 1:N entre clientes y ventas</p>
+    <pre><code>USE MARKET_DB;
+SELECT c.nombres, c.apellidos, v.id_venta, v.fecha_venta
+FROM clientes AS c
+INNER JOIN ventas AS v ON c.id_cliente = v.id_cliente
+ORDER BY v.id_venta;</code></pre>
+    <div class="result">nombres  apellidos  id_venta  fecha_venta
+Ana      Torres     1         aaaa-mm-dd hh:mm:ss
+Luis     Ramírez    2         aaaa-mm-dd hh:mm:ss</div>
+    <p>María Flores no aparece porque no tiene ventas: <code>INNER JOIN</code> solo muestra filas que coinciden en ambas tablas.</p>
+    <p class="caption">Consulta · relación N:M: productos vendidos en cada venta</p>
+    <pre><code>USE MARKET_DB;
+SELECT d.id_venta, p.descripcion, d.cantidad, d.precio_unitario,
+       d.cantidad * d.precio_unitario AS subtotal
+FROM detalle_ventas AS d
+INNER JOIN productos AS p ON p.id_producto = d.id_producto
+ORDER BY d.id_venta, p.descripcion;</code></pre>
+    <div class="result">id_venta  descripcion          cantidad  precio_unitario  subtotal
+1         Arroz 1 kg           2         4.80             9.60
+1         Leche evaporada      1         4.20             4.20
+2         Agua mineral 625 ml  3         2.00             6.00</div>
+    <div class="note"><strong>Continuidad con la Sesión 12:</strong> allí se aprende a conectar Java con SQL Server mediante JDBC, usando la base <strong>TIENDA</strong> (tabla <code>personas</code>). Los mismos pasos sirven para MARKET_DB: basta con cambiar <code>databaseName=MARKET_DB</code> en la URL de conexión.</div>
+
+    <!-- ===================== GRASP ===================== -->
+    <h2 id="grasp">GRASP sin complicaciones</h2>
+    <p><strong>GRASP</strong> (<em>General Responsibility Assignment Software Patterns</em>, patrones generales de software para asignar responsabilidades) son nueve principios que ayudan a decidir <strong>qué clase debe hacer cada tarea</strong>. En esta sesión se practican cinco, con el mismo caso del minimarket.</p>
+    <div class="cards">
+      <article class="card"><h3>1. Experto en información</h3><p>La clase que tiene los datos necesarios realiza la operación.</p><p><strong>Ejemplo:</strong> <code>DetalleVenta</code> calcula su subtotal.</p></article>
+      <article class="card"><h3>2. Creador</h3><p>Una clase crea los objetos que contiene o usa de cerca.</p><p><strong>Ejemplo:</strong> <code>Venta</code> crea sus detalles.</p></article>
+      <article class="card"><h3>3. Controlador</h3><p>Recibe la solicitud de la interfaz y coordina el caso de uso.</p><p><strong>Ejemplo:</strong> <code>ControladorVenta</code>.</p></article>
+      <article class="card"><h3>4. Bajo acoplamiento</h3><p>Evitar dependencias innecesarias entre clases.</p><p><strong>Ejemplo:</strong> el controlador no conoce los detalles.</p></article>
+      <article class="card"><h3>5. Alta cohesión</h3><p>Cada clase mantiene responsabilidades relacionadas entre sí.</p><p><strong>Ejemplo:</strong> <code>Producto</code> cuida su precio, no imprime boletas.</p></article>
+      <article class="card"><h3>Tabla ↔ clase</h3><p><code>productos</code> → <code>Producto</code><br><code>detalle_ventas</code> → <code>DetalleVenta</code><br><code>ventas</code> → <code>Venta</code></p></article>
+    </div>
+    <div class="flow">
+      <div class="flow-card"><strong>Interfaz</strong><small>botón «Cobrar»</small></div><span class="flow-arrow">→</span>
+      <div class="flow-card"><strong>ControladorVenta</strong><small>coordina</small></div><span class="flow-arrow">→</span>
+      <div class="flow-card"><strong>Venta</strong><small>suma subtotales</small></div><span class="flow-arrow">→</span>
+      <div class="flow-card"><strong>DetalleVenta</strong><small>precio × cantidad</small></div>
+    </div>
+
+    <!-- ===================== PRÁCTICA 2 ===================== -->
+    <h2 id="practica-java">2. Práctica: GRASP en Java paso a paso</h2>
+    <p>Se programan las clases del minimarket en NetBeans, una por archivo. Lee los comentarios: indican dónde se aplica cada principio GRASP.</p>
+
+    <h3>2.1 Crear el proyecto y el paquete</h3>
+    <pre class="tree">Source Packages
+      │
+      └── bodega
+        ├── Producto.java           (alta cohesión)
+        ├── DetalleVenta.java       (experto en información)
+        ├── Venta.java              (creador)
+        ├── ControladorVenta.java   (controlador · bajo acoplamiento)
+        └── Main.java               (prueba)</pre>
+    <ol>
+      <li>Crea un proyecto nuevo, por ejemplo <code>BodegaGRASP</code> (<strong>File → New Project → Java with Maven → Java Application</strong>).</li>
+      <li>En <strong>Source Packages</strong>, clic derecho → <strong>New → Java Package</strong> y crea el paquete <code>bodega</code>.</li>
+      <li>Crea las clases en el orden de esta guía con clic derecho en <code>bodega</code> → <strong>New → Java Class</strong>.</li>
+    </ol>
+
+    <h3>2.2 Clase <code>Producto</code> · alta cohesión</h3>
+    <p class="caption">Archivo · Producto.java (dentro del paquete bodega)</p>
+    <pre><code>package bodega;
+
+// PRODUCTO: guarda los datos de un artículo de la bodega.
+public class Producto {
+    private final String nombre;   // por ejemplo, "Arroz 1 kg"
+    private double precio;         // precio de venta de una unidad
+
+    public Producto(String nombre, double precio) {
+        this.nombre = nombre;
+        this.precio = precio;
+    }
+
+    // GRASP 5 - ALTA COHESIÓN:
+    // Producto solo administra información y reglas propias del producto.
+    // No calcula ventas ni ejecuta consultas SQL.
+    public void cambiarPrecio(double nuevoPrecio) {
+        if (nuevoPrecio &gt;= 0) {
+            this.precio = nuevoPrecio;
+        }
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+}</code></pre>
+
+    <h3>2.3 Clase <code>DetalleVenta</code> · experto en información</h3>
+    <p class="caption">Archivo · DetalleVenta.java (dentro del paquete bodega)</p>
+    <pre><code>package bodega;
+
+// DETALLEVENTA: un producto incluido en una venta (como una fila de detalle_ventas).
+public class DetalleVenta {
+    private final Producto producto;
+    private final int cantidad;
+
+    public DetalleVenta(Producto producto, int cantidad) {
+        this.producto = producto;
+        this.cantidad = cantidad;
+    }
+
+    // GRASP 1 - EXPERTO EN INFORMACIÓN:
+    // Calcula el subtotal porque es quien conoce el producto y la cantidad.
+    public double subtotal() {
+        return producto.getPrecio() * cantidad;   // 4.80 × 2 = 9.60
+    }
+
+    public Producto getProducto() {
+        return producto;
+    }
+
+    public int getCantidad() {
+        return cantidad;
+    }
+}</code></pre>
+
+    <h3>2.4 Clase <code>Venta</code> · creador</h3>
+    <p class="caption">Archivo · Venta.java (dentro del paquete bodega)</p>
+    <pre><code>package bodega;
+
+import java.util.ArrayList;
+import java.util.List;
+
+// VENTA: reúne todos los productos comprados en una operación.
+public class Venta {
+    private final List&lt;DetalleVenta&gt; detalles = new ArrayList&lt;&gt;();
+
+    // GRASP 2 - CREADOR:
+    // Venta crea cada DetalleVenta porque es quien los contiene.
+    public void agregar(Producto producto, int cantidad) {
+        detalles.add(new DetalleVenta(producto, cantidad));
+    }
+
+    // Suma los subtotales: cada detalle calcula el suyo (experto en información).
+    public double total() {
+        double suma = 0;
+        for (DetalleVenta detalle : detalles) {
+            suma += detalle.subtotal();
+        }
+        return suma;
+    }
+
+    public List&lt;DetalleVenta&gt; getDetalles() {
+        return detalles;
+    }
+}</code></pre>
+
+    <h3>2.5 Clase <code>ControladorVenta</code> · controlador y bajo acoplamiento</h3>
+    <p class="caption">Archivo · ControladorVenta.java (dentro del paquete bodega)</p>
+    <pre><code>package bodega;
+
+// GRASP 3 - CONTROLADOR:
+// Recibe la solicitud de la interfaz y coordina la operación.
+// GRASP 4 - BAJO ACOPLAMIENTO:
+// No recorre los detalles ni conoce la fórmula: solo usa total() de Venta.
+// Si mañana cambia el cálculo (descuentos, IGV), este código no cambia.
+public class ControladorVenta {
+
+    public double calcularTotal(Venta venta) {
+        return venta.total();
+    }
+}</code></pre>
+
+    <h3>2.6 Clase <code>Main</code>: ejecutar y probar</h3>
+    <p class="caption">Archivo · Main.java (dentro del paquete bodega)</p>
+    <pre><code>package bodega;
+
+public class Main {
+    public static void main(String[] args) {
+        Producto arroz = new Producto("Arroz 1 kg", 4.80);
+        Producto leche = new Producto("Leche evaporada", 4.20);
+
+        // La misma venta 1 de MARKET_DB: 2 arroces y 1 leche
+        Venta venta = new Venta();
+        venta.agregar(arroz, 2);
+        venta.agregar(leche, 1);
+
+        for (DetalleVenta d : venta.getDetalles()) {
+            System.out.printf("%-16s x %d = S/ %.2f%n",
+                    d.getProducto().getNombre(), d.getCantidad(), d.subtotal());
+        }
+
+        ControladorVenta controlador = new ControladorVenta();
+        System.out.printf("Total de la venta: S/ %.2f%n", controlador.calcularTotal(venta));
+
+        arroz.cambiarPrecio(-5);   // alta cohesión: Producto rechaza un precio inválido
+        System.out.printf("Precio del arroz tras intentar -5: S/ %.2f%n", arroz.getPrecio());
+    }
+}</code></pre>
+    <ol>
+      <li>Abre <code>Main.java</code> y presiona <strong>Shift + F6</strong>.</li>
+      <li>Compara la salida con el resultado esperado y con la grilla 2 del paso 1.3.</li>
+    </ol>
+    <p class="caption">Resultado esperado:</p>
+    <div class="result">Arroz 1 kg       x 2 = S/ 9.60
+Leche evaporada  x 1 = S/ 4.20
+Total de la venta: S/ 13.80
+Precio del arroz tras intentar -5: S/ 4.80</div>
+    <div class="note"><strong>Coma o punto decimal:</strong> <code>printf</code> usa la configuración regional de Windows; en algunos equipos verás <code>13,80</code>. En una aplicación comercial, los importes se manejan con <code>BigDecimal</code> en lugar de <code>double</code>.</div>
+    <div class="ok"><strong>Mismo total en Java y en SQL:</strong> la grilla 2 de MARKET_DB mostró <code>13.80</code> para la venta 1. Java llega al mismo resultado con objetos: <code>Venta</code> pide a cada <code>DetalleVenta</code> su subtotal, igual que <code>SUM(cantidad * precio_unitario)</code> suma las filas de <code>detalle_ventas</code>.</div>
+    <div class="box"><strong>Lista de comprobación:</strong> ¿<code>DetalleVenta</code> calcula su subtotal?, ¿solo <code>Venta</code> crea objetos <code>DetalleVenta</code>?, ¿<code>ControladorVenta</code> no repite la fórmula?, ¿<code>Producto</code> no sabe nada de ventas?</div>
+
+    <h2 id="otros">Los otros cuatro principios GRASP</h2>
+    <p>Solo reconocimiento conceptual; no es necesario programarlos en esta sesión.</p>
+    <table>
+      <tr><th>Principio</th><th>Idea central</th><th>Ejemplo en la bodega</th></tr>
+      <tr><td>Polimorfismo</td><td>Distintas implementaciones de una misma operación.</td><td>Pago en efectivo o con tarjeta.</td></tr>
+      <tr><td>Fabricación pura</td><td>Crear una clase técnica cuando la tarea no pertenece al dominio.</td><td><code>RepositorioVenta</code> guarda ventas en la base de datos.</td></tr>
+      <tr><td>Indirección</td><td>Un intermediario reduce dependencias.</td><td><code>ServicioNotificacion</code> entre la venta y el correo.</td></tr>
+      <tr><td>Variaciones protegidas</td><td>Aislar lo que cambia detrás de una interfaz estable.</td><td>Interfaz <code>MetodoPago</code> para varios proveedores.</td></tr>
+    </table>
+    <div class="note"><strong>Para recordar:</strong> cada clase debe saber qué le corresponde hacer y no depender innecesariamente de otras. En la Sesión 12, <code>PersonaDAO</code> es un ejemplo de <em>fabricación pura</em>: una clase técnica que solo habla con la base de datos.</div>
+
+    <h2 id="actividad">Actividad práctica guiada</h2>
+    <article class="exercise">
+      <h3>Trabajo en parejas · 20 minutos</h3>
+      <ol>
+        <li>Identifica las PK y FK de <code>clientes</code>, <code>ventas</code>, <code>productos</code> y <code>detalle_ventas</code>.</li>
+        <li>Dibuja la relación entre <code>clientes</code> y <code>ventas</code> e indica su cardinalidad.</li>
+        <li>Explica por qué <code>detalle_ventas</code> resuelve una relación N:M.</li>
+        <li>Escribe una consulta SQL que liste los productos de la venta 1 con su subtotal.</li>
+        <li>Responde: ¿qué clase debería calcular el subtotal de un detalle de venta y por qué?</li>
+        <li><strong>Reto:</strong> agrega en Java una venta con 3 aguas minerales (S/ 2.00) y comprueba que el total coincide con la venta 2 de MARKET_DB (S/ 6.00).</li>
+      </ol>
+    </article>
+    <details><summary>Ver una posible solución SQL de la actividad 4</summary>
+      <pre><code>-- Productos vendidos en la venta 1
+USE MARKET_DB;
+SELECT d.id_venta, p.descripcion,
+       d.cantidad, d.precio_unitario,
+       d.cantidad * d.precio_unitario AS subtotal
+FROM detalle_ventas AS d
+INNER JOIN productos AS p ON p.id_producto = d.id_producto
+WHERE d.id_venta = 1;</code></pre>
+      <p>Adapta el número de venta a uno existente en tus datos.</p>
+    </details>
+
+    <h2 id="evaluacion">Autoevaluación rápida</h2>
+    <div class="quiz" id="quiz">
+      <p>1. ¿Qué restricción garantiza que una FK no se repita en una relación 1:1?</p>
+      <label><input name="q1" type="radio" value="0"> DEFAULT</label><label><input name="q1" type="radio" value="1"> UNIQUE</label><label><input name="q1" type="radio" value="0"> ORDER BY</label>
+      <p>2. ¿Cómo se implementa una relación N:M en una base relacional?</p>
+      <label><input name="q2" type="radio" value="1"> Con una tabla intermedia</label><label><input name="q2" type="radio" value="0"> Duplicando todos los datos</label>
+      <p>3. ¿Qué grupo de sentencias incluye CREATE y ALTER?</p>
+      <label><input name="q3" type="radio" value="1"> DDL</label><label><input name="q3" type="radio" value="0"> TCL</label>
+      <p>4. ¿Quién debería calcular el subtotal de un detalle?</p>
+      <label><input name="q4" type="radio" value="0"> La ventana principal</label><label><input name="q4" type="radio" value="1"> DetalleVenta, como experto en información</label>
+      <p>5. ¿Qué principio recomienda mantener responsabilidades relacionadas en una misma clase?</p>
+      <label><input name="q5" type="radio" value="1"> Alta cohesión</label><label><input name="q5" type="radio" value="0"> Creador</label>
+      <button type="button" onclick="grade()">Comprobar respuestas</button><strong aria-live="polite" id="score"></strong>
+    </div>
+
+    <h2 id="resumen">Resumen</h2>
+    <table>
+      <tr><th>Concepto</th><th>En la base de datos</th><th>En Java</th></tr>
+      <tr><td>Entidad</td><td>Tabla <code>productos</code></td><td>Clase <code>Producto</code></td></tr>
+      <tr><td>Identidad</td><td>Clave primaria <code>id_producto</code></td><td>Referencia al objeto</td></tr>
+      <tr><td>Relación</td><td>Clave foránea <code>id_categoria</code></td><td>Atributo <code>Producto producto</code> en <code>DetalleVenta</code></td></tr>
+      <tr><td>N:M</td><td>Tabla intermedia <code>detalle_ventas</code></td><td><code>List&lt;DetalleVenta&gt;</code> dentro de <code>Venta</code></td></tr>
+      <tr><td>Cálculo del total</td><td><code>SUM(cantidad * precio_unitario)</code></td><td><code>venta.total()</code></td></tr>
+    </table>
+    <div class="ok"><strong>Secuencia mental:</strong> identifica las entidades → define sus PK → relaciónalas con FK (y una tabla intermedia si es N:M) → crea las clases equivalentes → asigna cada responsabilidad a la clase que tiene la información.</div>
+    <div class="footer">Programación Orientada a Objetos · Sesión 11 · SQL Server 2022–2025 · Caso MARKET_DB · GRASP</div>
+  </main>
+
+  <script>
+    function grade() {
+      var s = 0;
+      for (var i = 1; i <= 5; i++) {
+        var el = document.querySelector('input[name=q' + i + ']:checked');
+        if (el && el.value === '1') s++;
+      }
+      document.getElementById('score').textContent = 'Resultado: ' + s + '/5' +
+          (s === 5 ? ' · ¡Excelente!' : ' · Revisa los conceptos y vuelve a intentar.');
+    }
+  </script>
+  <script>
+    (function () {
+      var bar = document.getElementById('progress');
+      var links = document.querySelectorAll('.navlinks a');
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main > section, h2[id]'));
+
+      function update() {
+        var root = document.documentElement;
+        var total = root.scrollHeight - root.clientHeight;
+        var position = window.scrollY + 130;
+        var current = sections[0];
+
+        bar.style.width = (total > 0 ? root.scrollTop / total * 100 : 0) + '%';
+        sections.forEach(function (section) {
+          if (section.offsetTop <= position) current = section;
+        });
+        links.forEach(function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + current.id);
+        });
+      }
+
+      // ---------- Coloreado de código (Java, SQL, XML, PowerShell) ----------
+      var RULES = {
+        java: [
+          ['cm', /\/\/[^\n]*|\/\*[\s\S]*?\*\//y],
+          ['str', /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])'/y],
+          ['an', /@\w+/y],
+          ['num', /\b\d+(?:\.\d+)?\b/y],
+          ['kw', /\b(?:package|import|public|private|protected|static|final|class|interface|extends|implements|new|try|catch|finally|return|throws|throw|if|else|for|while|do|void|int|long|double|boolean|char|null|true|false|this|super|instanceof)\b/y],
+          ['const', /\b[A-Z][A-Z0-9_]+\b/y],
+          ['type', /\b[A-Z]\w*\b/y],
+          ['fn', /\b[a-z_]\w*(?=\s*\()/y]
+        ],
+        sql: [
+          ['cm', /--[^\n]*/y],
+          ['str', /N?'(?:''|[^'])*'/y],
+          ['an', /@\w+/y],
+          ['num', /\b\d+(?:\.\d+)?\b/y],
+          ['type', /\b(?:CHAR|VARCHAR|NVARCHAR|NCHAR|DATE|DATETIME2|INT|DECIMAL|BIT)\b/iy],
+          ['kw', /\b(?:IF|IS|NULL|NOT|EXEC|CREATE|ALTER|DROP|TRUNCATE|DATABASE|USE|GO|TABLE|BEGIN|END|PRIMARY|FOREIGN|KEY|REFERENCES|CONSTRAINT|CHECK|UNIQUE|IDENTITY|DEFAULT|AND|OR|LIKE|IN|INSERT|INTO|VALUES|SELECT|TOP|FROM|WHERE|INNER|LEFT|JOIN|ON|GROUP|ORDER|BY|ASC|DESC|AS|CASE|WHEN|THEN|ELSE|EXISTS|DECLARE|SET|UPDATE|DELETE|TRANSACTION|COMMIT|ROLLBACK|SAVE|GRANT|REVOKE|TO|LOGIN|WITH|PASSWORD|DEFAULT_DATABASE|CHECK_POLICY|OFF|USER|FOR|ROLE|ADD|MEMBER|YEAR)\b/iy],
+          ['fn', /\b\w+(?=\s*\()/y]
+        ],
+        xml: [
+          ['cm', /<!--[\s\S]*?-->/y],
+          ['tag', /<\/?[\w.-]+\s*\/?>/y]
+        ],
+        ps: [
+          ['fn', /\b[A-Z][a-z]+-[A-Za-z]+\b/y],
+          ['kw', /-[A-Za-z]+\b/y],
+          ['num', /\b\d+\b/y],
+          ['str', /"[^"\n]*"|'[^'\n]*'/y]
+        ]
+      };
+      var LABELS = { java:'Java', sql:'SQL', xml:'XML', ps:'PowerShell' };
+
+      function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+      function detectar(raw) {
+        if (/^\s*</.test(raw)) return 'xml';
+        if (/Test-NetConnection/.test(raw)) return 'ps';
+        if (/@Override|\bpackage\s|\bpublic\s|System\.out/.test(raw)) return 'java';
+        return 'sql';
+      }
+
+      function colorear(raw, lang) {
+        var rules = RULES[lang], out = '', i = 0;
+        while (i < raw.length) {
+          var hit = null;
+          for (var r = 0; r < rules.length && !hit; r++) {
+            rules[r][1].lastIndex = i;
+            var m = rules[r][1].exec(raw);
+            if (m && m[0].length) hit = [rules[r][0], m[0]];
+          }
+          if (hit) {
+            out += '<span class="tk-' + hit[0] + '">' + esc(hit[1]) + '</span>';
+            i += hit[1].length;
+          } else {
+            var w = /\w+/y; w.lastIndex = i;
+            var word = w.exec(raw);
+            var t = word ? word[0] : raw[i];
+            out += esc(t);
+            i += t.length;
+          }
+        }
+        return out;
+      }
+
+      // Colorear, y agregar botón "Copiar" en cada bloque de código (no en los árboles de carpetas)
+      document.querySelectorAll('pre:not(.tree)').forEach(function (pre) {
+        var code = pre.querySelector('code') || pre;
+        var raw = code.textContent;
+        var lang = detectar(raw);
+        code.innerHTML = colorear(raw, lang);
+
+        var wrap = document.createElement('div');
+        wrap.className = 'code-wrap';
+        pre.parentNode.insertBefore(wrap, pre);
+        wrap.appendChild(pre);
+        var etiqueta = document.createElement('span');
+        etiqueta.className = 'code-lang';
+        etiqueta.textContent = LABELS[lang];
+        wrap.appendChild(etiqueta);
+        var btn = document.createElement('button');
+        btn.className = 'copy';
+        btn.type = 'button';
+        btn.textContent = 'Copiar';
+        btn.addEventListener('click', function () {
+          var text = pre.innerText;
+          var done = function () {
+            btn.textContent = '¡Copiado!';
+            setTimeout(function () { btn.textContent = 'Copiar'; }, 1400);
+          };
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(done, function () { btn.textContent = 'Selecciona y copia'; });
+          } else {
+            btn.textContent = 'Selecciona y copia';
+          }
+        });
+        wrap.appendChild(btn);
+      });
+
+      document.addEventListener('scroll', update, { passive:true });
+      update();
+    })();
+  </script>
+</body>
+</html>
